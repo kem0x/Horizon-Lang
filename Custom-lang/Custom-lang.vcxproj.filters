@@ -71,9 +71,6 @@
     <ClInclude Include="Runtime\Enviroment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Error.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Runtime\Values\NullValue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,6 +84,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Runtime\Evaluation\Expressions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Safety.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Types\Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,6 @@
 #include "../Interpreter.h"
 #include "../../Frontend/AST.h"
 
-auto EvalProgram(ProgramPtr program, EnviromentPtr env) -> RuntimeValuePtr;
+auto EvalProgram(Shared<Program> program, Shared<Enviroment> env) -> Shared<RuntimeValue>;
 
-auto EvalVariableDeclaration(VariableDeclarationPtr declaration, EnviromentPtr env) -> RuntimeValuePtr;
+auto EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<Enviroment> env) -> Shared<RuntimeValue>;

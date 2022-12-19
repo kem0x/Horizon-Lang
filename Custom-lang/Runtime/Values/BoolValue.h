@@ -7,13 +7,12 @@ struct BoolValue : public RuntimeValue
 
     BoolValue(bool value)
         : Value(value)
-        , RuntimeValue { ValueType::BoolValue }
+        , RuntimeValue { RuntimeValueType::BoolValue }
     {
     }
 
-    virtual auto ToString() -> std::string
+    virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {}, Value: {} }}", ValueTypeToString(Type), Value);
+        return std::format("{{ Type: {}, Value: {} }}", RuntimeValueTypeToString(Type), Value);
     };
 };
-typedef std::shared_ptr<BoolValue> BoolValuePtr;

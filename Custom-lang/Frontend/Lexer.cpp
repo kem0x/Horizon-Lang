@@ -4,17 +4,17 @@ auto Lexer::HandleMultiCharacterToken() -> void
 {
     if (std::isdigit(Source[0]))
     {
-        std::string Number;
+        String Number;
         while (Source.size() > 0 && std::isdigit(Source[0]))
         {
             Number += Advance();
         }
 
-        Tokens.push_back({ TokenType::Number, Number });
+        Tokens.push_back({ LexerTokenType::Number, Number });
     }
     else if (std::isalpha(Source[0]))
     {
-        std::string Identifier;
+        String Identifier;
 
         while (Source.size() > 0 && std::isalpha(Source[0]))
         {
@@ -27,7 +27,7 @@ auto Lexer::HandleMultiCharacterToken() -> void
         }
         else
         {
-            Tokens.push_back({ TokenType::Identifier, Identifier });
+            Tokens.push_back({ LexerTokenType::Identifier, Identifier });
         }
     }
     else if (std::isspace(Source[0]))
@@ -36,34 +36,34 @@ auto Lexer::HandleMultiCharacterToken() -> void
     }
     else
     {
-        Throw("Unexpected character: " + Source[0]);
+        // Safety::Throw("Unexpected character: " + Source[0]);
     }
 }
 
-auto Lexer::Tokenize() -> std::vector<Lexer::Token>
+auto Lexer::Tokenize() -> Vector<Lexer::Token>
 {
     while (Source.size() > 0)
     {
         switch (Source[0])
         {
         case ';':
-            Tokens.push_back({ TokenType::Semicolon, Advance() });
+            Tokens.push_back({ LexerTokenType::Semicolon, Advance() });
             break;
         case '=':
-            Tokens.push_back({ TokenType::Equals, Advance() });
+            Tokens.push_back({ LexerTokenType::Equals, Advance() });
             break;
         case '(':
-            Tokens.push_back({ TokenType::OpenParen, Advance() });
+            Tokens.push_back({ LexerTokenType::OpenParen, Advance() });
             break;
         case ')':
-            Tokens.push_back({ TokenType::CloseParen, Advance() });
+            Tokens.push_back({ LexerTokenType::CloseParen, Advance() });
             break;
         case '+':
         case '-':
         case '*':
         case '/':
         case '%':
-            Tokens.push_back({ TokenType::BinaryOperator, Advance() });
+            Tokens.push_back({ LexerTokenType::BinaryOperator, Advance() });
             break;
         default:
             HandleMultiCharacterToken();
@@ -71,6 +71,6 @@ auto Lexer::Tokenize() -> std::vector<Lexer::Token>
         }
     }
 
-    Tokens.push_back({ TokenType::EoF, "" });
+    Tokens.push_back({ LexerTokenType::EoF, "" });
     return Tokens;
 }

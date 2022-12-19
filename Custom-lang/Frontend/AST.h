@@ -1,13 +1,7 @@
 #pragma once
-#include <string>
-#include <memory>
-#include <vector>
-#include <format>
-
 #include "Lexer.h"
-#include <optional>
 
-enum class NodeType
+enum class ASTNodeType
 {
     Program,
     VariableDeclaration,
@@ -18,87 +12,85 @@ enum class NodeType
     BinaryExpr
 };
 
-constexpr const char* NodeTypeToString(NodeType NodeType)
+constexpr const char* ASTNodeTypeToString(ASTNodeType ASTNodeType)
 {
-    switch (NodeType)
+    switch (ASTNodeType)
     {
-    case NodeType::Program:
+    case ASTNodeType::Program:
         return "Program";
-    case NodeType::VariableDeclaration:
+    case ASTNodeType::VariableDeclaration:
         return "VariableDeclaration";
-    case NodeType::AssignmentExpr:
+    case ASTNodeType::AssignmentExpr:
         return "AssignmentExpr";
-    case NodeType::NumericLiteral:
+    case ASTNodeType::NumericLiteral:
         return "NumericLiteral";
-    case NodeType::Identifier:
+    case ASTNodeType::Identifier:
         return "Identifier";
-    case NodeType::BinaryExpr:
+    case ASTNodeType::BinaryExpr:
         return "BinaryExpr";
     default:
-        return "Unimplemented in NodeTypeToString";
+        return "Unimplemented in ASTNodeTypeToString";
     }
 }
 
 struct Statement : public std::enable_shared_from_this<Statement>
 {
-    NodeType Type;
+    ASTNodeType Type;
 
-    Statement(NodeType Type)
+    Statement(ASTNodeType Type)
         : Type(Type)
     {
     }
 
-    virtual auto ToString() -> std::string
+    virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {} }}", NodeTypeToString(Type));
+        return std::format("{{ Type: {} }}", ASTNodeTypeToString(Type));
     };
 
     template <typename T>
     auto Is() -> bool
     {
         //@temporary
-        return std::string(typeid(T).name()).ends_with(NodeTypeToString(Type));
+        return String(typeid(T).name()).ends_with(ASTNodeTypeToString(Type));
     }
 
     template <typename T>
-    auto As() -> std::shared_ptr<T>
+    auto As() -> Shared<T>
     {
         if (!Is<T>())
         {
-            Throw<std::shared_ptr<T>>(std::format("Cannot cast a statement of type {} to {}.", NodeTypeToString(Type), typeid(T).name()));
+            Safety::Throw(std::format("Cannot cast a statement of type {} to {}.", ASTNodeTypeToString(Type), typeid(T).name()));
         }
 
         return std::dynamic_pointer_cast<T>(shared_from_this());
     }
 };
-typedef std::shared_ptr<Statement> StatementPtr;
 
 struct Expr : public Statement
 {
-    Expr(NodeType Type)
+    Expr(ASTNodeType Type)
         : Statement(Type)
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {} }}", NodeTypeToString(Type));
+        return std::format("{{ Type: {} }}", ASTNodeTypeToString(Type));
     }
 };
-typedef std::shared_ptr<Expr> ExprPtr;
 
 struct Program : public Statement
 {
-    std::vector<StatementPtr> Body;
+    Vector<Shared<Statement>> Body;
 
     Program()
-        : Statement { NodeType::Program }
+        : Statement { ASTNodeType::Program }
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        std::string ret = "Body: [ ";
+        String ret = "Body: [ ";
 
         for (auto&& Stmt : Body)
         {
@@ -111,99 +103,93 @@ struct Program : public Statement
         return ret;
     }
 };
-typedef std::shared_ptr<Program> ProgramPtr;
 
 struct VariableDeclaration : public Statement
 {
-    std::string Identifier;
-    std::optional<ExprPtr> Value;
+    String Identifier;
+    Optional<Shared<Expr>> Value;
     bool IsConst;
 
-    VariableDeclaration(std::string identifier, std::optional<ExprPtr> value, bool isConst)
-        : Statement { NodeType::VariableDeclaration }
+    VariableDeclaration(String identifier, Optional<Shared<Expr>> value, bool isConst)
+        : Statement { ASTNodeType::VariableDeclaration }
         , Identifier(identifier)
         , Value(value)
         , IsConst(isConst)
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Identifier: {}, Value: {}, isConst: {} }}", NodeTypeToString(Type), Identifier, Value.has_value() ? Value.value()->ToString() : "null", IsConst);
+        return std::format("{{ Type: {}, Identifier: {}, Value: {}, isConst: {} }}", ASTNodeTypeToString(Type), Identifier, Value.has_value() ? Value.value()->ToString() : "null", IsConst);
     }
 };
-typedef std::shared_ptr<VariableDeclaration> VariableDeclarationPtr;
 
 struct AssignmentExpr : public Expr
 {
-    ExprPtr Assigne;
-    ExprPtr Value;
+    Shared<Expr> Assigne;
+    Shared<Expr> Value;
 
-    AssignmentExpr(ExprPtr assigne, ExprPtr value)
-        : Expr { NodeType::AssignmentExpr }
+    AssignmentExpr(Shared<Expr> assigne, Shared<Expr> value)
+        : Expr { ASTNodeType::AssignmentExpr }
         , Assigne(assigne)
         , Value(value)
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Assigne: {}, Value: {} }}", NodeTypeToString(Type), Assigne->ToString(), Value->ToString());
+        return std::format("{{ Type: {}, Assigne: {}, Value: {} }}", ASTNodeTypeToString(Type), Assigne->ToString(), Value->ToString());
     }
 };
-typedef std::shared_ptr<AssignmentExpr> AssignmentExprPtr;
 
 struct BinaryExpr : public Expr
 {
-    ExprPtr Left;
-    ExprPtr Right;
-    std::string Operator;
+    Shared<Expr> Left;
+    Shared<Expr> Right;
+    String Operator;
 
-    BinaryExpr(ExprPtr left, ExprPtr right, std::string op)
-        : Expr { NodeType::BinaryExpr }
+    BinaryExpr(Shared<Expr> left, Shared<Expr> right, String op)
+        : Expr { ASTNodeType::BinaryExpr }
         , Left(left)
         , Right(right)
         , Operator(op)
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Left: {}, Right: {}, Operator: {} }}", NodeTypeToString(Type), Left->ToString(), Right->ToString(), Operator);
+        return std::format("{{ Type: {}, Left: {}, Right: {}, Operator: {} }}", ASTNodeTypeToString(Type), Left->ToString(), Right->ToString(), Operator);
     }
 };
-typedef std::shared_ptr<BinaryExpr> BinaryExprPtr;
 
 struct Identifier : public Expr
 {
-    std::string Name;
+    String Name;
 
-    Identifier(std::string name)
-        : Expr { NodeType::Identifier }
+    Identifier(String name)
+        : Expr { ASTNodeType::Identifier }
         , Name { name }
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Name: {} }}", NodeTypeToString(Type), Name);
+        return std::format("{{ Type: {}, Name: {} }}", ASTNodeTypeToString(Type), Name);
     }
 };
-typedef std::shared_ptr<Identifier> IdentifierPtr;
 
 struct NumericLiteral : public Expr
 {
     float Value;
 
     NumericLiteral(float value)
-        : Expr { NodeType::NumericLiteral }
+        : Expr { ASTNodeType::NumericLiteral }
         , Value(value)
     {
     }
 
-    virtual auto ToString() -> std::string override
+    virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Value: {} }}", NodeTypeToString(Type), std::to_string(Value));
+        return std::format("{{ Type: {}, Value: {} }}", ASTNodeTypeToString(Type), std::to_string(Value));
     }
 };
-typedef std::shared_ptr<NumericLiteral> NumericLiteralPtr;

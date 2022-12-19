@@ -154,15 +154,16 @@
     <ClCompile Include="Runtime\Interpreter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Safety.h" />
     <ClInclude Include="Runtime\Enviroment.h" />
     <ClInclude Include="Frontend\AST.h" />
     <ClInclude Include="Runtime\Evaluation\Expressions.h" />
     <ClInclude Include="Runtime\Evaluation\Statements.h" />
     <ClInclude Include="Runtime\Interpreter.h" />
-    <ClInclude Include="Error.h" />
     <ClInclude Include="Runtime\Values\BoolValue.h" />
     <ClInclude Include="Runtime\Values\NullValue.h" />
     <ClInclude Include="Runtime\Values\NumberValue.h" />
+    <ClInclude Include="Types\Core.h" />
     <ClInclude Include="Types\Extensions\String.h" />
     <ClInclude Include="Types\Extensions\Vector.h" />
     <ClInclude Include="Frontend\Lexer.h" />

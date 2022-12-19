@@ -3,14 +3,14 @@
 
 namespace StringExtensions
 {
-    inline auto Shift(std::string& String) -> char
+    inline auto Shift(String& String) -> char
     {
         auto Value = String[0];
         String.erase(String.begin());
         return Value;
     }
 
-    static constexpr auto LEraseTillLast(std::string_view& str, char c)
+    static constexpr auto LEraseTillLast(StringView& str, char c)
     {
         auto ret = str.data();
 

@@ -1,20 +1,18 @@
 #pragma once
-#include <format>
-#include <optional>
 #include "Values/RuntimeValue.h"
 
-#include "../Error.h"
+#include "../Safety.h"
 #include "../Types/FlatMap.h"
 
 struct Enviroment : public std::enable_shared_from_this<Enviroment>
 {
-    std::optional<std::shared_ptr<Enviroment>> parent;
+    Optional<Shared<Enviroment>> parent;
 
-    FlatMap<std::string, RuntimeValuePtr> variables;
+    FlatMap<String, Shared<RuntimeValue>> variables;
 
     Enviroment() = default;
 
-    Enviroment(const std::optional<std::shared_ptr<Enviroment>>& Parent)
+    Enviroment(const Optional<Shared<Enviroment>>& Parent)
     {
         if (Parent.has_value())
         {
@@ -22,12 +20,11 @@ struct Enviroment : public std::enable_shared_from_this<Enviroment>
         }
     }
 
-    auto DeclareVar(std::string name, RuntimeValuePtr value, bool constant) -> RuntimeValuePtr;
+    auto DeclareVar(String name, Shared<RuntimeValue> value, bool constant) -> Shared<RuntimeValue>;
 
-    auto AssignVar(std::string name, RuntimeValuePtr value) -> RuntimeValuePtr;
+    auto AssignVar(String name, Shared<RuntimeValue> value) -> Shared<RuntimeValue>;
 
-    auto LookupVar(std::string name) -> RuntimeValuePtr;
+    auto LookupVar(String name) -> Shared<RuntimeValue>;
 
-    auto Resolve(std::string name) -> std::shared_ptr<Enviroment>;
+    auto Resolve(String name) -> Shared<Enviroment>;
 };
-typedef std::shared_ptr<Enviroment> EnviromentPtr;

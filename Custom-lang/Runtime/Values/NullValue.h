@@ -4,8 +4,7 @@
 struct NullValue : public RuntimeValue
 {
     NullValue()
-        : RuntimeValue { ValueType::NullValue }
+        : RuntimeValue { RuntimeValueType::NullValue }
     {
     }
 };
-typedef std::shared_ptr<NullValue> NullValuePtr;

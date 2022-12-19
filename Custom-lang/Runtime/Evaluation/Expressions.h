@@ -1,14 +1,14 @@
 #pragma once
-#include "../../Error.h"
+#include "../../Safety.h"
 #include "../../Frontend/AST.h"
 #include "../Enviroment.h"
 
 #include "../Values/NumberValue.h"
 
-auto EvalNumericBinaryExpr(NumberValuePtr left, NumberValuePtr right, std::string Operator) -> NumberValuePtr;
+auto EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator) -> Shared<NumberValue>;
 
-auto EvalBinaryExpr(BinaryExprPtr biexpr, EnviromentPtr env) -> RuntimeValuePtr;
+auto EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<Enviroment> env) -> Shared<RuntimeValue>;
 
-auto EvalIdentifier(IdentifierPtr ident, EnviromentPtr env) -> RuntimeValuePtr;
+auto EvalIdentifier(Shared<Identifier> ident, Shared<Enviroment> env) -> Shared<RuntimeValue>;
 
-auto EvalAssignment(AssignmentExprPtr node, EnviromentPtr env) -> RuntimeValuePtr;
+auto EvalAssignment(Shared<AssignmentExpr> node, Shared<Enviroment> env) -> Shared<RuntimeValue>;

@@ -1,30 +1,38 @@
-#include <iostream>
+#include "Safety.h"
+
+#include "Types/Core.h"
 #include "Frontend/Parser.h"
-#include "Logger.h"
 #include "Runtime/Interpreter.h"
 #include "Runtime/Values/BoolValue.h"
 
 int main()
 {
-    auto parser = Parser();
+    Safety::Init();
+
+    auto parser = std::make_shared<Parser>();
     auto env = std::make_shared<Enviroment>();
 
-    env->DeclareVar("true", BoolValue(true).GetAsShared(), true);
-    env->DeclareVar("false", BoolValue(false).GetAsShared(), true);
-    env->DeclareVar("null", NullValue().GetAsShared(), true);
+    env->DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
+    env->DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
+    env->DeclareVar("null", NullValue().As<NullValue>(), true);
 
     Log<Info>("Interpreter V0.1");
 
     while (true)
     {
         printf("\n> ");
-        std::string input;
+        String input;
         std::getline(std::cin, input);
 
         if (input.empty() || input == "exit")
             break;
 
-        auto program = parser.ProduceAST(input);
+        if (input == "debug")
+        {
+            continue;
+        }
+
+        auto program = parser->ProduceAST(input);
 
         // Log<Info>("Program: %s", program->ToString().c_str());
 

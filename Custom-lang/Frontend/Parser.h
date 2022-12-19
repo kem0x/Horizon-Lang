@@ -1,16 +1,16 @@
 #pragma once
 
 #include "AST.h"
-#include "../Error.h"
+#include "../Safety.h"
 #include "../Types/Extensions/Vector.h"
 
 class Parser
 {
-    std::vector<Lexer::Token> Tokens;
+    Vector<Lexer::Token> Tokens;
 
     auto NotEoF() -> bool
     {
-        return Tokens[0].Type != TokenType::EoF;
+        return Tokens[0].Type != LexerTokenType::EoF;
     }
 
     auto Current() -> Lexer::Token
@@ -23,35 +23,35 @@ class Parser
         return VectorExtensions::Shift(Tokens);
     }
 
-    auto Expect(TokenType type, std::string error) -> Lexer::Token
+    auto Expect(LexerTokenType type, String error) -> Lexer::Token
     {
         if (Current().Type != type)
         {
-            Throw(error);
+            Safety::Throw(error);
         }
 
         return Advance();
     }
 
-    auto ParseAdditiveExpr() -> ExprPtr;
+    auto ParseAdditiveExpr() -> Shared<Expr>;
 
-    auto ParseMultiplicativeExpr() -> ExprPtr;
+    auto ParseMultiplicativeExpr() -> Shared<Expr>;
 
-    auto ParsePrimaryExpr() -> ExprPtr;
+    auto ParsePrimaryExpr() -> Shared<Expr>;
 
-    auto ParseAssignmentExpr() -> ExprPtr;
+    auto ParseAssignmentExpr() -> Shared<Expr>;
 
-    auto ParseExpr() -> ExprPtr
+    auto ParseExpr() -> Shared<Expr>
     {
         return ParseAssignmentExpr();
     }
 
-    auto ParseStatement() -> StatementPtr
+    auto ParseStatement() -> Shared<Statement>
     {
         switch (Current().Type)
         {
-        case TokenType::Let:
-        case TokenType::Const:
+        case LexerTokenType::Let:
+        case LexerTokenType::Const:
             return ParseVariableDeclartion();
 
         default:
@@ -59,10 +59,10 @@ class Parser
         }
     }
 
-    auto ParseVariableDeclartion() -> StatementPtr;
+    auto ParseVariableDeclartion() -> Shared<Statement>;
 
 public:
-    auto ProduceAST(std::string sourceCode) -> ProgramPtr
+    auto ProduceAST(String sourceCode) -> Shared<Program>
     {
         Lexer lexer(sourceCode);
         Tokens = lexer.Tokenize();

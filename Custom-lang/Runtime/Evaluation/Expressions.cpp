@@ -1,7 +1,7 @@
 #include "Expressions.h"
 #include "../Interpreter.h"
 
-auto EvalNumericBinaryExpr(NumberValuePtr left, NumberValuePtr right, std::string Operator) -> NumberValuePtr
+auto EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator) -> Shared<NumberValue>
 {
     float result = 0;
 
@@ -28,13 +28,13 @@ auto EvalNumericBinaryExpr(NumberValuePtr left, NumberValuePtr right, std::strin
     }
     else
     {
-        Throw("Tried to evalute an unknown numeric operator!!");
+        Safety::Throw("Tried to evalute an unknown numeric operator!!");
     }
 
     return std::make_shared<NumberValue>(result);
 }
 
-auto EvalBinaryExpr(BinaryExprPtr biexpr, EnviromentPtr env) -> RuntimeValuePtr
+auto EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<Enviroment> env) -> Shared<RuntimeValue>
 {
     auto left = Evaluate(biexpr->Left, env);
     auto right = Evaluate(biexpr->Right, env);
@@ -47,16 +47,16 @@ auto EvalBinaryExpr(BinaryExprPtr biexpr, EnviromentPtr env) -> RuntimeValuePtr
     return std::make_shared<NullValue>();
 }
 
-auto EvalIdentifier(IdentifierPtr ident, EnviromentPtr env) -> RuntimeValuePtr
+auto EvalIdentifier(Shared<Identifier> ident, Shared<Enviroment> env) -> Shared<RuntimeValue>
 {
     return env->LookupVar(ident->Name);
 }
 
-auto EvalAssignment(AssignmentExprPtr node, EnviromentPtr env) -> RuntimeValuePtr
+auto EvalAssignment(Shared<AssignmentExpr> node, Shared<Enviroment> env) -> Shared<RuntimeValue>
 {
-    if (node->Assigne->Type != NodeType::Identifier)
+    if (node->Assigne->Type != ASTNodeType::Identifier)
     {
-        Throw(std::format("Invalid assignment target of {}!", node->ToString().c_str()));
+        Safety::Throw(std::format("Invalid assignment target of {}!", node->ToString().c_str()));
     }
 
     const auto Name = node->Assigne->As<Identifier>()->Name;

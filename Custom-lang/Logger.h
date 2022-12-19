@@ -1,4 +1,5 @@
 #pragma once
+#include "Types/Core.h"
 #include <iostream>
 #include <fstream>
 #include <source_location>
@@ -55,7 +56,7 @@ constexpr auto Log(const char* format, Args... args) -> void
 }
 
 template <LogType type, bool logType = true, bool newLine = true, typename... Args>
-constexpr void Log(std::string format, Args... args)
+constexpr void Log(String format, Args... args)
 {
     Log<type, logType, newLine>(format.c_str(), args...);
 }

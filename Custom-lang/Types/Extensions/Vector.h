@@ -4,7 +4,7 @@
 namespace VectorExtensions
 {
     template <typename T>
-    inline auto Shift(std::vector<T>& Vector) -> T
+    inline auto Shift(Vector<T>& Vector) -> T
     {
         auto Value = Vector[0];
         Vector.erase(Vector.begin());
@@ -12,7 +12,7 @@ namespace VectorExtensions
     }
 
     template <typename T>
-    inline auto Pop(std::vector<T>& Vector) -> T
+    inline auto Pop(Vector<T>& Vector) -> T
     {
         auto Value = Vector.back();
         Vector.pop_back();

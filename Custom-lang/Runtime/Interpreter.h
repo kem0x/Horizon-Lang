@@ -3,4 +3,4 @@
 #include "Evaluation/Expressions.h"
 #include "Evaluation/Statements.h"
 
-auto Evaluate(StatementPtr Node, EnviromentPtr env) -> RuntimeValuePtr;
+auto Evaluate(Shared<Statement> Node, Shared<Enviroment> env) -> Shared<RuntimeValue>;

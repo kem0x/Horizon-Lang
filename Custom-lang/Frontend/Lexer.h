@@ -1,13 +1,11 @@
 #pragma once
-#include <string>
-#include <string_view>
-#include <vector>
+#include "../Types/Core.h"
 
-#include "../Error.h"
+#include "../Safety.h"
 #include "../Types/FlatMap.h"
 #include "../Types/Extensions/String.h"
 
-enum class TokenType
+enum class LexerTokenType
 {
     Unknown,
     Number,
@@ -31,35 +29,35 @@ class Lexer
 public:
     struct Token
     {
-        TokenType Type;
-        std::string Value;
+        LexerTokenType Type;
+        String Value;
 
-        Token(TokenType type, std::string_view value)
+        Token(LexerTokenType type, StringView value)
             : Type(type)
             , Value(value)
         {
         }
 
-        Token(TokenType type, char value)
+        Token(LexerTokenType type, char value)
             : Type(type)
             , Value(1, value)
         {
         }
 
-        auto ToString() -> std::string
+        auto ToString() -> String
         {
             return ("Type: " + std::to_string((int)Type) + " | Value: " + Value);
         }
     };
 
 private:
-    const static constexpr FlatMap<std::string_view, TokenType, 2> ReservedKeywords = {
-        { { { "let", TokenType::Let }, { "const", TokenType::Const } } }
+    const static constexpr FlatMap<StringView, LexerTokenType, 2> ReservedKeywords = {
+        { { { "let", LexerTokenType::Let }, { "const", LexerTokenType::Const } } }
     };
 
-    std::string Source;
+    String Source;
 
-    std::vector<Token> Tokens;
+    Vector<Token> Tokens;
 
     __forceinline auto Advance() -> char
     {
@@ -69,10 +67,10 @@ private:
     auto HandleMultiCharacterToken() -> void;
 
 public:
-    Lexer(std::string source)
+    Lexer(String source)
         : Source(source)
     {
     }
 
-    auto Tokenize() -> std::vector<Token>;
+    auto Tokenize() -> Vector<Token>;
 };

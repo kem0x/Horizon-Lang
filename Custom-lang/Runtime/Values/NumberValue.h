@@ -7,13 +7,12 @@ struct NumberValue : public RuntimeValue
 
     NumberValue(float value)
         : Value(value)
-        , RuntimeValue { ValueType::NumberValue }
+        , RuntimeValue { RuntimeValueType::NumberValue }
     {
     }
 
-    virtual auto ToString() -> std::string
+    virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {}, Value: {} }}", ValueTypeToString(Type), Value);
+        return std::format("{{ Type: {}, Value: {} }}", RuntimeValueTypeToString(Type), Value);
     };
 };
-typedef std::shared_ptr<NumberValue> NumberValuePtr;

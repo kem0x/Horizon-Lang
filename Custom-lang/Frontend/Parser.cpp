@@ -1,6 +1,6 @@
 #include "Parser.h"
 
-auto Parser::ParseAdditiveExpr() -> ExprPtr
+auto Parser::ParseAdditiveExpr() -> Shared<Expr>
 {
     auto Left = ParseMultiplicativeExpr();
 
@@ -16,7 +16,7 @@ auto Parser::ParseAdditiveExpr() -> ExprPtr
     return Left;
 }
 
-auto Parser::ParseMultiplicativeExpr() -> ExprPtr
+auto Parser::ParseMultiplicativeExpr() -> Shared<Expr>
 {
     auto Left = ParsePrimaryExpr();
 
@@ -32,39 +32,39 @@ auto Parser::ParseMultiplicativeExpr() -> ExprPtr
     return Left;
 }
 
-auto Parser::ParsePrimaryExpr() -> ExprPtr
+auto Parser::ParsePrimaryExpr() -> Shared<Expr>
 {
     const auto tk = Current().Type;
 
     switch (tk)
     {
-    case TokenType::Identifier:
+    case LexerTokenType::Identifier:
         return std::make_shared<Identifier>(Advance().Value);
 
-    case TokenType::Number:
+    case LexerTokenType::Number:
         return std::make_shared<NumericLiteral>(std::stof(Advance().Value));
 
-    case TokenType::OpenParen:
+    case LexerTokenType::OpenParen:
     {
         Advance(); // Skip '('
 
         auto Value = ParseAdditiveExpr();
 
-        Expect(TokenType::CloseParen, "Unexpected token: " + Current().Value + ", expected a ')'");
+        Expect(LexerTokenType::CloseParen, "Unexpected token: " + Current().Value + ", expected a ')'");
 
         return Value;
     }
 
     default:
-        return Throw<ExprPtr>(std::format("Unexpected token ({}) found during parsing!", Current().ToString().c_str()));
+        return Safety::Throw<Shared<Expr>>(std::format("Unexpected token ({}) found during parsing!", Current().ToString().c_str()));
     }
 }
 
-auto Parser::ParseAssignmentExpr() -> ExprPtr
+auto Parser::ParseAssignmentExpr() -> Shared<Expr>
 {
     const auto left = ParseAdditiveExpr(); // switch this out with objectExpr
 
-    if (Current().Type == TokenType::Equals)
+    if (Current().Type == LexerTokenType::Equals)
     {
         Advance(); // Skip '='
 
@@ -76,29 +76,29 @@ auto Parser::ParseAssignmentExpr() -> ExprPtr
     return left;
 }
 
-auto Parser::ParseVariableDeclartion() -> StatementPtr
+auto Parser::ParseVariableDeclartion() -> Shared<Statement>
 {
-    const auto isConstant = Advance().Type == TokenType::Const;
+    const auto isConstant = Advance().Type == LexerTokenType::Const;
 
-    const auto identifier = Expect(TokenType::Identifier, "Expected identifier name after (let | const) keyword.").Value;
+    const auto identifier = Expect(LexerTokenType::Identifier, "Expected identifier name after (let | const) keyword.").Value;
 
-    if (Current().Type == TokenType::Semicolon)
+    if (Current().Type == LexerTokenType::Semicolon)
     {
         Advance(); // Skip ';'
 
         if (isConstant)
         {
-            Throw(std::format("A const variable '{}' must be initialized with a value!", identifier.c_str()));
+            Safety::Throw(std::format("A const variable '{}' must be initialized with a value!", identifier.c_str()));
         }
 
         return std::make_shared<VariableDeclaration>(identifier, std::nullopt, isConstant);
     }
 
-    Expect(TokenType::Equals, std::format("Expected '=' after identifier name '{}'.", identifier.c_str()));
+    Expect(LexerTokenType::Equals, std::format("Expected '=' after identifier name '{}'.", identifier.c_str()));
 
     const auto declaration = std::make_shared<VariableDeclaration>(identifier, ParseExpr(), isConstant);
 
-    Expect(TokenType::Semicolon, std::format("Expected ';' after variable declaration '{}'.", identifier.c_str()));
+    Expect(LexerTokenType::Semicolon, std::format("Expected ';' after variable declaration '{}'.", identifier.c_str()));
 
     return declaration;
 }

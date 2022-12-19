@@ -1,8 +1,8 @@
 #include "Statements.h"
 
-auto EvalProgram(ProgramPtr program, EnviromentPtr env) -> RuntimeValuePtr
+auto EvalProgram(Shared<Program> program, Shared<Enviroment> env) -> Shared<RuntimeValue>
 {
-    RuntimeValuePtr LastEvaluatedValue = std::make_shared<NullValue>();
+    Shared<RuntimeValue> LastEvaluatedValue = std::make_shared<NullValue>();
 
     for (auto&& stmt : program->Body)
     {
@@ -12,7 +12,7 @@ auto EvalProgram(ProgramPtr program, EnviromentPtr env) -> RuntimeValuePtr
     return LastEvaluatedValue;
 }
 
-auto EvalVariableDeclaration(VariableDeclarationPtr declaration, EnviromentPtr env) -> RuntimeValuePtr
+auto EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<Enviroment> env) -> Shared<RuntimeValue>
 {
     const auto Value = declaration->Value.has_value()
         ? Evaluate(declaration->Value.value(), env)
