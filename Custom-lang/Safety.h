@@ -62,7 +62,7 @@ namespace Safety
     //@temp
     //@known issue: throwing with this triggers memory leaks detection!
     template <typename T = void>
-    __forceinline T Throw(String message)
+    __forceinline T Throw(const String& message)
     {
         Log<Error>("ERROR: %s", message.c_str());
 

@@ -8,3 +8,5 @@ const obj = {
         bar: true,
     },
 };
+
+foo / 2
