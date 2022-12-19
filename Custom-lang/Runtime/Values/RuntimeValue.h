@@ -7,7 +7,8 @@ enum class RuntimeValueType
     Unknown,
     NullValue,
     BoolValue,
-    NumberValue
+    NumberValue,
+    ObjectValue
 };
 
 constexpr const char* RuntimeValueTypeToString(RuntimeValueType Type)
@@ -20,6 +21,8 @@ constexpr const char* RuntimeValueTypeToString(RuntimeValueType Type)
         return "BoolValue";
     case RuntimeValueType::NumberValue:
         return "NumberValue";
+    case RuntimeValueType::ObjectValue:
+        return "ObjectValue";
 
     default:
         return "Unknown (?)";
@@ -58,6 +61,6 @@ struct RuntimeValue : public std::enable_shared_from_this<RuntimeValue>
 
     virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {} }}", RuntimeValueTypeToString(Type));
+        return std::format("{{\nType: '{}'\n}}", RuntimeValueTypeToString(Type));
     };
 };

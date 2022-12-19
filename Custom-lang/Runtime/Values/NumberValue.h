@@ -13,6 +13,6 @@ struct NumberValue : public RuntimeValue
 
     virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {}, Value: {} }}", RuntimeValueTypeToString(Type), Value);
+        return std::format("{{\nType: '{}',\nValue: '{}'\n}}", RuntimeValueTypeToString(Type), Value);
     };
 };

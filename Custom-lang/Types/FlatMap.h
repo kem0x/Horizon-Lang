@@ -3,18 +3,23 @@
 #include <vector>
 #include <stdexcept>
 
-template <typename KeyType, typename RuntimeValueType, size_t Size = 0>
+template <typename KeyType, typename ValueType, size_t Size = 0>
 struct FlatMap
 {
     using ArrayType = std::conditional<
         Size == 0,
-        Vector<std::pair<KeyType, RuntimeValueType>>,
-        std::array<std::pair<KeyType, RuntimeValueType>, Size>>::type;
+        Vector<Pair<KeyType, ValueType>>,
+        Array<Pair<KeyType, ValueType>, Size>>::type;
 
     ArrayType data;
 
-    template <typename = std::enable_if_t<std::is_same<Vector<std::pair<KeyType, RuntimeValueType>>, ArrayType>::value>>
-    constexpr auto set(const KeyType& key, const RuntimeValueType& value) -> void
+    constexpr auto size() const -> size_t
+    {
+        return data.size();
+    }
+
+    template <typename = std::enable_if_t<std::is_same<Vector<Pair<KeyType, ValueType>>, ArrayType>::value>>
+    constexpr auto set(const KeyType& key, const ValueType& value) -> void
     {
         if (has(key))
         {
@@ -33,7 +38,7 @@ struct FlatMap
         }
     }
 
-    constexpr RuntimeValueType at(KeyType key) const
+    constexpr ValueType at(KeyType key) const
     {
         for (auto& [k, v] : data)
         {
@@ -59,8 +64,13 @@ struct FlatMap
         return false;
     }
 
-    constexpr RuntimeValueType operator[](const KeyType& key) const
+    constexpr ValueType operator[](const KeyType& key) const
     {
         return at(key);
+    }
+
+    constexpr auto operator[](int index) const -> Pair<KeyType, ValueType>
+    {
+        return data[index];
     }
 };

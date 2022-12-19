@@ -46,6 +46,12 @@ auto Lexer::Tokenize() -> Vector<Lexer::Token>
     {
         switch (Source[0])
         {
+        case ',':
+            Tokens.push_back({ LexerTokenType::Comma, Advance() });
+            break;
+        case ':':
+            Tokens.push_back({ LexerTokenType::Colon, Advance() });
+            break;
         case ';':
             Tokens.push_back({ LexerTokenType::Semicolon, Advance() });
             break;
@@ -57,6 +63,12 @@ auto Lexer::Tokenize() -> Vector<Lexer::Token>
             break;
         case ')':
             Tokens.push_back({ LexerTokenType::CloseParen, Advance() });
+            break;
+        case '{':
+            Tokens.push_back({ LexerTokenType::OpenBrace, Advance() });
+            break;
+        case '}':
+            Tokens.push_back({ LexerTokenType::CloseBrace, Advance() });
             break;
         case '+':
         case '-':

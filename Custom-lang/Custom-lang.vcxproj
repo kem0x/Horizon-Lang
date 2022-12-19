@@ -154,6 +154,7 @@
     <ClCompile Include="Runtime\Interpreter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Runtime\Values\ObjectValue.h" />
     <ClInclude Include="Safety.h" />
     <ClInclude Include="Runtime\Enviroment.h" />
     <ClInclude Include="Frontend\AST.h" />

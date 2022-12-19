@@ -1,22 +1,32 @@
 #pragma once
 #include "Values/RuntimeValue.h"
+#include "Values/NumberValue.h"
+#include "Values/BoolValue.h"
+#include "Values/NullValue.h"
 
 #include "../Safety.h"
 #include "../Types/FlatMap.h"
 
 struct Enviroment : public std::enable_shared_from_this<Enviroment>
 {
-    Optional<Shared<Enviroment>> parent;
+    Optional<Shared<Enviroment>> Parent;
 
-    FlatMap<String, Shared<RuntimeValue>> variables;
+    FlatMap<String, Shared<RuntimeValue>> Variables;
 
     Enviroment() = default;
 
-    Enviroment(const Optional<Shared<Enviroment>>& Parent)
+    Enviroment(const Optional<Shared<Enviroment>>& parent, bool isGlobal = false)
     {
-        if (Parent.has_value())
+        if (isGlobal)
         {
-            parent = Parent;
+            DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
+            DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
+            DeclareVar("null", NullValue().As<NullValue>(), true);
+        }
+
+        if (parent.has_value())
+        {
+            Parent = parent;
         }
     }
 

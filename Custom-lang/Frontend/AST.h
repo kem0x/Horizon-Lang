@@ -7,6 +7,9 @@ enum class ASTNodeType
     VariableDeclaration,
 
     AssignmentExpr,
+
+    Property,
+    ObjectLiteral,
     NumericLiteral,
     Identifier,
     BinaryExpr
@@ -22,6 +25,10 @@ constexpr const char* ASTNodeTypeToString(ASTNodeType ASTNodeType)
         return "VariableDeclaration";
     case ASTNodeType::AssignmentExpr:
         return "AssignmentExpr";
+    case ASTNodeType::Property:
+        return "Property";
+    case ASTNodeType::ObjectLiteral:
+        return "ObjectLiteral";
     case ASTNodeType::NumericLiteral:
         return "NumericLiteral";
     case ASTNodeType::Identifier:
@@ -44,7 +51,7 @@ struct Statement : public std::enable_shared_from_this<Statement>
 
     virtual auto ToString() -> String
     {
-        return std::format("{{ Type: {} }}", ASTNodeTypeToString(Type));
+        return std::format("{{\n\tType: '{}'\n}}", ASTNodeTypeToString(Type));
     };
 
     template <typename T>
@@ -75,7 +82,7 @@ struct Expr : public Statement
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {} }}", ASTNodeTypeToString(Type));
+        return std::format("{{\n\tType: '{}'\n}}", ASTNodeTypeToString(Type));
     }
 };
 
@@ -94,11 +101,11 @@ struct Program : public Statement
 
         for (auto&& Stmt : Body)
         {
-            ret += Stmt->ToString() + ", ";
+            ret += Stmt->ToString() + ", \n";
         }
 
         ret.erase(ret.end() - 2, ret.end());
-        ret += " ]";
+        ret += " \n\t]";
 
         return ret;
     }
@@ -120,7 +127,7 @@ struct VariableDeclaration : public Statement
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Identifier: {}, Value: {}, isConst: {} }}", ASTNodeTypeToString(Type), Identifier, Value.has_value() ? Value.value()->ToString() : "null", IsConst);
+        return std::format("{{\n\tType: '{}',\n\tIdentifier: '{}',\nValue: '{}',\n\tisConst: '{}'\n}}", ASTNodeTypeToString(Type), Identifier, Value.has_value() ? Value.value()->ToString() : "null", IsConst);
     }
 };
 
@@ -138,7 +145,7 @@ struct AssignmentExpr : public Expr
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Assigne: {}, Value: {} }}", ASTNodeTypeToString(Type), Assigne->ToString(), Value->ToString());
+        return std::format("{{\n\tType: '{}',\nAssigne: '{}',\nValue: '{}'\n}}", ASTNodeTypeToString(Type), Assigne->ToString(), Value->ToString());
     }
 };
 
@@ -158,7 +165,7 @@ struct BinaryExpr : public Expr
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Left: {}, Right: {}, Operator: {} }}", ASTNodeTypeToString(Type), Left->ToString(), Right->ToString(), Operator);
+        return std::format("{{\n\tType: '{}',\nLeft: '{}',\nRight: '{}',\n\tOperator: '{}'\n}}", ASTNodeTypeToString(Type), Left->ToString(), Right->ToString(), Operator);
     }
 };
 
@@ -174,7 +181,7 @@ struct Identifier : public Expr
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Name: {} }}", ASTNodeTypeToString(Type), Name);
+        return std::format("{{\n\tType: '{}',\n\tName: '{}'\n}}", ASTNodeTypeToString(Type), Name);
     }
 };
 
@@ -190,6 +197,51 @@ struct NumericLiteral : public Expr
 
     virtual auto ToString() -> String override
     {
-        return std::format("{{ Type: {}, Value: {} }}", ASTNodeTypeToString(Type), std::to_string(Value));
+        return std::format("{{\n\tType: '{}',\n\tValue: '{}'\n}}", ASTNodeTypeToString(Type), std::to_string(Value));
     }
 };
+
+struct Property : public Expr
+{
+    String Key;
+    Optional<Shared<Expr>> Value;
+
+    Property(String key, Optional<Shared<Expr>> value)
+        : Expr { ASTNodeType::Property }
+        , Key(key)
+        , Value(value)
+    {
+    }
+
+    virtual auto ToString() -> String override
+    {
+        return std::format("{{\n\tType: '{}',\n\tKey: '{}',\n\tValue: '{}'\n}}", ASTNodeTypeToString(Type), Key, Value.has_value() ? Value.value()->ToString() : "null");
+    }
+};
+
+struct ObjectLiteral : public Expr
+{
+    Vector<Shared<Property>> Properties;
+
+    ObjectLiteral(Vector<Shared<Property>> properties)
+        : Expr { ASTNodeType::ObjectLiteral }
+        , Properties(properties)
+    {
+    }
+
+    virtual auto ToString() -> String override
+    {
+        String ret = "Properties: [ ";
+
+        for (auto&& Prop : Properties)
+        {
+            ret += Prop->ToString() + ", \n";
+        }
+
+        ret.erase(ret.end() - 2, ret.end());
+        ret += " \n\t]";
+
+        return ret;
+    }
+};
+

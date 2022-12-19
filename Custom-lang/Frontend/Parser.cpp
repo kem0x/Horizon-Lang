@@ -56,13 +56,59 @@ auto Parser::ParsePrimaryExpr() -> Shared<Expr>
     }
 
     default:
-        return Safety::Throw<Shared<Expr>>(std::format("Unexpected token ({}) found during parsing!", Current().ToString().c_str()));
+        return Safety::Throw<Shared<Expr>>(std::format("Unexpected token {} found during parsing!", Current().ToString()));
     }
+}
+
+auto Parser::ParseObjectExpr() -> Shared<Expr>
+{
+    if (Current().Type != LexerTokenType::OpenBrace)
+    {
+        return ParseAdditiveExpr();
+    }
+
+    Advance(); // Skip '{'
+
+    Vector<Shared<Property>> properties;
+
+    while (NotEoF() && Current().Type != LexerTokenType::CloseBrace)
+    {
+        const auto key = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a property name").Value;
+
+        // Allow shorthand key
+        if (Current().Type == LexerTokenType::Comma)
+        {
+            Advance(); // Skip ','
+
+            properties.push_back(std::make_shared<Property>(key, std::nullopt));
+            continue;
+        }
+        else if (Current().Type == LexerTokenType::CloseBrace)
+        {
+            properties.push_back(std::make_shared<Property>(key, std::nullopt));
+            continue;
+        }
+
+        Expect(LexerTokenType::Colon, "Unexpected token: " + Current().Value + ", expected a ':'");
+
+        const auto value = ParseExpr();
+
+        properties.push_back(std::make_shared<Property>(key, value));
+
+        if (Current().Type != LexerTokenType::CloseBrace)
+        {
+            Expect(LexerTokenType::Comma, "Unexpected token: " + Current().Value + ", expected a ','");
+        }
+    }
+
+    Expect(LexerTokenType::CloseBrace, "Unexpected token: " + Current().Value + ", expected a ']'");
+
+    return std::make_shared<ObjectLiteral>(properties);
 }
 
 auto Parser::ParseAssignmentExpr() -> Shared<Expr>
 {
-    const auto left = ParseAdditiveExpr(); // switch this out with objectExpr
+    const auto left = ParseObjectExpr();
 
     if (Current().Type == LexerTokenType::Equals)
     {

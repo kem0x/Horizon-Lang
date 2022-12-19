@@ -63,3 +63,17 @@ auto EvalAssignment(Shared<AssignmentExpr> node, Shared<Enviroment> env) -> Shar
 
     return env->AssignVar(Name, Evaluate(node->Value, env));
 }
+
+auto EvalObjectExpr(Shared<ObjectLiteral> node, Shared<Enviroment> env) -> Shared<RuntimeValue>
+{
+    auto Object = std::make_shared<ObjectValue>();
+
+    for (auto& Prop : node->Properties)
+    {
+        auto Value = Prop->Value.has_value() ? Evaluate(Prop->Value.value(), env) : env->LookupVar(Prop->Key);
+
+        Object->Properties.set(Prop->Key, Value);
+    }
+
+    return Object;
+}

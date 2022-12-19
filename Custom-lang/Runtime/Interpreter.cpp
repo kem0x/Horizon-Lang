@@ -15,6 +15,11 @@ auto Evaluate(Shared<Statement> node, Shared<Enviroment> env) -> Shared<RuntimeV
         return EvalIdentifier(node->As<Identifier>(), env);
     }
 
+    case ASTNodeType::ObjectLiteral:
+    {
+        return EvalObjectExpr(node->As<ObjectLiteral>(), env);
+    }
+
     case ASTNodeType::BinaryExpr:
     {
         return EvalBinaryExpr(node->As<BinaryExpr>(), env);

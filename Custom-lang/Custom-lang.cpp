@@ -1,3 +1,6 @@
+#include <filesystem>
+#include <fstream>
+
 #include "Safety.h"
 
 #include "Types/Core.h"
@@ -5,16 +8,23 @@
 #include "Runtime/Interpreter.h"
 #include "Runtime/Values/BoolValue.h"
 
-int main()
+std::string readFile(std::filesystem::path path)
 {
-    Safety::Init();
+    std::ifstream f(path, std::ios::in | std::ios::binary);
 
+    const auto size = std::filesystem::file_size(path);
+    std::string result(size, '\0');
+
+    f.read(result.data(), size);
+
+    return result;
+}
+
+/*
+void repl()
+{
     auto parser = std::make_shared<Parser>();
     auto env = std::make_shared<Enviroment>();
-
-    env->DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
-    env->DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
-    env->DeclareVar("null", NullValue().As<NullValue>(), true);
 
     Log<Info>("Interpreter V0.1");
 
@@ -40,6 +50,23 @@ int main()
 
         Log<Info>("Result: %s", result->ToString().c_str());
     }
+}
+*/
+
+int main()
+{
+    Safety::Init();
+
+    auto parser = std::make_shared<Parser>();
+    auto env = std::make_shared<Enviroment>(std::nullopt, true);
+
+    const auto input = readFile(std::filesystem::current_path() / "test.txt");
+
+    const auto program = parser->ProduceAST(input);
+
+    const auto result = Evaluate(program, env);
+
+    Log<Info>("Result: %s", result->ToString().c_str());
 
     return 0;
 }

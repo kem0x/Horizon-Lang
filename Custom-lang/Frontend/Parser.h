@@ -39,6 +39,8 @@ class Parser
 
     auto ParsePrimaryExpr() -> Shared<Expr>;
 
+    auto ParseObjectExpr() -> Shared<Expr>;
+
     auto ParseAssignmentExpr() -> Shared<Expr>;
 
     auto ParseExpr() -> Shared<Expr>

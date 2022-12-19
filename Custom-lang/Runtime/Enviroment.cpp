@@ -2,14 +2,14 @@
 
 auto Enviroment::DeclareVar(String name, Shared<RuntimeValue> value, bool constant) -> Shared<RuntimeValue>
 {
-    if (variables.has(name))
+    if (Variables.has(name))
     {
         Safety::Throw(std::format("Variable '{}' was already declared in the current scope!", name.c_str()));
     }
 
     value->IsConstant = constant;
 
-    variables.set(name, value);
+    Variables.set(name, value);
 
     return value;
 }
@@ -18,12 +18,12 @@ auto Enviroment::AssignVar(String name, Shared<RuntimeValue> value) -> Shared<Ru
 {
     auto env = Resolve(name);
 
-    if (env->variables.at(name)->IsConstant)
+    if (env->Variables.at(name)->IsConstant)
     {
         Safety::Throw(std::format("Variable '{}' is constant and cannot be assigned to!", name.c_str()));
     }
 
-    env->variables.set(name, value);
+    env->Variables.set(name, value);
 
     return value;
 }
@@ -32,20 +32,20 @@ auto Enviroment::LookupVar(String name) -> Shared<RuntimeValue>
 {
     auto env = Resolve(name);
 
-    return env->variables.at(name);
+    return env->Variables.at(name);
 }
 
 auto Enviroment::Resolve(String name) -> Shared<Enviroment>
 {
-    if (variables.has(name))
+    if (Variables.has(name))
     {
         return shared_from_this();
     }
 
-    if (!parent.has_value())
+    if (!Parent.has_value())
     {
         Safety::Throw(std::format("Variable '{}' was not found, unable to resolve!", name.c_str()));
     }
 
-    return parent.value()->Resolve(name);
+    return Parent.value()->Resolve(name);
 }

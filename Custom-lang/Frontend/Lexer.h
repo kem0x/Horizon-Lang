@@ -17,7 +17,11 @@ enum class LexerTokenType
 
     OpenParen,
     CloseParen,
+    OpenBrace,
+    CloseBrace,
     Equals,
+    Comma,
+    Colon,
     Semicolon,
     BinaryOperator,
 
@@ -46,7 +50,7 @@ public:
 
         auto ToString() -> String
         {
-            return ("Type: " + std::to_string((int)Type) + " | Value: " + Value);
+            return std::format("{{\nType: '{}',\nValue: '{}'\n}}", std::to_string(int(Type)), Value);
         }
     };
 
