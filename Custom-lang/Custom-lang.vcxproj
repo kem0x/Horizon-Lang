@@ -149,23 +149,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AST.ixx" />
-    <ClCompile Include="BoolValue.ixx" />
+    <ClCompile Include="Frontend\AST.ixx" />
+    <ClCompile Include="Runtime\Values\BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
-    <ClCompile Include="Enviroment.ixx" />
-    <ClCompile Include="FlatMap.ixx" />
-    <ClCompile Include="Interpreter.ixx" />
-    <ClCompile Include="Lexer.ixx" />
+    <ClCompile Include="Runtime\Enviroment.ixx" />
+    <ClCompile Include="Types\FlatMap.ixx" />
+    <ClCompile Include="Runtime\Interpreter.ixx" />
+    <ClCompile Include="Frontend\Lexer.ixx" />
     <ClCompile Include="Logger.ixx" />
-    <ClCompile Include="NullValue.ixx" />
-    <ClCompile Include="NumberValue.ixx" />
-    <ClCompile Include="ObjectValue.ixx" />
-    <ClCompile Include="Parser.ixx" />
-    <ClCompile Include="RuntimeValue.ixx" />
+    <ClCompile Include="Runtime\Values\NullValue.ixx" />
+    <ClCompile Include="Runtime\Values\NumberValue.ixx" />
+    <ClCompile Include="Runtime\Values\ObjectValue.ixx" />
+    <ClCompile Include="Frontend\Parser.ixx" />
+    <ClCompile Include="Runtime\Values\RuntimeValue.ixx" />
     <ClCompile Include="Safety.ixx" />
-    <ClCompile Include="String.ixx" />
-    <ClCompile Include="Types.ixx" />
-    <ClCompile Include="Vector.ixx" />
+    <ClCompile Include="Types\Extensions\String.ixx" />
+    <ClCompile Include="Types\Types.ixx" />
+    <ClCompile Include="Types\Extensions\Vector.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

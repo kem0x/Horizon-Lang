@@ -1,6 +1,6 @@
-export module VectorExtensions;
+export module Extensions.Vector;
 
-import Types;
+import Types.Core;
 
 export
 {

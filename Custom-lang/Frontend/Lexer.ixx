@@ -2,11 +2,11 @@ export module Lexer;
 
 import<cctype>;
 import<format>;
-import Types;
 import Safety;
-import FlatMap;
-import VectorExtensions;
-import StringExtensions;
+import Types.Core;
+import Types.FlatMap;
+import Extensions.Vector;
+import Extensions.String;
 
 export
 {
@@ -60,7 +60,7 @@ export
         };
 
     private:
-        const static constexpr FlatMap<StringView, LexerTokenType> ReservedKeywords = {
+        static constexpr FlatMap<StringView, LexerTokenType, 2> ReservedKeywords = {
             { { { "let", LexerTokenType::Let }, { "const", LexerTokenType::Const } } }
         };
 

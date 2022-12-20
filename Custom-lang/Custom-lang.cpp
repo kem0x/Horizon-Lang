@@ -2,17 +2,19 @@ import<fstream>;
 import<filesystem>;
 
 import Logger;
+import Types.Core;
 
 import Parser;
-import Enviroment;
-import Interpreter;
+import AST;
+import Runtime.Enviroment;
+import Runtime.Interpreter;
 import Safety;
 
 std::string readFile(std::filesystem::path path)
 {
     std::ifstream f(path, std::ios::in | std::ios::binary);
 
-    const auto size = std::filesystem::file_size(path);
+    const auto size = file_size(path);
     std::string result(size, '\0');
 
     f.read(result.data(), size);
@@ -57,12 +59,12 @@ int main()
 {
     Safety::Init();
 
-    auto parser = Parser();
+    auto parser = std::make_shared<Parser>();
     auto env = std::make_shared<Enviroment>(std::nullopt, true);
 
-    const auto input = "let foo = 30; foo / 2"; // readFile(std::filesystem::current_path() / "test.txt");
+    const auto input = readFile(std::filesystem::current_path() / "test.txt");
 
-    auto program = parser.ProduceAST(input);
+    Shared<Statement> program = parser->ProduceAST(input);
 
     const auto result = Evaluate(program, env);
 

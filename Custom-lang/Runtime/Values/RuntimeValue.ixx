@@ -1,8 +1,8 @@
-export module RuntimeValue;
+export module Runtime.RuntimeValue;
 
 import<format>;
-import Types;
 import Safety;
+import Types.Core;
 
 export
 {

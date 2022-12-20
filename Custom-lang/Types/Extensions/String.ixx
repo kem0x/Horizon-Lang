@@ -1,6 +1,6 @@
-export module StringExtensions;
+export module Extensions.String;
 
-import Types;
+import Types.Core;
 
 export
 {

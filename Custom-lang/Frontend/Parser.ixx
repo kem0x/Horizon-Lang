@@ -2,12 +2,12 @@ export module Parser;
 
 import<format>;
 import<optional>;
-import Types;
+import Types.Core;
 import Safety;
 import Logger;
 import Lexer;
 import AST;
-import VectorExtensions;
+import Extensions.Vector;
 
 export
 {
@@ -74,8 +74,6 @@ export
 
         auto ParsePrimaryExpr() -> Shared<Expr>
         {
-            Log<Info>("Current(): %s", Tokens[0].ToString().c_str());
-
             switch (Current().Type)
             {
             case LexerTokenType::Identifier:

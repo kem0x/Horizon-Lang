@@ -1,14 +1,14 @@
-export module Interpreter;
+export module Runtime.Interpreter;
 
 import<format>;
-import Types;
+import Types.Core;
 import Safety;
 import AST;
-import Enviroment;
-import RuntimeValue;
-import NumberValue;
-import NullValue;
-import ObjectValue;
+import Runtime.Enviroment;
+import Runtime.RuntimeValue;
+import Runtime.NumberValue;
+import Runtime.NullValue;
+import Runtime.ObjectValue;
 
 auto Evaluate(Shared<Statement> node, Shared<Enviroment> env) -> Shared<RuntimeValue>;
 

@@ -1,6 +1,6 @@
-export module NullValue;
+export module Runtime.NullValue;
 
-import RuntimeValue;
+import Runtime.RuntimeValue;
 
 export
 {

@@ -1,6 +1,6 @@
 export module Logger;
 
-import Types;
+import Types.Core;
 import<stdio.h>;
 
 export

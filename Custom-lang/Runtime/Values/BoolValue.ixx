@@ -1,8 +1,8 @@
-export module BoolValue;
+export module Runtime.BoolValue;
 
 import<format>;
-import Types;
-import RuntimeValue;
+import Types.Core;
+import Runtime.RuntimeValue;
 
 export
 {

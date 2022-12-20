@@ -1,6 +1,6 @@
 export module Safety;
 
-import Types;
+import Types.Core;
 import Logger;
 
 #define _CRTDBG_MAP_ALLOC

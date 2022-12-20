@@ -1,13 +1,13 @@
-export module Enviroment;
+export module Runtime.Enviroment;
 
 import<memory>;
 import<format>;
-import Types;
-import FlatMap;
 import Safety;
-import RuntimeValue;
-import BoolValue;
-import NullValue;
+import Types.Core;
+import Types.FlatMap;
+import Runtime.RuntimeValue;
+import Runtime.BoolValue;
+import Runtime.NullValue;
 
 export
 {

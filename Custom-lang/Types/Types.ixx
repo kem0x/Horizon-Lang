@@ -1,10 +1,10 @@
-export module Types;
+export module Types.Core;
 
 import<memory>;
 import<string>;
 import<optional>;
-import<array>;
 import<vector>;
+import<array>;
 
 export
 {
@@ -23,8 +23,8 @@ export
     template <typename T>
     using Vector = std::vector<T>;
 
-    template <typename T, size_t Size>
-    using Array = std::array<T, Size>;
+    template <class T, std::size_t N>
+    using Array = std::array<T, N>;
 
     template <typename T, typename U>
     using Pair = std::pair<T, U>;

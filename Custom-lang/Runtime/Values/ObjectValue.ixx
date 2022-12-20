@@ -1,9 +1,9 @@
-export module ObjectValue;
+export module Runtime.ObjectValue;
 
 import<format>;
-import Types;
-import RuntimeValue;
-import FlatMap;
+import Types.Core;
+import Types.FlatMap;
+import Runtime.RuntimeValue;
 
 export
 {

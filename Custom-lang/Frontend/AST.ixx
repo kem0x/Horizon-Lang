@@ -2,7 +2,7 @@ export module AST;
 
 import<memory>;
 import<format>;
-import Types;
+import Types.Core;
 import Lexer;
 import Safety;
 

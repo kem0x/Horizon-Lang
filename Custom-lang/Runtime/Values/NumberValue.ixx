@@ -1,8 +1,8 @@
-export module NumberValue;
+export module Runtime.NumberValue;
 
 import<format>;
-import Types;
-import RuntimeValue;
+import Types.Core;
+import Runtime.RuntimeValue;
 
 export
 {

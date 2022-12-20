@@ -1,18 +1,19 @@
-#include <type_traits>
+export module Types.FlatMap;
 
-export module FlatMap;
-
-import Types;
+import<array>;
+import<type_traits>;
+import<initializer_list>;
+import Types.Core;
 
 export
 {
     template <typename KeyType, typename ValueType, size_t Size = 0>
     struct FlatMap
     {
-        using ArrayType = std::conditional<
+        using ArrayType = std::conditional_t<
             Size == 0,
             Vector<Pair<KeyType, ValueType>>,
-            Array<Pair<KeyType, ValueType>, Size>>::type;
+            Array<Pair<KeyType, ValueType>, Size>>;
 
         ArrayType data;
 
@@ -21,7 +22,7 @@ export
             return data.size();
         }
 
-        template <typename = std::enable_if_t<std::is_same<Vector<Pair<KeyType, ValueType>>, ArrayType>::value>>
+        template <typename = std::enable_if_t<std::is_same_v<Vector<Pair<KeyType, ValueType>>, ArrayType>>>
         constexpr auto set(const KeyType& key, const ValueType& value) -> void
         {
             if (has(key))

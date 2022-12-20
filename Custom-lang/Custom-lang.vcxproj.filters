@@ -24,49 +24,49 @@
     <ClCompile Include="Safety.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Types.ixx">
+    <ClCompile Include="Types\Types.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Logger.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Parser.ixx">
+    <ClCompile Include="Frontend\Parser.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lexer.ixx">
+    <ClCompile Include="Frontend\Lexer.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlatMap.ixx">
+    <ClCompile Include="Types\FlatMap.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vector.ixx">
+    <ClCompile Include="Types\Extensions\Vector.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="String.ixx">
+    <ClCompile Include="Types\Extensions\String.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AST.ixx">
+    <ClCompile Include="Frontend\AST.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Enviroment.ixx">
+    <ClCompile Include="Runtime\Enviroment.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RuntimeValue.ixx">
+    <ClCompile Include="Runtime\Values\RuntimeValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NullValue.ixx">
+    <ClCompile Include="Runtime\Values\NullValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BoolValue.ixx">
+    <ClCompile Include="Runtime\Values\BoolValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter.ixx">
+    <ClCompile Include="Runtime\Interpreter.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NumberValue.ixx">
+    <ClCompile Include="Runtime\Values\NumberValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectValue.ixx">
+    <ClCompile Include="Runtime\Values\ObjectValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
