@@ -24,8 +24,11 @@ export
         CloseParen,
         OpenBrace,
         CloseBrace,
+        OpenBracket,
+        CloseBracket,
         Equals,
         Comma,
+        Dot,
         Colon,
         Semicolon,
         BinaryOperator,
@@ -128,6 +131,9 @@ export
                 case ',':
                     Tokens.push_back({ LexerTokenType::Comma, Advance() });
                     break;
+                case '.':
+                    Tokens.push_back({ LexerTokenType::Dot, Advance() });
+                    break;
                 case ':':
                     Tokens.push_back({ LexerTokenType::Colon, Advance() });
                     break;
@@ -148,6 +154,12 @@ export
                     break;
                 case '}':
                     Tokens.push_back({ LexerTokenType::CloseBrace, Advance() });
+                    break;
+                case '[':
+                    Tokens.push_back({ LexerTokenType::OpenBracket, Advance() });
+                    break;
+                case ']':
+                    Tokens.push_back({ LexerTokenType::CloseBracket, Advance() });
                     break;
                 case '+':
                 case '-':

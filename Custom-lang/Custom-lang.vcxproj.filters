@@ -45,10 +45,7 @@
     <ClCompile Include="Types\Extensions\String.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Frontend\AST.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Runtime\Enviroment.ixx">
+    <ClCompile Include="Runtime\ExecutionContext.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Runtime\Values\RuntimeValue.ixx">
@@ -67,6 +64,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Runtime\Values\ObjectValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Frontend\AST\Statements.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Frontend\AST\Core.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Frontend\AST\Expressions.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Evaluation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Stmt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Values\FunctionValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,7 +12,8 @@ export
         NullValue,
         BoolValue,
         NumberValue,
-        ObjectValue
+        ObjectValue,
+        FunctionValue
     };
 
     constexpr const char* RuntimeValueTypeToString(RuntimeValueType Type)
@@ -27,6 +28,8 @@ export
             return "NumberValue";
         case RuntimeValueType::ObjectValue:
             return "ObjectValue";
+        case RuntimeValueType::FunctionValue:
+            return "FunctionValue";
 
         default:
             return "Unknown (?)";

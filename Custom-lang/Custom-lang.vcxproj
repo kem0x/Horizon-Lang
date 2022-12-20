@@ -149,10 +149,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Frontend\AST.ixx" />
+    <ClCompile Include="Frontend\AST\Core.ixx" />
+    <ClCompile Include="Frontend\AST\Expressions.ixx" />
+    <ClCompile Include="Frontend\AST\Statements.ixx" />
+    <ClCompile Include="Runtime\Evaluation.cpp" />
+    <ClCompile Include="Runtime\Stmt.cpp" />
     <ClCompile Include="Runtime\Values\BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
-    <ClCompile Include="Runtime\Enviroment.ixx" />
+    <ClCompile Include="Runtime\ExecutionContext.ixx" />
+    <ClCompile Include="Runtime\Values\FunctionValue.ixx" />
     <ClCompile Include="Types\FlatMap.ixx" />
     <ClCompile Include="Runtime\Interpreter.ixx" />
     <ClCompile Include="Frontend\Lexer.ixx" />

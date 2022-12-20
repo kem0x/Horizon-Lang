@@ -6,7 +6,9 @@ import Types.Core;
 import Safety;
 import Logger;
 import Lexer;
-import AST;
+import AST.Core;
+import AST.Expressions;
+import AST.Statements;
 import Extensions.Vector;
 
 export
@@ -56,15 +58,94 @@ export
             return Left;
         }
 
+        auto ParseCallMemberExpr() -> Shared<Expr>
+        {
+            const auto Member = ParseMemberExpr();
+
+            if (Current().Type == LexerTokenType::OpenParen)
+            {
+                return ParseCallExpr(Member);
+            }
+
+            return Member;
+        }
+
+        auto ParseCallExpr(Shared<Expr> caller) -> Shared<CallExpr>
+        {
+            auto Call = std::make_shared<CallExpr>(caller, ParseArgs());
+
+            if (Current().Type == LexerTokenType::OpenParen)
+            {
+                Call = ParseCallExpr(Call);
+            }
+
+            return Call;
+        }
+
+        auto ParseArgs() -> Vector<Shared<Expr>>
+        {
+            Expect(LexerTokenType::OpenParen, "Expected '('");
+
+            auto Args = Current().Type == LexerTokenType::CloseParen ? Vector<Shared<Expr>>() : ParseArgsList();
+
+            Expect(LexerTokenType::CloseParen, "Expected ')'");
+
+            return Args;
+        }
+
+        auto ParseArgsList() -> Vector<Shared<Expr>>
+        {
+            auto Args = Vector<Shared<Expr>> { std::move(ParseAssignmentExpr()) };
+
+            while (Current().Type == LexerTokenType::Comma)
+            {
+                Advance();
+
+                Args.push_back(std::move(ParseAssignmentExpr()));
+            }
+
+            return Args;
+        }
+
+        auto ParseMemberExpr() -> Shared<Expr>
+        {
+            auto Object = ParsePrimaryExpr();
+
+            while (Current().Type == LexerTokenType::Dot || Current().Type == LexerTokenType::OpenBracket)
+            {
+                const auto Operator = Advance();
+
+                if (Operator.Type == LexerTokenType::Dot)
+                {
+                    auto Property = ParsePrimaryExpr();
+
+                    if (Property->Type != ASTNodeType::Identifier)
+                    {
+                        Safety::Throw("Using a non-identifier as a property is not allowed with dot operator!");
+                    }
+
+                    Object = std::make_shared<MemberExpr>(Object, Property, false);
+                }
+                else
+                {
+                    Object = std::make_shared<MemberExpr>(Object, ParseExpr(), true);
+
+                    Expect(LexerTokenType::CloseBracket, "Expected ']'");
+                }
+            }
+
+            return Object;
+        }
+
         auto ParseMultiplicativeExpr() -> Shared<Expr>
         {
-            auto Left = ParsePrimaryExpr();
+            auto Left = ParseCallMemberExpr();
 
             while (Current().Value == "/" || Current().Value == "*" || Current().Value == "%")
             {
                 auto Operator = Advance().Value;
 
-                auto Right = ParsePrimaryExpr();
+                auto Right = ParseCallMemberExpr();
 
                 Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
             }

@@ -1,12 +1,26 @@
 export module Extensions.String;
 
+import<fstream>;
+import<filesystem>;
 import Types.Core;
 
 export
 {
     namespace StringExtensions
     {
-        inline auto Shift(String& String) -> char
+        __forceinline auto ReadFile(std::filesystem::path path) -> String
+        {
+            std::ifstream f(path, std::ios::in | std::ios::binary);
+
+            const auto size = file_size(path);
+            String result(size, '\0');
+
+            f.read(result.data(), size);
+
+            return result;
+        }
+
+        __forceinline auto Shift(String& String) -> char
         {
             auto Value = String[0];
             String.erase(String.begin());

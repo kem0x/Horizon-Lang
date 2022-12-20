@@ -2,31 +2,21 @@ import<fstream>;
 import<filesystem>;
 
 import Logger;
+import Safety;
 import Types.Core;
 
+import Extensions.String;
+
 import Parser;
-import AST;
-import Runtime.Enviroment;
-import Runtime.Interpreter;
-import Safety;
-
-std::string readFile(std::filesystem::path path)
-{
-    std::ifstream f(path, std::ios::in | std::ios::binary);
-
-    const auto size = file_size(path);
-    std::string result(size, '\0');
-
-    f.read(result.data(), size);
-
-    return result;
-}
+import AST.Core;
+import Runtime.ExecutionContext;
+import Interpreter;
 
 /*
 void repl()
 {
     auto parser = std::make_shared<Parser>();
-    auto env = std::make_shared<Enviroment>();
+    auto ctx = std::make_shared<ExecutionContext>();
 
     Log<Info>("Interpreter V0.1");
 
@@ -48,7 +38,7 @@ void repl()
 
         // Log<Info>("Program: %s", program->ToString().c_str());
 
-        auto result = Evaluate(program, env);
+        auto result = Evaluate(program, ctx);
 
         Log<Info>("Result: %s", result->ToString().c_str());
     }
@@ -60,13 +50,15 @@ int main()
     Safety::Init();
 
     auto parser = std::make_shared<Parser>();
-    auto env = std::make_shared<Enviroment>(std::nullopt, true);
+    auto ctx = std::make_shared<ExecutionContext>(std::nullopt, true);
 
-    const auto input = readFile(std::filesystem::current_path() / "test.txt");
+    const auto path = std::filesystem::current_path() / "test.txt";
+
+    const auto input = StringExtensions::ReadFile(path);
 
     Shared<Statement> program = parser->ProduceAST(input);
 
-    const auto result = Evaluate(program, env);
+    const auto result = Evaluate(program, ctx);
 
     Log<Info>("Result: %s", result->ToString().c_str());
 

@@ -1,4 +1,4 @@
-export module Runtime.Enviroment;
+export module Runtime.ExecutionContext;
 
 import<memory>;
 import<format>;
@@ -8,24 +8,30 @@ import Types.FlatMap;
 import Runtime.RuntimeValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
+import Runtime.FunctionValue;
 
 export
 {
-    struct Enviroment : public std::enable_shared_from_this<Enviroment>
+    struct ExecutionContext : public std::enable_shared_from_this<ExecutionContext>
     {
-        Optional<Shared<Enviroment>> Parent;
+        Optional<Shared<ExecutionContext>> Parent;
 
         FlatMap<String, Shared<RuntimeValue>> Variables;
 
-        Enviroment() = default;
+        ExecutionContext() = default;
 
-        Enviroment(const Optional<Shared<Enviroment>>& parent, bool isGlobal = false)
+        ExecutionContext(const Optional<Shared<ExecutionContext>>& parent, bool isGlobal = false)
         {
             if (isGlobal)
             {
                 DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
                 DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
                 DeclareVar("null", NullValue().As<NullValue>(), true);
+
+                DeclareVar("print", FunctionValue([]
+                                        { printf("Test\n"); })
+                                        .As<FunctionValue>(),
+                    true);
             }
 
             if (parent.has_value())
@@ -50,26 +56,26 @@ export
 
         auto AssignVar(String name, Shared<RuntimeValue> value) -> Shared<RuntimeValue>
         {
-            auto env = Resolve(name);
+            auto ctx = Resolve(name);
 
-            if (env->Variables.at(name)->IsConstant)
+            if (ctx->Variables.at(name)->IsConstant)
             {
                 Safety::Throw(std::format("Variable '{}' is constant and cannot be assigned to!", name.c_str()));
             }
 
-            env->Variables.set(name, value);
+            ctx->Variables.set(name, value);
 
             return value;
         }
 
         auto LookupVar(String name) -> Shared<RuntimeValue>
         {
-            auto env = Resolve(name);
+            auto ctx = Resolve(name);
 
-            return env->Variables.at(name);
+            return ctx->Variables.at(name);
         }
 
-        auto Resolve(String name) -> Shared<Enviroment>
+        auto Resolve(String name) -> Shared<ExecutionContext>
         {
             if (Variables.has(name))
             {
