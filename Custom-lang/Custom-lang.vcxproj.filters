@@ -21,79 +21,53 @@
     <ClCompile Include="Custom-lang.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Frontend\Lexer.cpp">
+    <ClCompile Include="Safety.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Frontend\Parser.cpp">
+    <ClCompile Include="Types.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Interpreter.cpp">
+    <ClCompile Include="Logger.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Evaluation\Expressions.cpp">
+    <ClCompile Include="Parser.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Evaluation\Statements.cpp">
+    <ClCompile Include="Lexer.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Enviroment.cpp">
+    <ClCompile Include="FlatMap.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Frontend\Lexer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types\Extensions\Vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types\FlatMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types\Extensions\String.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Frontend\AST.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Frontend\Parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Interpreter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Values\RuntimeValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Enviroment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Values\NullValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Values\BoolValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Values\NumberValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Evaluation\Statements.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Evaluation\Expressions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Safety.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types\Core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Runtime\Values\ObjectValue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="Vector.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="String.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AST.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Enviroment.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NullValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoolValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

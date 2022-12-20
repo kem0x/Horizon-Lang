@@ -1,12 +1,12 @@
-#include <filesystem>
-#include <fstream>
+import<fstream>;
+import<filesystem>;
 
-#include "Safety.h"
+import Logger;
 
-#include "Types/Core.h"
-#include "Frontend/Parser.h"
-#include "Runtime/Interpreter.h"
-#include "Runtime/Values/BoolValue.h"
+import Parser;
+import Enviroment;
+import Interpreter;
+import Safety;
 
 std::string readFile(std::filesystem::path path)
 {
@@ -57,12 +57,12 @@ int main()
 {
     Safety::Init();
 
-    auto parser = std::make_shared<Parser>();
+    auto parser = Parser();
     auto env = std::make_shared<Enviroment>(std::nullopt, true);
 
-    const auto input = readFile(std::filesystem::current_path() / "test.txt");
+    const auto input = "let foo = 30; foo / 2"; // readFile(std::filesystem::current_path() / "test.txt");
 
-    const auto program = parser->ProduceAST(input);
+    auto program = parser.ProduceAST(input);
 
     const auto result = Evaluate(program, env);
 

@@ -120,6 +120,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>true</EnableModules>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,6 +138,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>true</EnableModules>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,33 +149,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AST.ixx" />
+    <ClCompile Include="BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
-    <ClCompile Include="Frontend\Lexer.cpp" />
-    <ClCompile Include="Frontend\Parser.cpp" />
-    <ClCompile Include="Runtime\Enviroment.cpp" />
-    <ClCompile Include="Runtime\Evaluation\Expressions.cpp" />
-    <ClCompile Include="Runtime\Evaluation\Statements.cpp" />
-    <ClCompile Include="Runtime\Interpreter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Runtime\Values\ObjectValue.h" />
-    <ClInclude Include="Safety.h" />
-    <ClInclude Include="Runtime\Enviroment.h" />
-    <ClInclude Include="Frontend\AST.h" />
-    <ClInclude Include="Runtime\Evaluation\Expressions.h" />
-    <ClInclude Include="Runtime\Evaluation\Statements.h" />
-    <ClInclude Include="Runtime\Interpreter.h" />
-    <ClInclude Include="Runtime\Values\BoolValue.h" />
-    <ClInclude Include="Runtime\Values\NullValue.h" />
-    <ClInclude Include="Runtime\Values\NumberValue.h" />
-    <ClInclude Include="Types\Core.h" />
-    <ClInclude Include="Types\Extensions\String.h" />
-    <ClInclude Include="Types\Extensions\Vector.h" />
-    <ClInclude Include="Frontend\Lexer.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="Frontend\Parser.h" />
-    <ClInclude Include="Types\FlatMap.h" />
-    <ClInclude Include="Runtime\Values\RuntimeValue.h" />
+    <ClCompile Include="Enviroment.ixx" />
+    <ClCompile Include="FlatMap.ixx" />
+    <ClCompile Include="Interpreter.ixx" />
+    <ClCompile Include="Lexer.ixx" />
+    <ClCompile Include="Logger.ixx" />
+    <ClCompile Include="NullValue.ixx" />
+    <ClCompile Include="NumberValue.ixx" />
+    <ClCompile Include="ObjectValue.ixx" />
+    <ClCompile Include="Parser.ixx" />
+    <ClCompile Include="RuntimeValue.ixx" />
+    <ClCompile Include="Safety.ixx" />
+    <ClCompile Include="String.ixx" />
+    <ClCompile Include="Types.ixx" />
+    <ClCompile Include="Vector.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
