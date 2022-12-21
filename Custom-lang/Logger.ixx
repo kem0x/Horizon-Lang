@@ -1,7 +1,7 @@
 export module Logger;
 
 import Types.Core;
-import<stdio.h>;
+import <stdio.h>;
 
 export
 {
@@ -18,19 +18,19 @@ export
     namespace Logger
     {
         template <LogType type>
-        constexpr auto TypeToString() -> const char*
+        constexpr const char* TypeToString()
         {
             switch (type)
             {
-            case LogType::Debug:
+            case Debug:
                 return "[#]";
-            case LogType::Error:
+            case Error:
                 return "[-]";
-            case LogType::Warning:
+            case Warning:
                 return "[!]";
-            case LogType::Info:
+            case Info:
                 return "[=]";
-            case LogType::Success:
+            case Success:
                 return "[+]";
             }
 
@@ -39,7 +39,7 @@ export
     }
 
     template <LogType type, bool logType = true, bool newLine = true, typename... Args>
-    constexpr auto Log(const char* format, Args... args)->void
+    constexpr void Log(const char* format, Args... args)
     {
         if constexpr (logType)
         {

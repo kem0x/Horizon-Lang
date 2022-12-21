@@ -1,7 +1,7 @@
 export module Runtime.ExecutionContext;
 
-import<memory>;
-import<format>;
+import <memory>;
+import <format>;
 import Safety;
 import Types.Core;
 import Types.FlatMap;
@@ -40,7 +40,7 @@ export
             }
         }
 
-        auto DeclareVar(String name, Shared<RuntimeValue> value, bool constant) -> Shared<RuntimeValue>
+        Shared<RuntimeValue> DeclareVar(String name, Shared<RuntimeValue> value, bool constant)
         {
             if (Variables.has(name))
             {
@@ -54,7 +54,7 @@ export
             return value;
         }
 
-        auto AssignVar(String name, Shared<RuntimeValue> value) -> Shared<RuntimeValue>
+        Shared<RuntimeValue> AssignVar(String name, Shared<RuntimeValue> value)
         {
             auto ctx = Resolve(name);
 
@@ -68,14 +68,14 @@ export
             return value;
         }
 
-        auto LookupVar(String name) -> Shared<RuntimeValue>
+        Shared<RuntimeValue> LookupVar(String name)
         {
             auto ctx = Resolve(name);
 
             return ctx->Variables.at(name);
         }
 
-        auto Resolve(String name) -> Shared<ExecutionContext>
+        Shared<ExecutionContext> Resolve(String name)
         {
             if (Variables.has(name))
             {

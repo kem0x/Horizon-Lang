@@ -1,6 +1,6 @@
 export module AST.Expressions;
 
-import<format>;
+import <format>;
 import Types.Core;
 import AST.Core;
 
@@ -18,9 +18,14 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\nAssigne: '{}',\nValue: '{}'\n}}", ASTNodeTypeToString(Type), Assigne->ToString(), Value->ToString());
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tAssigne: '{2}',\n{0}\tValue: '{3}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Assigne->ToString(indentation + "\t"),
+                Value->ToString(indentation + "\t"));
+
+            return output;
         }
     };
 
@@ -36,18 +41,21 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            String ret = "Arguments: [ ";
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tCallee: '{2}',\n",
+                indentation, ASTNodeTypeToString(Type), Callee->ToString(indentation + "\t"));
 
+            output += indentation + "\tArguments: [";
             for (auto&& Arg : Arguments)
             {
-                ret += Arg->ToString() + ", \n";
+                output += "\n" + indentation + "\t\t" + Arg->ToString(indentation + "\t\t") + ",";
             }
+            output += "\n" + indentation + "\t]";
 
-            ret.erase(ret.end() - 2, ret.end());
+            output += "\n" + indentation + "}";
 
-            return std::format("{{\n\tType: '{}',\nCallee: '{}',\n{}\n}}", ASTNodeTypeToString(Type), Callee->ToString(), ret);
+            return output;
         }
     };
 
@@ -65,9 +73,13 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\nObject: '{}',\nProperty: '{}',\nComputed: '{}'\n}}", ASTNodeTypeToString(Type), Object->ToString(), Property->ToString(), Computed);
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tObject: '{2}',\n{0}\tProperty: '{3}',\n{0}\tComputed: '{4}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Object->ToString(indentation + "\t"),
+                Property->ToString(indentation + "\t"),
+                Computed);
         }
     };
 
@@ -85,9 +97,75 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\nLeft: '{}',\nRight: '{}',\n\tOperator: '{}'\n}}", ASTNodeTypeToString(Type), Left->ToString(), Right->ToString(), Operator);
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tLeft: '{2}',\n{0}\tRight: '{3}',\n{0}\tOperator: '{4}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Left->ToString(indentation + "\t"),
+                Right->ToString(indentation + "\t"),
+                Operator);
+
+            return output;
+        }
+    };
+
+    struct BlockExpr : Expr
+    {
+        Vector<Shared<Statement>> Statements;
+
+        BlockExpr(Vector<Shared<Statement>> statements)
+            : Expr { ASTNodeType::BlockExpr }
+            , Statements(statements)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tStatements: [",
+                indentation, ASTNodeTypeToString(Type));
+
+            for (auto&& Stmt : Statements)
+            {
+                output += "\n" + indentation + "\t\t" + Stmt->ToString(indentation + "\t\t") + ",";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
+    struct IfExpr : public Expr
+    {
+        Shared<Expr> Condition;
+        Shared<BlockExpr> Then;
+        Optional<Shared<BlockExpr>> Else;
+
+        IfExpr(Shared<Expr> condition, Shared<BlockExpr> then, Optional<Shared<BlockExpr>> else_)
+            : Expr { ASTNodeType::IfExpr }
+            , Condition(std::move(condition))
+            , Then(then)
+            , Else(else_)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tCondition: '{2}',\n{0}\tThenBranch: '{3}'",
+                indentation, ASTNodeTypeToString(Type),
+                Condition->ToString(indentation + "\t"),
+                Then->ToString(indentation + "\t"));
+
+            if (Else)
+            {
+                output += ",\n" + indentation + "\tElseBranch: '" + Else.value()->ToString(indentation + "\t") + "'";
+            }
+
+            output += "\n" + indentation + "}";
+
+            return output;
         }
     };
 
@@ -101,9 +179,10 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\n\tName: '{}'\n}}", ASTNodeTypeToString(Type), Name);
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type), Name);
         }
     };
 
@@ -117,9 +196,27 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\n\tValue: '{}'\n}}", ASTNodeTypeToString(Type), std::to_string(Value));
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type), Value);
+        }
+    };
+
+    struct StringLiteral : public Expr
+    {
+        String Value;
+
+        StringLiteral(String value)
+            : Expr { ASTNodeType::StringLiteral }
+            , Value(value)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type), Value);
         }
     };
 
@@ -135,9 +232,12 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\n\tKey: '{}',\n\tValue: '{}'\n}}", ASTNodeTypeToString(Type), Key, Value.has_value() ? Value.value()->ToString() : "null");
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tKey: '{2}',\n{0}\tValue: '{3}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Key,
+                Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null");
         }
     };
 
@@ -151,19 +251,21 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            String ret = "Properties: [ ";
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tProperties: [",
+                indentation, ASTNodeTypeToString(Type));
 
             for (auto&& Prop : Properties)
             {
-                ret += Prop->ToString() + ", \n";
+                output += "\n" + indentation + "\t\t" + Prop->ToString(indentation + "\t\t") + ",";
             }
 
-            ret.erase(ret.end() - 2, ret.end());
-            ret += " \n\t]";
+            output += "\n" + indentation + "\t]";
 
-            return ret;
+            output += "\n" + indentation + "}";
+
+            return output;
         }
     };
 }

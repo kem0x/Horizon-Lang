@@ -158,6 +158,7 @@
     <ClCompile Include="Custom-lang.cpp" />
     <ClCompile Include="Runtime\ExecutionContext.ixx" />
     <ClCompile Include="Runtime\Values\FunctionValue.ixx" />
+    <ClCompile Include="Runtime\Values\StringValue.ixx" />
     <ClCompile Include="Types\FlatMap.ixx" />
     <ClCompile Include="Runtime\Interpreter.ixx" />
     <ClCompile Include="Frontend\Lexer.ixx" />

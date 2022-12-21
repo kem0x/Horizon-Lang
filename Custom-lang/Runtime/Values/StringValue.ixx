@@ -1,4 +1,4 @@
-export module Runtime.BoolValue;
+export module Runtime.StringValue;
 
 import <format>;
 import Types.Core;
@@ -6,12 +6,12 @@ import Runtime.RuntimeValue;
 
 export
 {
-    struct BoolValue : RuntimeValue
+    struct StringValue : RuntimeValue
     {
-        bool Value;
+        std::string Value;
 
-        BoolValue(bool value)
-            : RuntimeValue { RuntimeValueType::BoolValue }
+        StringValue(std::string value)
+            : RuntimeValue { RuntimeValueType::StringValue }
             , Value(value)
         {
         }
@@ -19,6 +19,6 @@ export
         String ToString() override
         {
             return std::format("{{\nType: '{}',\nValue: '{}'\n}}", RuntimeValueTypeToString(Type), Value);
-        };
+        }
     };
 }

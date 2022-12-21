@@ -1,10 +1,10 @@
 export module Types.Core;
 
-import<memory>;
-import<string>;
-import<optional>;
-import<vector>;
-import<array>;
+import <memory>;
+import <string>;
+import <optional>;
+import <vector>;
+import <array>;
 
 export
 {

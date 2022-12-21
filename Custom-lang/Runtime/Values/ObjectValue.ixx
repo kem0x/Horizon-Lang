@@ -1,6 +1,6 @@
 export module Runtime.ObjectValue;
 
-import<format>;
+import <format>;
 import Types.Core;
 import Types.FlatMap;
 import Runtime.RuntimeValue;
@@ -16,7 +16,7 @@ export
         {
         }
 
-        auto ToString() -> String override
+        String ToString() override
         {
             String result = "{\n";
             for (auto i = 0; i < Properties.size(); i++)

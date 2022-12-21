@@ -1,7 +1,7 @@
 export module Lexer;
 
-import<cctype>;
-import<format>;
+import <cctype>;
+import <format>;
 import Safety;
 import Types.Core;
 import Types.FlatMap;
@@ -19,6 +19,8 @@ export
 
         Let,
         Const,
+        If,
+        Else,
 
         OpenParen,
         CloseParen,
@@ -56,29 +58,45 @@ export
             {
             }
 
-            auto ToString() -> String
+            String ToString()
             {
-                return std::format("{{\nType: '{}',\nValue: '{}'\n}}", std::to_string(int(Type)), Value);
+                return std::format("{{\nType: '{}',\nValue: '{}'\n}}", std::to_string(static_cast<int>(Type)), Value);
             }
         };
 
     private:
-        static constexpr FlatMap<StringView, LexerTokenType, 2> ReservedKeywords = {
-            { { { "let", LexerTokenType::Let }, { "const", LexerTokenType::Const } } }
+        static constexpr FlatMap<StringView, LexerTokenType, 4> ReservedKeywords = {
+            { { { "let", LexerTokenType::Let },
+                { "const", LexerTokenType::Const },
+                { "if", LexerTokenType::If },
+                { "else", LexerTokenType::Else } } }
         };
 
         String Source;
 
         Vector<Token> Tokens;
 
-        __forceinline auto Advance() -> char
+        __forceinline char Advance()
         {
             return StringExtensions::Shift(Source);
         }
 
-        auto HandleMultiCharacterToken() -> void
+        void HandleMultiCharacterToken()
         {
-            if (std::isdigit(Source[0]))
+            if (Source[0] == '"')
+            {
+                String StringValue;
+
+                Advance();
+                while (Source.size() > 0 && Source[0] != '"')
+                {
+                    StringValue += Advance();
+                }
+                Advance();
+
+                Tokens.push_back({ LexerTokenType::String, StringValue });
+            }
+            else if (std::isdigit(Source[0]))
             {
                 String Number;
                 while (Source.size() > 0 && std::isdigit(Source[0]))
@@ -122,7 +140,7 @@ export
         {
         }
 
-        auto Tokenize() -> Vector<Token>
+        Vector<Token> Tokenize()
         {
             while (Source.size() > 0)
             {

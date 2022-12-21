@@ -1,8 +1,8 @@
 export module Types.FlatMap;
 
-import<array>;
-import<type_traits>;
-import<initializer_list>;
+import <array>;
+import <type_traits>;
+import <initializer_list>;
 import Types.Core;
 
 export
@@ -17,13 +17,13 @@ export
 
         ArrayType data;
 
-        constexpr auto size() const -> size_t
+        constexpr size_t size() const
         {
             return data.size();
         }
 
         template <typename = std::enable_if_t<std::is_same_v<Vector<Pair<KeyType, ValueType>>, ArrayType>>>
-        constexpr auto set(const KeyType& key, const ValueType& value) -> void
+        constexpr void set(const KeyType& key, const ValueType& value)
         {
             if (has(key))
             {
@@ -73,7 +73,7 @@ export
             return at(key);
         }
 
-        constexpr auto operator[](int index) const -> Pair<KeyType, ValueType>
+        constexpr Pair<KeyType, ValueType> operator[](int index) const
         {
             return data[index];
         }

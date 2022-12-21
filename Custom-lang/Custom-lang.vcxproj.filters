@@ -84,5 +84,8 @@
     <ClCompile Include="Runtime\Values\FunctionValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\Values\StringValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

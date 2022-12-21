@@ -1,6 +1,6 @@
 module Interpreter;
 
-import<format>;
+import <format>;
 import Types.Core;
 import Safety;
 import AST.Core;
@@ -12,7 +12,7 @@ import Runtime.NumberValue;
 import Runtime.NullValue;
 import Runtime.ObjectValue;
 
-auto EvalProgram(Shared<Program> program, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalProgram(Shared<Program> program, Shared<ExecutionContext> ctx)
 {
     Shared<RuntimeValue> LastEvaluatedValue = std::make_shared<NullValue>();
 
@@ -24,7 +24,7 @@ auto EvalProgram(Shared<Program> program, Shared<ExecutionContext> ctx) -> Share
     return LastEvaluatedValue;
 }
 
-auto EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<ExecutionContext> ctx)
 {
     const auto Value = declaration->Value.has_value()
         ? Evaluate(declaration->Value.value(), ctx)

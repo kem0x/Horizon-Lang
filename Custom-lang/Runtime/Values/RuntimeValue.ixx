@@ -1,6 +1,6 @@
 export module Runtime.RuntimeValue;
 
-import<format>;
+import <format>;
 import Safety;
 import Types.Core;
 
@@ -12,6 +12,7 @@ export
         NullValue,
         BoolValue,
         NumberValue,
+        StringValue,
         ObjectValue,
         FunctionValue
     };
@@ -26,6 +27,8 @@ export
             return "BoolValue";
         case RuntimeValueType::NumberValue:
             return "NumberValue";
+        case RuntimeValueType::StringValue:
+            return "StringValue";
         case RuntimeValueType::ObjectValue:
             return "ObjectValue";
         case RuntimeValueType::FunctionValue:
@@ -49,13 +52,13 @@ export
         }
 
         template <typename T>
-        auto Is() -> bool
+        bool Is()
         {
             return String(typeid(T).name()).ends_with(RuntimeValueTypeToString(Type));
         }
 
         template <typename T>
-        auto As() -> Shared<T>
+        Shared<T> As()
         {
             if (!Is<T>())
             {
@@ -63,10 +66,10 @@ export
             }
 
             // might be horrible but other solutions corrupt the heap so idk
-            return std::make_shared<T>((T&)*this);
+            return std::make_shared<T>(static_cast<T&>(*this));
         }
 
-        virtual auto ToString() -> String
+        virtual String ToString()
         {
             return std::format("{{\nType: '{}'\n}}", RuntimeValueTypeToString(Type));
         };

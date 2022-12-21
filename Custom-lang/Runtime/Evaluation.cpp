@@ -1,6 +1,6 @@
 module Interpreter;
 
-import<format>;
+import <format>;
 import Types.Core;
 import Logger;
 import Safety;
@@ -9,16 +9,18 @@ import AST.Expressions;
 import AST.Statements;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
+import Runtime.BoolValue;
 import Runtime.NumberValue;
+import Runtime.StringValue;
 import Runtime.NullValue;
 import Runtime.ObjectValue;
 import Runtime.FunctionValue;
 
-auto Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>;
-auto EvalProgram(Shared<Program> program, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>;
-auto EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>;
+Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
+Shared<RuntimeValue> EvalProgram(Shared<Program> program, Shared<ExecutionContext> ctx);
+Shared<RuntimeValue> EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<ExecutionContext> ctx);
 
-auto EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator) -> Shared<NumberValue>
+Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator)
 {
     float result = 0;
 
@@ -41,7 +43,7 @@ auto EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, 
     }
     else if (Operator == "%")
     {
-        result = (int)left->Value % (int)right->Value;
+        result = static_cast<int>(left->Value) % static_cast<int>(right->Value);
     }
     else
     {
@@ -51,7 +53,7 @@ auto EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, 
     return std::make_shared<NumberValue>(result);
 }
 
-auto EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx)
 {
     auto left = Evaluate(biexpr->Left, ctx);
     auto right = Evaluate(biexpr->Right, ctx);
@@ -64,12 +66,12 @@ auto EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx) -> 
     return std::make_shared<NullValue>();
 }
 
-auto EvalIdentifier(Shared<Identifier> ident, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalIdentifier(Shared<Identifier> ident, Shared<ExecutionContext> ctx)
 {
     return ctx->LookupVar(ident->Name);
 }
 
-auto EvalAssignment(Shared<AssignmentExpr> node, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<ExecutionContext> ctx)
 {
     if (node->Assigne->Type != ASTNodeType::Identifier)
     {
@@ -81,7 +83,7 @@ auto EvalAssignment(Shared<AssignmentExpr> node, Shared<ExecutionContext> ctx) -
     return ctx->AssignVar(Name, Evaluate(node->Value, ctx));
 }
 
-auto EvalObjectExpr(Shared<ObjectLiteral> node, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<ExecutionContext> ctx)
 {
     auto Object = std::make_shared<ObjectValue>();
 
@@ -95,7 +97,19 @@ auto EvalObjectExpr(Shared<ObjectLiteral> node, Shared<ExecutionContext> ctx) ->
     return Object;
 }
 
-auto EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionContext> ctx)
+{
+    Shared<RuntimeValue> LastEvaluatedValue = std::make_shared<NullValue>();
+
+    for (auto&& stmt : node->Statements)
+    {
+        LastEvaluatedValue = std::move(Evaluate(stmt, ctx));
+    }
+
+    return LastEvaluatedValue;
+}
+
+Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx)
 {
     auto Callee = Evaluate(node->Callee, ctx);
 
@@ -104,7 +118,23 @@ auto EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx) -> Shared
     return std::make_shared<NumberValue>(0);
 }
 
-auto Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx) -> Shared<RuntimeValue>
+Shared<RuntimeValue> EvalIfExpr(Shared<IfExpr> node, Shared<ExecutionContext> ctx)
+{
+    auto Condition = Evaluate(node->Condition, ctx);
+
+    if (Condition->Is<BoolValue>() && Condition->As<BoolValue>()->Value == true)
+    {
+        return Evaluate(node->Then, ctx);
+    }
+    else if (node->Else.has_value())
+    {
+        return Evaluate(node->Else.value(), ctx);
+    }
+
+    return std::make_shared<NullValue>();
+}
+
+Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
 {
     switch (node->Type)
     {
@@ -112,6 +142,12 @@ auto Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx) -> Shared<Ru
     {
         auto Value = node->As<NumericLiteral>()->Value;
         return std::make_shared<NumberValue>(Value);
+    }
+
+    case ASTNodeType::StringLiteral:
+    {
+        auto Value = node->As<StringLiteral>()->Value;
+        return std::make_shared<StringValue>(Value);
     }
 
     case ASTNodeType::Identifier:
@@ -144,9 +180,19 @@ auto Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx) -> Shared<Ru
         return EvalAssignment(node->As<AssignmentExpr>(), ctx);
     }
 
+    case ASTNodeType::IfExpr:
+    {
+        return EvalIfExpr(node->As<IfExpr>(), ctx);
+    }
+
     case ASTNodeType::CallExpr:
     {
         return EvalCallExpr(node->As<CallExpr>(), ctx);
+    }
+
+    case ASTNodeType::BlockExpr:
+    {
+        return EvalBlockExpr(node->As<BlockExpr>(), ctx);
     }
 
     default:

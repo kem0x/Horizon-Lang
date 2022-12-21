@@ -1,14 +1,14 @@
 export module Extensions.String;
 
-import<fstream>;
-import<filesystem>;
+import <fstream>;
+import <filesystem>;
 import Types.Core;
 
 export
 {
     namespace StringExtensions
     {
-        __forceinline auto ReadFile(std::filesystem::path path) -> String
+        __forceinline String ReadFile(std::filesystem::path path)
         {
             std::ifstream f(path, std::ios::in | std::ios::binary);
 
@@ -20,14 +20,14 @@ export
             return result;
         }
 
-        __forceinline auto Shift(String& String) -> char
+        __forceinline char Shift(String& String)
         {
             auto Value = String[0];
             String.erase(String.begin());
             return Value;
         }
 
-        static constexpr auto LEraseTillLast(StringView& str, char c)
+        __forceinline constexpr auto LEraseTillLast(StringView& str, char c)
         {
             auto ret = str.data();
 

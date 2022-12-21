@@ -1,7 +1,7 @@
 export module Runtime.FunctionValue;
 
-import<functional>;
-import<format>;
+import <functional>;
+import <format>;
 import Types.Core;
 import AST.Core;
 import Runtime.RuntimeValue;
@@ -13,12 +13,12 @@ export
         std::function<void()> Function;
 
         FunctionValue(std::function<void()> function)
-            : Function(function)
-            , RuntimeValue { RuntimeValueType::FunctionValue }
+            : RuntimeValue { RuntimeValueType::FunctionValue }
+            , Function(function)
         {
         }
 
-        auto ToString() -> String override
+        String ToString() override
         {
             return std::format("{{\nType: '{}',\n}}", RuntimeValueTypeToString(Type));
         };

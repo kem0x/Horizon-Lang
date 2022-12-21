@@ -1,6 +1,6 @@
 export module AST.Statements;
 
-import<format>;
+import <format>;
 import Types.Core;
 import Safety;
 import AST.Core;
@@ -16,19 +16,21 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            String ret = "Body: [ ";
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tBody: [",
+                indentation, ASTNodeTypeToString(Type));
 
             for (auto&& Stmt : Body)
             {
-                ret += Stmt->ToString() + ", \n";
+                output += "\n" + indentation + "\t\t" + Stmt->ToString(indentation + "\t\t") + ",";
             }
 
-            ret.erase(ret.end() - 2, ret.end());
-            ret += " \n\t]";
+            output += "\n" + indentation + "\t]";
 
-            return ret;
+            output += "\n" + indentation + "}";
+
+            return output;
         }
     };
 
@@ -46,9 +48,11 @@ export
         {
         }
 
-        virtual auto ToString() -> String override
+        virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n\tType: '{}',\n\tIdentifier: '{}',\nValue: '{}',\n\tisConst: '{}'\n}}", ASTNodeTypeToString(Type), Identifier, Value.has_value() ? Value.value()->ToString() : "null", IsConst);
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tIdentifier: '{2}',\n{0}\tValue: '{3}',\n{0}\tisConst: '{4}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type), Identifier,
+                Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null", IsConst);
         }
     };
 }

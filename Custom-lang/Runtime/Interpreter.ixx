@@ -1,7 +1,7 @@
 export module Interpreter;
 
-import<memory>;
-import<format>;
+import <memory>;
+import <format>;
 import Types.Core;
 import Safety;
 import AST.Core;
@@ -13,5 +13,5 @@ import Runtime.NumberValue;
 
 export
 {
-    auto Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)->Shared<RuntimeValue>;
+    Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
 }

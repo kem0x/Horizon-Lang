@@ -1,12 +1,10 @@
 const foo = 300;
 
-const obj = {
-    x: 100,
-    y: 200,
-    foo,
-    complex: {
-        bar: true,
-    },
-};
+if (true) 
+{
+	let bar = foo / 2;
+	
+	bar = bar + 100;
 
-print(1)
+	const ok = "ok";
+}

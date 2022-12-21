@@ -1,6 +1,6 @@
 export module AST.Core;
 
-import<format>;
+import <format>;
 import Types.Core;
 import Safety;
 
@@ -11,6 +11,8 @@ export
         Program,
         VariableDeclaration,
 
+        BlockExpr,
+        IfExpr,
         AssignmentExpr,
         MemberExpr,
         CallExpr,
@@ -18,8 +20,9 @@ export
         Property,
         ObjectLiteral,
         NumericLiteral,
+        StringLiteral,
         Identifier,
-        BinaryExpr
+        BinaryExpr,
     };
 
     constexpr const char* ASTNodeTypeToString(ASTNodeType ASTNodeType)
@@ -31,6 +34,10 @@ export
         case ASTNodeType::VariableDeclaration:
             return "VariableDeclaration";
 
+        case ASTNodeType::BlockExpr:
+            return "BlockExpr";
+        case ASTNodeType::IfExpr:
+            return "IfExpr";
         case ASTNodeType::AssignmentExpr:
             return "AssignmentExpr";
         case ASTNodeType::MemberExpr:
@@ -44,10 +51,13 @@ export
             return "ObjectLiteral";
         case ASTNodeType::NumericLiteral:
             return "NumericLiteral";
+        case ASTNodeType::StringLiteral:
+            return "StringLiteral";
         case ASTNodeType::Identifier:
             return "Identifier";
         case ASTNodeType::BinaryExpr:
             return "BinaryExpr";
+
         default:
             return "Unimplemented in ASTNodeTypeToString";
         }
@@ -62,20 +72,21 @@ export
         {
         }
 
-        virtual auto ToString() -> String
+        virtual String ToString(std::string indentation = "")
         {
-            return std::format("{{\n\tType: '{}'\n}}", ASTNodeTypeToString(Type));
-        };
+            return std::format("{{\n{0}\tType: '{1}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type));
+        }
 
         template <typename T>
-        auto Is() -> bool
+        bool Is()
         {
             //@temporary
             return String(typeid(T).name()).ends_with(ASTNodeTypeToString(Type));
         }
 
         template <typename T>
-        auto As() -> Shared<T>
+        Shared<T> As()
         {
             if (!Is<T>())
             {
@@ -93,9 +104,10 @@ export
         {
         }
 
-        auto ToString() -> String override
+        virtual String ToString(std::string indentation = "")
         {
-            return std::format("{{\n\tType: '{}'\n}}", ASTNodeTypeToString(Type));
+            return std::format("{{\n{0}\tType: '{1}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type));
         }
     };
 }

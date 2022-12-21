@@ -7,7 +7,7 @@ export
     namespace VectorExtensions
     {
         template <typename T>
-        inline auto Shift(Vector<T>& Vector) -> T
+        inline T Shift(Vector<T>& Vector)
         {
             auto Value = Vector[0];
             Vector.erase(Vector.begin());
@@ -15,7 +15,7 @@ export
         }
 
         template <typename T>
-        inline auto Pop(Vector<T>& Vector) -> T
+        inline T Pop(Vector<T>& Vector)
         {
             auto Value = Vector.back();
             Vector.pop_back();
