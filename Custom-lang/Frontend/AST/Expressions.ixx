@@ -140,10 +140,10 @@ export
     struct IfExpr : public Expr
     {
         Shared<Expr> Condition;
-        Shared<BlockExpr> Then;
-        Optional<Shared<BlockExpr>> Else;
+        Shared<Expr> Then;
+        Optional<Shared<Expr>> Else;
 
-        IfExpr(Shared<Expr> condition, Shared<BlockExpr> then, Optional<Shared<BlockExpr>> else_)
+        IfExpr(Shared<Expr> condition, Shared<Expr> then, Optional<Shared<Expr>> else_)
             : Expr { ASTNodeType::IfExpr }
             , Condition(std::move(condition))
             , Then(then)

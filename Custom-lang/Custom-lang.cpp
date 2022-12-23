@@ -60,7 +60,7 @@ int main()
 
     const auto result = Evaluate(program, ctx);
 
-    Log<Info>("Result: %s", result->ToString().c_str());
+    // Log<Info>("Result: %s", result->ToString().c_str());
 
     return 0;
 }

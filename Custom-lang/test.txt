@@ -6,5 +6,14 @@ if (true)
 	
 	bar = bar + 100;
 
-	const ok = "ok";
+	let ok = "ok";
+}
+
+
+{
+	let ok = {
+			foo: 10,
+		};
+	
+	print ok;
 }

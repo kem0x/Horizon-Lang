@@ -34,6 +34,23 @@ export
         }
     };
 
+    struct PrintStatement : public Statement
+    {
+        Shared<Expr> Value;
+
+        PrintStatement(Shared<Expr> value)
+            : Statement { ASTNodeType::PrintStatement }
+            , Value(std::move(value))
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: {2}\n{0}}}",
+                indentation, ASTNodeTypeToString(Type), Value->ToString(indentation + "\t"));
+        }
+    };
+
     struct VariableDeclaration : public Statement
     {
         String Identifier;

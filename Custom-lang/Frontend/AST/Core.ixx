@@ -10,6 +10,7 @@ export
     {
         Program,
         VariableDeclaration,
+        PrintStatement,
 
         BlockExpr,
         IfExpr,
@@ -33,6 +34,8 @@ export
             return "Program";
         case ASTNodeType::VariableDeclaration:
             return "VariableDeclaration";
+        case ASTNodeType::PrintStatement:
+            return "PrintStatement";
 
         case ASTNodeType::BlockExpr:
             return "BlockExpr";

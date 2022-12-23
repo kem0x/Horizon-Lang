@@ -27,11 +27,6 @@ export
                 DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
                 DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
                 DeclareVar("null", NullValue().As<NullValue>(), true);
-
-                DeclareVar("print", FunctionValue([]
-                                        { printf("Test\n"); })
-                                        .As<FunctionValue>(),
-                    true);
             }
 
             if (parent.has_value())

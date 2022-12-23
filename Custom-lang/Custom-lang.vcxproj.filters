@@ -75,12 +75,6 @@
     <ClCompile Include="Frontend\AST\Expressions.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Evaluation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Runtime\Stmt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Runtime\Values\FunctionValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>

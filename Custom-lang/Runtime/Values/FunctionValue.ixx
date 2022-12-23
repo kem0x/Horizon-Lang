@@ -4,17 +4,18 @@ import <functional>;
 import <format>;
 import Types.Core;
 import AST.Core;
+import AST.Expressions;
 import Runtime.RuntimeValue;
 
 export
 {
     struct FunctionValue : RuntimeValue
     {
-        std::function<void()> Function;
+        Shared<BlockExpr> Function;
 
-        FunctionValue(std::function<void()> function)
+        FunctionValue(Shared<BlockExpr> function)
             : RuntimeValue { RuntimeValueType::FunctionValue }
-            , Function(function)
+            , Function(std::move(function))
         {
         }
 

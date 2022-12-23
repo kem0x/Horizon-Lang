@@ -17,6 +17,7 @@ export
         Identifier,
         String,
 
+        Print,
         Let,
         Const,
         If,
@@ -65,11 +66,13 @@ export
         };
 
     private:
-        static constexpr FlatMap<StringView, LexerTokenType, 4> ReservedKeywords = {
+        static constexpr FlatMap<StringView, LexerTokenType, 5> ReservedKeywords = {
             { { { "let", LexerTokenType::Let },
                 { "const", LexerTokenType::Const },
                 { "if", LexerTokenType::If },
-                { "else", LexerTokenType::Else } } }
+                { "else", LexerTokenType::Else },
+                { "print", LexerTokenType::Print }
+            } }
         };
 
         String Source;

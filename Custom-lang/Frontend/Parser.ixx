@@ -225,8 +225,6 @@ export
 
             Expect(LexerTokenType::CloseBrace, "Unexpected token: " + Current().Value + ", expected a ']'");
 
-            Expect(LexerTokenType::Semicolon, "Expected semicolon after object literal");
-
             return std::make_shared<ObjectLiteral>(properties);
         }
 
@@ -286,29 +284,47 @@ export
 
                 if (Current().Type == LexerTokenType::If)
                 {
-                    // return std::make_shared<IfExpr>(condition, body, std::nullopt);
+                    return std::make_shared<IfExpr>(condition, body, ParseIfExpr());
                 }
 
                 Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
 
-                const auto elseBody = ParseBlock();
+                auto elseBody = ParseBlock();
 
-                // return std::make_shared<IfExpr>(condition, body, std::nullopt);
+                return std::make_shared<IfExpr>(condition, body, elseBody);
             }
 
             return std::make_shared<IfExpr>(condition, body, std::nullopt);
+        }
+
+        Shared<Statement> ParsePrintStatement()
+        {
+            Advance();
+
+            auto Value = ParseExpr();
+
+            Expect(LexerTokenType::Semicolon, "Expected ';'");
+
+            return std::make_shared<PrintStatement>(Value);
         }
 
         Shared<Statement> ParseStatement()
         {
             switch (Current().Type)
             {
-            case LexerTokenType::If:
-                return ParseIfExpr();
+            case LexerTokenType::Print:
+                return ParsePrintStatement();
 
             case LexerTokenType::Let:
             case LexerTokenType::Const:
                 return ParseVariableDeclartion();
+
+            case LexerTokenType::If:
+                return ParseIfExpr();
+
+            case LexerTokenType::OpenBrace:
+                Advance();
+                return ParseBlock();
 
             default:
                 return ParseExpr();

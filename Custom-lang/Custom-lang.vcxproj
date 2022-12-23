@@ -152,8 +152,6 @@
     <ClCompile Include="Frontend\AST\Core.ixx" />
     <ClCompile Include="Frontend\AST\Expressions.ixx" />
     <ClCompile Include="Frontend\AST\Statements.ixx" />
-    <ClCompile Include="Runtime\Evaluation.cpp" />
-    <ClCompile Include="Runtime\Stmt.cpp" />
     <ClCompile Include="Runtime\Values\BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
     <ClCompile Include="Runtime\ExecutionContext.ixx" />
