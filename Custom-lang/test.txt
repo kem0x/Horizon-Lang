@@ -1,19 +1,7 @@
-const foo = 300;
+let x = if (false) { 1 } else { 2 };
 
-if (true) 
+if (x and x == 2)
 {
-	let bar = foo / 2;
-	
-	bar = bar + 100;
-
-	let ok = "ok";
-}
-
-
-{
-	let ok = {
-			foo: 10,
-		};
-	
-	print ok;
+    print "Hello World";
+    print if (x != 1) { "hi" } else { "bye" };
 }

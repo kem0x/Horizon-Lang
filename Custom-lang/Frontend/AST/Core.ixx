@@ -3,6 +3,7 @@ export module AST.Core;
 import <format>;
 import Types.Core;
 import Safety;
+import Logger;
 
 export
 {
@@ -24,6 +25,7 @@ export
         StringLiteral,
         Identifier,
         BinaryExpr,
+        LogicalExpr
     };
 
     constexpr const char* ASTNodeTypeToString(ASTNodeType ASTNodeType)
@@ -60,8 +62,11 @@ export
             return "Identifier";
         case ASTNodeType::BinaryExpr:
             return "BinaryExpr";
+        case ASTNodeType::LogicalExpr:
+            return "LogicalExpr";
 
         default:
+            Log<Error>("Unsupported AST Node Type. (%i)", ASTNodeType);
             return "Unimplemented in ASTNodeTypeToString";
         }
     }

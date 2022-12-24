@@ -13,28 +13,38 @@ export
     enum class LexerTokenType
     {
         Unknown,
-        Number,
-        Identifier,
-        String,
+        Number, // 123
+        Identifier, // abc
+        String, // "abc"
 
-        Print,
-        Let,
-        Const,
-        If,
-        Else,
+        Print, // print
+        Let, // let
+        Const, // const
+        If, // if
+        Else, // else
+        Or, // "or" or ||
+        And, // "and" or &&
 
-        OpenParen,
-        CloseParen,
-        OpenBrace,
-        CloseBrace,
-        OpenBracket,
-        CloseBracket,
-        Equals,
-        Comma,
-        Dot,
-        Colon,
-        Semicolon,
-        BinaryOperator,
+        OpenParen, // (
+        CloseParen, // )
+        OpenBrace, // {
+        CloseBrace, // }
+        OpenBracket, // [
+        CloseBracket, // ]
+
+        Equal, // =
+        EqualEqual, // ==
+        Bang, // !
+        BangEqual, // !=
+        Less, // <
+        LessEqual, // <=
+        Greater, // >
+        GreaterEqual, // >=
+        Comma, // ,
+        Dot, // .
+        Colon, // :
+        Semicolon, // ;
+        BinaryOperator, // + - * / %
 
         EoF
     };
@@ -45,16 +55,19 @@ export
         struct Token
         {
             LexerTokenType Type;
+            size_t Line;
             String Value;
 
-            Token(LexerTokenType type, StringView value)
+            Token(LexerTokenType type, size_t line, StringView value)
                 : Type(type)
+                , Line(line)
                 , Value(value)
             {
             }
 
-            Token(LexerTokenType type, char value)
+            Token(LexerTokenType type, size_t line, char value)
                 : Type(type)
+                , Line(line)
                 , Value(1, value)
             {
             }
@@ -66,74 +79,169 @@ export
         };
 
     private:
-        static constexpr FlatMap<StringView, LexerTokenType, 5> ReservedKeywords = {
-            { { { "let", LexerTokenType::Let },
+        static constexpr FlatMap<StringView, LexerTokenType, 9> ReservedKeywords = {
+            { {
+                { "print", LexerTokenType::Print },
+                { "let", LexerTokenType::Let },
                 { "const", LexerTokenType::Const },
                 { "if", LexerTokenType::If },
                 { "else", LexerTokenType::Else },
-                { "print", LexerTokenType::Print }
+                { "or", LexerTokenType::Or },
+                { "and", LexerTokenType::And },
+                { "same", LexerTokenType::EqualEqual },
+                { "not", LexerTokenType::BangEqual },
             } }
         };
 
         String Source;
 
+        size_t Line;
+
         Vector<Token> Tokens;
+
+        __forceinline bool IsAtEnd() const
+        {
+            return Source.empty();
+        }
+
+        __forceinline char Current()
+        {
+            return Source[0];
+        }
+
+        __forceinline char Next()
+        {
+            return Source[1];
+        }
+
+        __forceinline bool MatchNext(char c)
+        {
+            const bool matched = !Source.empty() && Source[1] == c;
+
+            if (matched)
+                Advance();
+
+            return matched;
+        }
 
         __forceinline char Advance()
         {
             return StringExtensions::Shift(Source);
         }
 
-        void HandleMultiCharacterToken()
+        __forceinline void AddToken(LexerTokenType type)
         {
-            if (Source[0] == '"')
-            {
-                String StringValue;
+            Tokens.push_back(Token(type, Line, Advance()));
+        }
 
-                Advance();
-                while (Source.size() > 0 && Source[0] != '"')
+        __forceinline void AddToken(LexerTokenType type, StringView value)
+        {
+            Tokens.push_back(Token(type, Line, value));
+        }
+
+        void HandleCommentOrSubstraction()
+        {
+            if (MatchNext('/'))
+            {
+                while (!IsAtEnd() && Current() != '\n')
                 {
-                    StringValue += Advance();
+                    Advance();
                 }
+            }
+            else
+            {
+                AddToken(LexerTokenType::BinaryOperator);
+            }
+        }
+
+        void HandleStringLitearls()
+        {
+            String StringValue;
+
+            Advance();
+            while (!IsAtEnd() && Current() != '"')
+            {
+                StringValue += Advance();
+            }
+            if (IsAtEnd())
+            {
+                throw std::runtime_error(std::format("Unterminated string at line {}", Line));
+            }
+            Advance();
+
+            AddToken(LexerTokenType::String, StringValue);
+        }
+
+        void HandleNumaricLiteral()
+        {
+            String Number;
+            while (!IsAtEnd() && std::isdigit(Current()))
+            {
+                Number += Advance();
+            }
+
+            if (Current() == '.' && std::isdigit(Next()))
+            {
                 Advance();
 
-                Tokens.push_back({ LexerTokenType::String, StringValue });
-            }
-            else if (std::isdigit(Source[0]))
-            {
-                String Number;
-                while (Source.size() > 0 && std::isdigit(Source[0]))
+                while (!IsAtEnd() && std::isdigit(Current()))
                 {
                     Number += Advance();
                 }
-
-                Tokens.push_back({ LexerTokenType::Number, Number });
             }
-            else if (std::isalpha(Source[0]))
+
+            AddToken(LexerTokenType::Number, Number);
+        }
+
+        void HandleKeywordOrIdentifier()
+        {
+            String Identifier;
+
+            while (!IsAtEnd() && std::isalpha(Current()))
             {
-                String Identifier;
-
-                while (Source.size() > 0 && std::isalpha(Source[0]))
-                {
-                    Identifier += Advance();
-                }
-
-                if (ReservedKeywords.has(Identifier))
-                {
-                    Tokens.push_back({ ReservedKeywords[Identifier], Identifier });
-                }
-                else
-                {
-                    Tokens.push_back({ LexerTokenType::Identifier, Identifier });
-                }
+                Identifier += Advance();
             }
-            else if (std::isspace(Source[0]))
+
+            if (ReservedKeywords.has(Identifier))
+            {
+                AddToken(ReservedKeywords[Identifier], Identifier);
+            }
+            else
+            {
+                AddToken(LexerTokenType::Identifier, Identifier);
+            }
+        }
+
+        void HandleMultiCharacterToken()
+        {
+            if (Current() == '/')
+            {
+                HandleCommentOrSubstraction();
+            }
+            else if (Current() == '"')
+            {
+                HandleStringLitearls();
+            }
+            else if (Current() == '&' && Next() == '&')
+            {
+                Advance();
+                AddToken(LexerTokenType::And);
+            }
+            else if (std::isdigit(Current()))
+            {
+                HandleNumaricLiteral();
+            }
+            else if (std::isalpha(Current()))
+            {
+                HandleKeywordOrIdentifier();
+            }
+            else if (std::isspace(Current()))
             {
                 Advance();
             }
             else
             {
-                Safety::Throw("Unexpected character: " + Source[0]);
+                Safety::Throw("Unexpected character: " + Current());
             }
         }
 
@@ -145,49 +253,61 @@ export
 
         Vector<Token> Tokenize()
         {
-            while (Source.size() > 0)
+            while (!IsAtEnd())
             {
-                switch (Source[0])
+                switch (Current())
                 {
-                case ',':
-                    Tokens.push_back({ LexerTokenType::Comma, Advance() });
-                    break;
-                case '.':
-                    Tokens.push_back({ LexerTokenType::Dot, Advance() });
-                    break;
-                case ':':
-                    Tokens.push_back({ LexerTokenType::Colon, Advance() });
-                    break;
-                case ';':
-                    Tokens.push_back({ LexerTokenType::Semicolon, Advance() });
+                case '!':
+                    AddToken(MatchNext('=') ? LexerTokenType::BangEqual : LexerTokenType::Bang);
                     break;
                 case '=':
-                    Tokens.push_back({ LexerTokenType::Equals, Advance() });
+                    AddToken(MatchNext('=') ? LexerTokenType::EqualEqual : LexerTokenType::Equal);
+                    break;
+                case '<':
+                    AddToken(MatchNext('=') ? LexerTokenType::LessEqual : LexerTokenType::Less);
+                    break;
+                case '>':
+                    AddToken(MatchNext('=') ? LexerTokenType::GreaterEqual : LexerTokenType::Greater);
+                    break;
+                case ',':
+                    AddToken(LexerTokenType::Comma);
+                    break;
+                case '.':
+                    AddToken(LexerTokenType::Dot);
+                    break;
+                case ':':
+                    AddToken(LexerTokenType::Colon);
+                    break;
+                case ';':
+                    AddToken(LexerTokenType::Semicolon);
                     break;
                 case '(':
-                    Tokens.push_back({ LexerTokenType::OpenParen, Advance() });
+                    AddToken(LexerTokenType::OpenParen);
                     break;
                 case ')':
-                    Tokens.push_back({ LexerTokenType::CloseParen, Advance() });
+                    AddToken(LexerTokenType::CloseParen);
                     break;
                 case '{':
-                    Tokens.push_back({ LexerTokenType::OpenBrace, Advance() });
+                    AddToken(LexerTokenType::OpenBrace);
                     break;
                 case '}':
-                    Tokens.push_back({ LexerTokenType::CloseBrace, Advance() });
+                    AddToken(LexerTokenType::CloseBrace);
                     break;
                 case '[':
-                    Tokens.push_back({ LexerTokenType::OpenBracket, Advance() });
+                    AddToken(LexerTokenType::OpenBracket);
                     break;
                 case ']':
-                    Tokens.push_back({ LexerTokenType::CloseBracket, Advance() });
+                    AddToken(LexerTokenType::CloseBracket);
                     break;
                 case '+':
                 case '-':
                 case '*':
-                case '/':
                 case '%':
-                    Tokens.push_back({ LexerTokenType::BinaryOperator, Advance() });
+                    AddToken(LexerTokenType::BinaryOperator);
+                    break;
+                case '\n':
+                    Line++;
+                    Advance();
                     break;
                 default:
                     HandleMultiCharacterToken();
@@ -195,7 +315,7 @@ export
                 }
             }
 
-            Tokens.push_back({ LexerTokenType::EoF, "" });
+            AddToken(LexerTokenType::EoF, "");
             return Tokens;
         }
     };

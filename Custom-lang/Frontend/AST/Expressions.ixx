@@ -1,6 +1,7 @@
 export module AST.Expressions;
 
 import <format>;
+import Lexer;
 import Types.Core;
 import AST.Core;
 
@@ -264,6 +265,32 @@ export
             output += "\n" + indentation + "\t]";
 
             output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
+    struct LogicalExpr : public Expr
+    {
+        Shared<Expr> Left;
+        Shared<Expr> Right;
+        LexerTokenType Operator;
+
+        LogicalExpr(Shared<Expr> left, Shared<Expr> right, LexerTokenType op)
+            : Expr { ASTNodeType::LogicalExpr }
+            , Left(left)
+            , Right(right)
+            , Operator(op)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tLeft: '{2}',\n{0}\tRight: '{3}',\n{0}\tOperator: '{4}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Left->ToString(indentation + "\t"),
+                Right->ToString(indentation + "\t"),
+                static_cast<int>(Operator));
 
             return output;
         }

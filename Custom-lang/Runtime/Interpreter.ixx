@@ -5,6 +5,7 @@ import <memory>;
 import <format>;
 import Types.Core;
 import Safety;
+import Lexer;
 import AST.Core;
 import AST.Statements;
 import AST.Expressions;
@@ -186,11 +187,19 @@ Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext
     return std::make_shared<NullValue>();
 }
 
+bool IsTruthy(Shared<RuntimeValue> value)
+{
+    if (value->Is<NullValue>() || (value->Is<BoolValue>() && value->As<BoolValue>()->Value == false))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 Shared<RuntimeValue> EvalIfExpr(Shared<IfExpr> node, Shared<ExecutionContext> ctx)
 {
-    auto Condition = Evaluate(node->Condition, ctx);
-
-    if (Condition->Is<BoolValue>() && Condition->As<BoolValue>()->Value == true)
+    if (IsTruthy(Evaluate(node->Condition, ctx)))
     {
         return Evaluate(node->Then, ctx);
     }
@@ -200,6 +209,85 @@ Shared<RuntimeValue> EvalIfExpr(Shared<IfExpr> node, Shared<ExecutionContext> ct
     }
 
     return std::make_shared<NullValue>();
+}
+
+bool Equals(Shared<RuntimeValue> left, Shared<RuntimeValue> right)
+{
+    if (left->Is<NullValue>() && right->Is<NullValue>())
+    {
+        return true;
+    }
+
+    if (left->Is<NumberValue>() && right->Is<NumberValue>())
+    {
+        return left->As<NumberValue>()->Value == right->As<NumberValue>()->Value;
+    }
+
+    if (left->Is<StringValue>() && right->Is<StringValue>())
+    {
+        return left->As<StringValue>()->Value == right->As<StringValue>()->Value;
+    }
+
+    if (left->Is<BoolValue>() && right->Is<BoolValue>())
+    {
+        return left->As<BoolValue>()->Value == right->As<BoolValue>()->Value;
+    }
+
+    return false;
+}
+
+Shared<RuntimeValue> EvalLogicalExpr(Shared<LogicalExpr> node, Shared<ExecutionContext> ctx)
+{
+    auto Left = Evaluate(node->Left, ctx);
+    auto Right = Evaluate(node->Right, ctx);
+
+    auto IsTrue = false;
+
+    switch (node->Operator)
+    {
+    case LexerTokenType::And:
+        IsTrue = IsTruthy(Left) && IsTruthy(Right);
+        break;
+    case LexerTokenType::Or:
+        IsTrue = IsTruthy(Left) || IsTruthy(Right);
+        break;
+    case LexerTokenType::EqualEqual:
+        IsTrue = Equals(Left, Right);
+        break;
+    case LexerTokenType::BangEqual:
+        IsTrue = !Equals(Left, Right);
+        break;
+    default:
+        if (Left->Is<NumberValue>() && Right->Is<NumberValue>())
+        {
+            if (node->Operator == LexerTokenType::Greater)
+            {
+                IsTrue = Left->As<NumberValue>()->Value > Right->As<NumberValue>()->Value;
+                break;
+            }
+            else if (node->Operator == LexerTokenType::GreaterEqual)
+            {
+                IsTrue = Left->As<NumberValue>()->Value >= Right->As<NumberValue>()->Value;
+                break;
+            }
+            else if (node->Operator == LexerTokenType::Less)
+            {
+                IsTrue = Left->As<NumberValue>()->Value < Right->As<NumberValue>()->Value;
+                break;
+            }
+            else if (node->Operator == LexerTokenType::LessEqual)
+            {
+                IsTrue = Left->As<NumberValue>()->Value <= Right->As<NumberValue>()->Value;
+                break;
+            }
+        }
+        else
+        {
+            Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", static_cast<int>(node->Operator)));
+        }
+    }
+
+    return std::make_shared<BoolValue>(IsTrue);
 }
 
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
@@ -266,6 +354,11 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
     case ASTNodeType::BlockExpr:
     {
         return EvalBlockExpr(node->As<BlockExpr>(), ctx);
+    }
+
+    case ASTNodeType::LogicalExpr:
+    {
+        return EvalLogicalExpr(node->As<LogicalExpr>(), ctx);
     }
 
     default:

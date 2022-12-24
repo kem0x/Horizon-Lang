@@ -42,6 +42,67 @@ export
             return Advance();
         }
 
+        Shared<Expr> ParseComparisonExpr()
+        {
+            auto Left = ParseAdditiveExpr();
+
+            while (Current().Type == LexerTokenType::Greater
+                || Current().Type == LexerTokenType::GreaterEqual
+                || Current().Type == LexerTokenType::Less
+                || Current().Type == LexerTokenType::LessEqual)
+            {
+                auto Op = Advance();
+                auto Right = ParseAdditiveExpr();
+
+                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseEqualityExpr()
+        {
+            auto Left = ParseComparisonExpr();
+
+            while (NotEoF() && (Current().Type == LexerTokenType::BangEqual || Current().Type == LexerTokenType::EqualEqual))
+            {
+                auto Op = Advance();
+                auto Right = ParseComparisonExpr();
+
+                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseLogicalAndExpr()
+        {
+            auto Left = ParseEqualityExpr();
+
+            while (Current().Type == LexerTokenType::And)
+            {
+                auto Op = Advance();
+                auto Right = ParseEqualityExpr();
+                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseLogicalOrExpr()
+        {
+            auto Left = ParseLogicalAndExpr();
+
+            while (Current().Type == LexerTokenType::Or)
+            {
+                auto Op = Advance();
+                auto Right = ParseLogicalAndExpr();
+                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
         Shared<Expr> ParseAdditiveExpr()
         {
             auto Left = ParseMultiplicativeExpr();
@@ -157,6 +218,9 @@ export
         {
             switch (Current().Type)
             {
+            case LexerTokenType::If:
+                return ParseIfExpr();
+
             case LexerTokenType::String:
                 return std::make_shared<StringLiteral>(Advance().Value);
 
@@ -186,7 +250,7 @@ export
         {
             if (Current().Type != LexerTokenType::OpenBrace)
             {
-                return ParseAdditiveExpr();
+                return ParseLogicalOrExpr();
             }
 
             Advance(); // Skip '{'
@@ -232,7 +296,7 @@ export
         {
             const auto left = ParseObjectExpr();
 
-            if (Current().Type == LexerTokenType::Equals)
+            if (Current().Type == LexerTokenType::Equal)
             {
                 Advance(); // Skip '='
 
@@ -319,9 +383,6 @@ export
             case LexerTokenType::Const:
                 return ParseVariableDeclartion();
 
-            case LexerTokenType::If:
-                return ParseIfExpr();
-
             case LexerTokenType::OpenBrace:
                 Advance();
                 return ParseBlock();
@@ -349,7 +410,7 @@ export
                 return std::make_shared<VariableDeclaration>(identifier, std::nullopt, isConstant);
             }
 
-            Expect(LexerTokenType::Equals, std::format("Expected '=' after identifier name '{}'.", identifier.c_str()));
+            Expect(LexerTokenType::Equal, std::format("Expected '=' after identifier name '{}'.", identifier.c_str()));
 
             const auto declaration = std::make_shared<VariableDeclaration>(identifier, ParseExpr(), isConstant);
 
