@@ -239,55 +239,161 @@ bool Equals(Shared<RuntimeValue> left, Shared<RuntimeValue> right)
 Shared<RuntimeValue> EvalLogicalExpr(Shared<LogicalExpr> node, Shared<ExecutionContext> ctx)
 {
     auto Left = Evaluate(node->Left, ctx);
-    auto Right = Evaluate(node->Right, ctx);
-
-    auto IsTrue = false;
 
     switch (node->Operator)
     {
     case LexerTokenType::And:
-        IsTrue = IsTruthy(Left) && IsTruthy(Right);
+    {
+        if (!IsTruthy(Left))
+        {
+            return Left;
+        }
+
         break;
+    }
     case LexerTokenType::Or:
-        IsTrue = IsTruthy(Left) || IsTruthy(Right);
+    {
+        if (IsTruthy(Left))
+        {
+            return Left;
+        }
+
         break;
+    }
     case LexerTokenType::EqualEqual:
-        IsTrue = Equals(Left, Right);
-        break;
+    {
+        auto Right = Evaluate(node->Right, ctx);
+
+        return std::make_shared<BoolValue>(Equals(Left, Right));
+    }
     case LexerTokenType::BangEqual:
-        IsTrue = !Equals(Left, Right);
-        break;
+    {
+        auto Right = Evaluate(node->Right, ctx);
+
+        return std::make_shared<BoolValue>(!Equals(Left, Right));
+    }
+
     default:
+        auto Right = Evaluate(node->Right, ctx);
+
         if (Left->Is<NumberValue>() && Right->Is<NumberValue>())
         {
-            if (node->Operator == LexerTokenType::Greater)
+            switch (node->Operator)
             {
-                IsTrue = Left->As<NumberValue>()->Value > Right->As<NumberValue>()->Value;
+            case LexerTokenType::Greater:
+            {
+                if (Left->As<NumberValue>()->Value > Right->As<NumberValue>()->Value)
+                {
+                    return Left;
+                }
+
                 break;
             }
-            else if (node->Operator == LexerTokenType::GreaterEqual)
+
+            case LexerTokenType::GreaterEqual:
             {
-                IsTrue = Left->As<NumberValue>()->Value >= Right->As<NumberValue>()->Value;
+                if (Left->As<NumberValue>()->Value >= Right->As<NumberValue>()->Value)
+                {
+                    return Left;
+                }
+
                 break;
             }
-            else if (node->Operator == LexerTokenType::Less)
+
+            case LexerTokenType::Less:
             {
-                IsTrue = Left->As<NumberValue>()->Value < Right->As<NumberValue>()->Value;
+                if (Left->As<NumberValue>()->Value < Right->As<NumberValue>()->Value)
+                {
+                    return Left;
+                }
+
                 break;
             }
-            else if (node->Operator == LexerTokenType::LessEqual)
+
+            case LexerTokenType::LessEqual:
             {
-                IsTrue = Left->As<NumberValue>()->Value <= Right->As<NumberValue>()->Value;
+                if (Left->As<NumberValue>()->Value <= Right->As<NumberValue>()->Value)
+                {
+                    return Left;
+                }
+
                 break;
             }
-        }
-        else
-        {
-            Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", static_cast<int>(node->Operator)));
+            default:
+                Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", static_cast<int>(node->Operator)));
+            }
         }
     }
 
-    return std::make_shared<BoolValue>(IsTrue);
+    return Evaluate(node->Right, ctx);
+}
+
+Shared<RuntimeValue> EvalBreak(Shared<BreakStatement> node, Shared<ExecutionContext> ctx)
+{
+    ctx->ShouldBreak = true;
+
+    if (ctx->Parent.has_value() && !ctx->IsLoopContext)
+    {
+        ctx->Parent.value()->ShouldBreak = true;
+
+        return EvalBreak(node, ctx->Parent.value());
+    }
+
+    return std::make_shared<NullValue>();
+}
+
+Shared<RuntimeValue> EvalContinue(Shared<ContinueStatement> node, Shared<ExecutionContext> ctx)
+{
+    ctx->ShouldContinue = true;
+
+    if (ctx->Parent.has_value() && !ctx->IsLoopContext)
+    {
+        ctx->Parent.value()->ShouldContinue = true;
+
+        return EvalContinue(node, ctx->Parent.value());
+    }
+
+    return std::make_shared<NullValue>();
+}
+
+Shared<RuntimeValue> EvalLoop(Shared<LoopStatement> node, Shared<ExecutionContext> ctx)
+{
+    auto Iterations = node->LoopCount;
+    auto CurrentIteration = 0;
+
+    while (true)
+    {
+        auto BlockCtx = std::make_shared<ExecutionContext>(ctx);
+
+        BlockCtx->IsLoopContext = true;
+
+        for (auto&& stmt : node->Body)
+        {
+            Evaluate(stmt, BlockCtx);
+
+            if (BlockCtx->ShouldContinue)
+            {
+                break;
+            }
+        }
+
+        if (BlockCtx->ShouldBreak)
+        {
+            break;
+        }
+
+        if (Iterations > 0)
+        {
+            CurrentIteration++;
+
+            if (CurrentIteration == Iterations)
+            {
+                break;
+            }
+        }
+    }
+
+    return std::make_shared<NullValue>();
 }
 
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
@@ -314,6 +420,21 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
     case ASTNodeType::PrintStatement:
     {
         return EvalPrint(node->As<PrintStatement>(), ctx);
+    }
+
+    case ASTNodeType::LoopStatement:
+    {
+        return EvalLoop(node->As<LoopStatement>(), ctx);
+    }
+
+    case ASTNodeType::BreakStatement:
+    {
+        return EvalBreak(node->As<BreakStatement>(), ctx);
+    }
+
+    case ASTNodeType::ContinueStatement:
+    {
+        return EvalContinue(node->As<ContinueStatement>(), ctx);
     }
 
     case ASTNodeType::ObjectLiteral:

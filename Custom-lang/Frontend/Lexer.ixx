@@ -24,6 +24,9 @@ export
         Else, // else
         Or, // "or" or ||
         And, // "and" or &&
+        Loop, // loop
+        Break, // break
+        Continue, // continue
 
         OpenParen, // (
         CloseParen, // )
@@ -79,7 +82,7 @@ export
         };
 
     private:
-        static constexpr FlatMap<StringView, LexerTokenType, 9> ReservedKeywords = {
+        static constexpr const FlatMap<StringView, LexerTokenType, 12> ReservedKeywords = {
             { {
                 { "print", LexerTokenType::Print },
                 { "let", LexerTokenType::Let },
@@ -90,12 +93,15 @@ export
                 { "and", LexerTokenType::And },
                 { "same", LexerTokenType::EqualEqual },
                 { "not", LexerTokenType::BangEqual },
+                { "loop", LexerTokenType::Loop },
+                { "break", LexerTokenType::Break },
+                { "continue", LexerTokenType::Continue }
             } }
         };
 
         String Source;
 
-        size_t Line;
+        size_t Line = 0;
 
         Vector<Token> Tokens;
 
@@ -226,6 +232,11 @@ export
             {
                 Advance();
                 AddToken(LexerTokenType::And);
+            }
+            else if (Current() == '|' && Next() == '|')
+            {
+                Advance();
+                AddToken(LexerTokenType::Or);
             }
             else if (std::isdigit(Current()))
             {

@@ -18,6 +18,11 @@ export
 
         FlatMap<String, Shared<RuntimeValue>> Variables;
 
+        bool IsLoopContext = false;
+
+        bool ShouldBreak = false;
+        bool ShouldContinue = false;
+
         ExecutionContext() = default;
 
         ExecutionContext(const Optional<Shared<ExecutionContext>>& parent, bool isGlobal = false)

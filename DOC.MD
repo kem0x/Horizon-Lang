@@ -14,11 +14,42 @@ print x;
 print "Hello World";
 ```
 
+- Loop statement:
+
+```js
+// loops 3 times
+loop(3) {
+	print "ok";
+}
+
+// loops infinitely
+let i = 0;
+loop {
+	if (i == 2)
+	{
+		i = i + 1;
+		continue;
+	}
+
+	print i;
+
+	if (i == 5)
+	{
+		break;
+	}
+
+	i = i + 1;
+}
+```
+
 ## Expressions:
 
 Todo:
 
 - [ ] Unary: `-x`, `!x`
+- [ ] Incremenet/Decrement operators `x++`, `x--`
+- [ ] Member access: `x.y`, `x[y]`
+- [ ] for loops
 
 - Literal:
 
@@ -51,14 +82,7 @@ f(1, 2, 3);
 - Object:
 
 ```js
-{ x: 1, y: 2 };
-```
-
-- Member access:
-
-```js
-x.y;
-x["y"];
+{ x: 1, y: 2 }
 ```
 
 - Arithmetic:
@@ -85,21 +109,21 @@ print x; // Error: x is not defined
 - Logic:
 
 ```js
-// Logical AND
-true && false;
-true and false;
+// Logical AND (&& or "and")
+"ok" and "ko"  // "false"
+"ok" and "ok"  // "true"
 
-// Logical OR
-true || false;
-true or false;
+// Logical OR (|| or "or")
+"ok" or "ko"  // "ok"
+false or "ko" // "ko"
 
 // Equality
-true == false;
-true same false;
+"ok" == "ok" // "true"
+"ok" == "ko" // "false"
 
 // Inequality
-true != false;
-true not false;
+"ok" != "ok" // "false"
+"ok" != "ko" // "true"
 ```
 
 - If:

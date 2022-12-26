@@ -12,6 +12,9 @@ export
         Program,
         VariableDeclaration,
         PrintStatement,
+        LoopStatement,
+        BreakStatement,
+        ContinueStatement,
 
         BlockExpr,
         IfExpr,
@@ -38,6 +41,12 @@ export
             return "VariableDeclaration";
         case ASTNodeType::PrintStatement:
             return "PrintStatement";
+        case ASTNodeType::LoopStatement:
+            return "LoopStatement";
+        case ASTNodeType::BreakStatement:
+            return "BreakStatement";
+        case ASTNodeType::ContinueStatement:
+            return "ContinueStatement";
 
         case ASTNodeType::BlockExpr:
             return "BlockExpr";
@@ -66,7 +75,7 @@ export
             return "LogicalExpr";
 
         default:
-            Log<Error>("Unsupported AST Node Type. (%i)", ASTNodeType);
+            Log<Error>("Unimplemented AST Node Type. (%i)", ASTNodeType);
             return "Unimplemented in ASTNodeTypeToString";
         }
     }

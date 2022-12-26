@@ -361,6 +361,37 @@ export
             return std::make_shared<IfExpr>(condition, body, std::nullopt);
         }
 
+        Shared<Statement> ParseLoopStatement()
+        {
+            Advance(); // Skip 'loop'
+
+            int32_t Times = 0;
+
+            if (Current().Type == LexerTokenType::OpenParen)
+            {
+                Advance(); // Skip '('
+
+                const auto LoopCountExpr = ParseExpr();
+
+                if (LoopCountExpr->Is<NumericLiteral>())
+                {
+                    Times = LoopCountExpr->As<NumericLiteral>()->Value;
+
+                    Expect(LexerTokenType::CloseParen, "Unexpected token: " + Current().Value + ", expected a ')'");
+                }
+                else
+                {
+                    Safety::Throw("Loop count must be a number!");
+                }
+            }
+
+            Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
+
+            auto Body = ParseBlock();
+
+            return std::make_shared<LoopStatement>(Times, Body->Statements);
+        }
+
         Shared<Statement> ParsePrintStatement()
         {
             Advance();
@@ -376,6 +407,19 @@ export
         {
             switch (Current().Type)
             {
+            case LexerTokenType::Loop:
+                return ParseLoopStatement();
+
+            case LexerTokenType::Break:
+                Advance(); // Skip 'break'
+                Expect(LexerTokenType::Semicolon, "Expected ';'");
+                return std::make_shared<BreakStatement>();
+
+            case LexerTokenType::Continue:
+                Advance(); // Skip 'continue'
+                Expect(LexerTokenType::Semicolon, "Expected ';'");
+                return std::make_shared<ContinueStatement>();
+
             case LexerTokenType::Print:
                 return ParsePrintStatement();
 

@@ -1,7 +1,19 @@
-let x = if (false) { 1 } else { 2 };
+let i = 0;
 
-if (x and x == 2)
-{
-    print "Hello World";
-    print if (x != 1) { "hi" } else { "bye" };
+loop
+{	
+	if (i == 2)
+	{    
+		i = i + 1;
+		continue;
+	}
+	
+	print i;
+
+	if (i == 5)
+	{
+		break;
+	}
+
+	i = i + 1;
 }
