@@ -4,6 +4,7 @@ import <format>;
 import Types.Core;
 import Safety;
 import Logger;
+import Extensions.String;
 
 export
 {
@@ -11,6 +12,8 @@ export
     {
         Program,
         VariableDeclaration,
+        FunctionDeclaration,
+        ReturnStatement,
         PrintStatement,
         LoopStatement,
         BreakStatement,
@@ -28,7 +31,7 @@ export
         StringLiteral,
         Identifier,
         BinaryExpr,
-        LogicalExpr
+        ConditionalExpr
     };
 
     constexpr const char* ASTNodeTypeToString(ASTNodeType ASTNodeType)
@@ -39,6 +42,10 @@ export
             return "Program";
         case ASTNodeType::VariableDeclaration:
             return "VariableDeclaration";
+        case ASTNodeType::FunctionDeclaration:
+            return "FunctionDeclaration";
+        case ASTNodeType::ReturnStatement:
+            return "ReturnStatement";
         case ASTNodeType::PrintStatement:
             return "PrintStatement";
         case ASTNodeType::LoopStatement:
@@ -71,8 +78,8 @@ export
             return "Identifier";
         case ASTNodeType::BinaryExpr:
             return "BinaryExpr";
-        case ASTNodeType::LogicalExpr:
-            return "LogicalExpr";
+        case ASTNodeType::ConditionalExpr:
+            return "ConditionalExpr";
 
         default:
             Log<Error>("Unimplemented AST Node Type. (%i)", ASTNodeType);
@@ -96,10 +103,11 @@ export
         }
 
         template <typename T>
-        bool Is()
+        constexpr bool Is()
         {
-            //@temporary
-            return String(typeid(T).name()).ends_with(ASTNodeTypeToString(Type));
+            static_assert(std::is_base_of_v<Statement, T>, "T must be derived from Statement");
+
+            return StringExtensions::TypeName<T>() == ASTNodeTypeToString(Type);
         }
 
         template <typename T>
@@ -107,7 +115,7 @@ export
         {
             if (!Is<T>())
             {
-                Safety::Throw(std::format("Cannot cast a statement of type {} to {}.", ASTNodeTypeToString(Type), typeid(T).name()));
+                Safety::Throw(std::format("Cannot cast a statement of type {} to {}.", ASTNodeTypeToString(Type), StringExtensions::TypeName<T>()));
             }
 
             return std::dynamic_pointer_cast<T>(shared_from_this());

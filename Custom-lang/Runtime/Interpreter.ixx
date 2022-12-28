@@ -59,7 +59,7 @@ Shared<RuntimeValue> EvalPrint(Shared<PrintStatement> print, Shared<ExecutionCon
     }
     else if (Value->Is<BoolValue>())
     {
-        std::cout << Value->As<BoolValue>()->Value << std::endl;
+        std::cout << (Value->As<BoolValue>()->Value ? "true" : "false") << std::endl;
     }
     else if (Value->Is<NullValue>())
     {
@@ -111,7 +111,7 @@ Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionC
     auto left = Evaluate(biexpr->Left, ctx);
     auto right = Evaluate(biexpr->Right, ctx);
 
-    if (left->Is<NumberValue>() && right->Is<NumberValue>())
+    if (left->Is<NumberValue>() and right->Is<NumberValue>())
     {
         return EvalNumericBinaryExpr(left->As<NumberValue>(), right->As<NumberValue>(), biexpr->Operator);
     }
@@ -150,13 +150,46 @@ Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<Execution
     return Object;
 }
 
+Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionContext> ctx)
+{
+    String ObjectName;
+    String PropertyName;
+
+    if (node->Object->Type == ASTNodeType::Identifier)
+    {
+        ObjectName = node->Object->As<Identifier>()->Name;
+    }
+    else if (node->Object->Type == ASTNodeType::StringLiteral)
+    {
+        ObjectName = node->Object->As<StringLiteral>()->Value;
+    }
+
+    if (node->Property->Type == ASTNodeType::Identifier)
+    {
+        PropertyName = node->Property->As<Identifier>()->Name;
+    }
+    else if (node->Property->Type == ASTNodeType::StringLiteral)
+    {
+        PropertyName = node->Property->As<StringLiteral>()->Value;
+    }
+
+    auto Object = ctx->LookupVar(ObjectName);
+
+    if (Object->Is<ObjectValue>() && Object->As<ObjectValue>()->Properties.has(PropertyName))
+    {
+        return Object->As<ObjectValue>()->Properties[PropertyName];
+    }
+
+    return std::make_shared<NullValue>();
+}
+
 Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionContext> ctx)
 {
-    Shared<ExecutionContext> BlockCtx = std::make_shared<ExecutionContext>(ctx);
+    auto BlockCtx = std::make_shared<ExecutionContext>(ctx);
 
     Shared<RuntimeValue> LastEvaluatedValue = std::make_shared<NullValue>();
 
-    for (auto&& stmt : node->Statements)
+    for (auto&& stmt : node->Body)
     {
         LastEvaluatedValue = std::move(Evaluate(stmt, BlockCtx));
     }
@@ -166,7 +199,7 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
 
 Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx)
 {
-    /*auto Callee = Evaluate(node->Callee, ctx);
+    auto Callee = Evaluate(node->Callee, ctx);
 
     if (!Callee->Is<FunctionValue>())
     {
@@ -175,21 +208,61 @@ Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext
 
     auto Function = Callee->As<FunctionValue>();
 
-    std::vector<Shared<RuntimeValue>> Args;
+    auto NewContext = std::make_shared<ExecutionContext>(ctx);
+    NewContext->IsFunctionContext = true;
 
-    for (auto&& Arg : node->Arguments)
+    for (int i = 0; i < Function->Declaration->Parameters.size(); i++)
     {
-        Args.push_back(Evaluate(Arg, ctx));
+        auto Param = Function->Declaration->Parameters[i];
+
+        for (auto&& Arg : node->Arguments)
+        {
+            const auto ParamName = Param->As<Identifier>()->Name;
+
+            NewContext->DeclareVar(ParamName, Evaluate(Arg, ctx), true);
+        }
     }
 
-    return Function->Call(Args);*/
+    Shared<RuntimeValue> Result = std::make_shared<NullValue>();
 
-    return std::make_shared<NullValue>();
+    for (auto&& stmt : Function->Declaration->Body)
+    {
+        Result = Evaluate(stmt, NewContext);
+
+        if (NewContext->ShouldReturn)
+        {
+            return Result;
+        }
+    }
+
+    return Result;
+}
+
+Shared<RuntimeValue> EvalReturnStatement(Shared<ReturnStatement> node, Shared<ExecutionContext> ctx)
+{
+    if (ctx->IsGlobalContext or !ctx->Parent.has_value())
+    {
+        Safety::Throw("Tried to return from a non-function context!");
+    }
+
+    if (ctx->IsFunctionContext)
+    {
+        ctx->ShouldReturn = true;
+
+        if (node->Value.has_value())
+        {
+            return Evaluate(node->Value.value(), ctx);
+        }
+
+        return std::make_shared<NullValue>();
+    }
+
+    return EvalReturnStatement(node, ctx->Parent.value());
 }
 
 bool IsTruthy(Shared<RuntimeValue> value)
 {
-    if (value->Is<NullValue>() || (value->Is<BoolValue>() && value->As<BoolValue>()->Value == false))
+    if (value->Is<NullValue>() or (value->Is<BoolValue>() and value->As<BoolValue>()->Value == false))
     {
         return false;
     }
@@ -213,22 +286,22 @@ Shared<RuntimeValue> EvalIfExpr(Shared<IfExpr> node, Shared<ExecutionContext> ct
 
 bool Equals(Shared<RuntimeValue> left, Shared<RuntimeValue> right)
 {
-    if (left->Is<NullValue>() && right->Is<NullValue>())
+    if (left->Is<NullValue>() and right->Is<NullValue>())
     {
         return true;
     }
 
-    if (left->Is<NumberValue>() && right->Is<NumberValue>())
+    if (left->Is<NumberValue>() and right->Is<NumberValue>())
     {
         return left->As<NumberValue>()->Value == right->As<NumberValue>()->Value;
     }
 
-    if (left->Is<StringValue>() && right->Is<StringValue>())
+    if (left->Is<StringValue>() and right->Is<StringValue>())
     {
         return left->As<StringValue>()->Value == right->As<StringValue>()->Value;
     }
 
-    if (left->Is<BoolValue>() && right->Is<BoolValue>())
+    if (left->Is<BoolValue>() and right->Is<BoolValue>())
     {
         return left->As<BoolValue>()->Value == right->As<BoolValue>()->Value;
     }
@@ -236,7 +309,7 @@ bool Equals(Shared<RuntimeValue> left, Shared<RuntimeValue> right)
     return false;
 }
 
-Shared<RuntimeValue> EvalLogicalExpr(Shared<LogicalExpr> node, Shared<ExecutionContext> ctx)
+Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<ExecutionContext> ctx)
 {
     auto Left = Evaluate(node->Left, ctx);
 
@@ -276,7 +349,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<LogicalExpr> node, Shared<ExecutionC
     default:
         auto Right = Evaluate(node->Right, ctx);
 
-        if (Left->Is<NumberValue>() && Right->Is<NumberValue>())
+        if (Left->Is<NumberValue>() and Right->Is<NumberValue>())
         {
             switch (node->Operator)
             {
@@ -332,26 +405,12 @@ Shared<RuntimeValue> EvalBreak(Shared<BreakStatement> node, Shared<ExecutionCont
 {
     ctx->ShouldBreak = true;
 
-    if (ctx->Parent.has_value() && !ctx->IsLoopContext)
-    {
-        ctx->Parent.value()->ShouldBreak = true;
-
-        return EvalBreak(node, ctx->Parent.value());
-    }
-
     return std::make_shared<NullValue>();
 }
 
 Shared<RuntimeValue> EvalContinue(Shared<ContinueStatement> node, Shared<ExecutionContext> ctx)
 {
     ctx->ShouldContinue = true;
-
-    if (ctx->Parent.has_value() && !ctx->IsLoopContext)
-    {
-        ctx->Parent.value()->ShouldContinue = true;
-
-        return EvalContinue(node, ctx->Parent.value());
-    }
 
     return std::make_shared<NullValue>();
 }
@@ -396,95 +455,80 @@ Shared<RuntimeValue> EvalLoop(Shared<LoopStatement> node, Shared<ExecutionContex
     return std::make_shared<NullValue>();
 }
 
+Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, Shared<ExecutionContext> ctx)
+{
+    auto Function = std::make_shared<FunctionValue>(node);
+
+    if (node->Name.has_value())
+    {
+        ctx->DeclareVar(node->Name.value(), Function, false);
+    }
+
+    return Function;
+}
+
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
 {
     switch (node->Type)
     {
     case ASTNodeType::NumericLiteral:
-    {
-        auto Value = node->As<NumericLiteral>()->Value;
-        return std::make_shared<NumberValue>(Value);
-    }
+        return std::make_shared<NumberValue>(node->As<NumericLiteral>()->Value);
 
     case ASTNodeType::StringLiteral:
-    {
-        auto Value = node->As<StringLiteral>()->Value;
-        return std::make_shared<StringValue>(Value);
-    }
+        return std::make_shared<StringValue>(node->As<StringLiteral>()->Value);
 
     case ASTNodeType::Identifier:
-    {
         return EvalIdentifier(node->As<Identifier>(), ctx);
-    }
 
     case ASTNodeType::PrintStatement:
-    {
         return EvalPrint(node->As<PrintStatement>(), ctx);
-    }
 
     case ASTNodeType::LoopStatement:
-    {
         return EvalLoop(node->As<LoopStatement>(), ctx);
-    }
 
     case ASTNodeType::BreakStatement:
-    {
         return EvalBreak(node->As<BreakStatement>(), ctx);
-    }
 
     case ASTNodeType::ContinueStatement:
-    {
         return EvalContinue(node->As<ContinueStatement>(), ctx);
-    }
 
     case ASTNodeType::ObjectLiteral:
-    {
         return EvalObjectExpr(node->As<ObjectLiteral>(), ctx);
-    }
+
+    case ASTNodeType::MemberExpr:
+        return EvalMemberExpr(node->As<MemberExpr>(), ctx);
 
     case ASTNodeType::BinaryExpr:
-    {
         return EvalBinaryExpr(node->As<BinaryExpr>(), ctx);
-    }
 
     case ASTNodeType::Program:
-    {
         return EvalProgram(node->As<Program>(), ctx);
-    }
 
     case ASTNodeType::VariableDeclaration:
-    {
         return EvalVariableDeclaration(node->As<VariableDeclaration>(), ctx);
-    }
 
     case ASTNodeType::AssignmentExpr:
-    {
         return EvalAssignment(node->As<AssignmentExpr>(), ctx);
-    }
 
     case ASTNodeType::IfExpr:
-    {
         return EvalIfExpr(node->As<IfExpr>(), ctx);
-    }
+
+    case ASTNodeType::FunctionDeclaration:
+        return EvalFunctionDeclaration(node->As<FunctionDeclaration>(), ctx);
 
     case ASTNodeType::CallExpr:
-    {
         return EvalCallExpr(node->As<CallExpr>(), ctx);
-    }
+
+    case ASTNodeType::ReturnStatement:
+        return EvalReturnStatement(node->As<ReturnStatement>(), ctx);
 
     case ASTNodeType::BlockExpr:
-    {
         return EvalBlockExpr(node->As<BlockExpr>(), ctx);
-    }
 
-    case ASTNodeType::LogicalExpr:
-    {
-        return EvalLogicalExpr(node->As<LogicalExpr>(), ctx);
-    }
+    case ASTNodeType::ConditionalExpr:
+        return EvalLogicalExpr(node->As<ConditionalExpr>(), ctx);
 
     default:
-    {
         return Safety::Throw<Shared<RuntimeValue>>(std::format("Unsupported AST Node {}.", node->ToString()));
-    }
     }
 }

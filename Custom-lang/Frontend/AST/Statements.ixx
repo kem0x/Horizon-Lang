@@ -130,4 +130,61 @@ export
                 Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null", IsConst);
         }
     };
+
+    struct FunctionDeclaration : public Statement
+    {
+        Optional<String> Name;
+        Vector<Shared<Expr>> Parameters;
+        Vector<Shared<Statement>> Body;
+
+        FunctionDeclaration(Optional<String> name, Vector<Shared<Expr>> parameters, Vector<Shared<Statement>> body)
+            : Statement { ASTNodeType::FunctionDeclaration }
+            , Name { name }
+            , Parameters { parameters }
+            , Body { body }
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}',\n{0}\tParameters: [",
+                indentation, ASTNodeTypeToString(Type), Name.has_value() ? Name.value() : "null");
+
+            for (auto&& Param : Parameters)
+            {
+                output += "\n" + indentation + "\t\t" + Param->ToString(indentation + "\t\t") + ",";
+            }
+
+            output += "\n" + indentation + "\t],\n" + indentation + "\tBody: [";
+
+            for (auto&& Stmt : Body)
+            {
+                output += "\n" + indentation + "\t\t" + Stmt->ToString(indentation + "\t\t") + ",";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
+    struct ReturnStatement : public Statement
+    {
+        Optional<Shared<Expr>> Value;
+
+        ReturnStatement(Optional<Shared<Expr>> value)
+            : Statement { ASTNodeType::ReturnStatement }
+            , Value(value)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
+                indentation, ASTNodeTypeToString(Type),
+                Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null");
+        }
+    };
 }

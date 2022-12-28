@@ -12,6 +12,8 @@ import AST.Core;
 import Runtime.ExecutionContext;
 import Interpreter;
 
+import Runtime.RuntimeValue;
+
 /*
 void repl()
 {
@@ -26,7 +28,7 @@ void repl()
         String input;
         std::getline(std::cin, input);
 
-        if (input.empty() || input == "exit")
+        if (input.empty() or input == "exit")
             break;
 
         if (input == "debug")
@@ -54,7 +56,7 @@ int main()
 
     const auto path = std::filesystem::current_path() / "test.txt";
 
-    const auto input = StringExtensions::ReadFile(path);
+    const auto input = path | StringExtensions::ReadFile;
 
     Shared<Statement> program = parser->ProduceAST(input);
 

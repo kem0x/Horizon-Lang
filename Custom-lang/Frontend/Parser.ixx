@@ -42,178 +42,6 @@ export
             return Advance();
         }
 
-        Shared<Expr> ParseComparisonExpr()
-        {
-            auto Left = ParseAdditiveExpr();
-
-            while (Current().Type == LexerTokenType::Greater
-                || Current().Type == LexerTokenType::GreaterEqual
-                || Current().Type == LexerTokenType::Less
-                || Current().Type == LexerTokenType::LessEqual)
-            {
-                auto Op = Advance();
-                auto Right = ParseAdditiveExpr();
-
-                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
-            }
-
-            return Left;
-        }
-
-        Shared<Expr> ParseEqualityExpr()
-        {
-            auto Left = ParseComparisonExpr();
-
-            while (NotEoF() && (Current().Type == LexerTokenType::BangEqual || Current().Type == LexerTokenType::EqualEqual))
-            {
-                auto Op = Advance();
-                auto Right = ParseComparisonExpr();
-
-                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
-            }
-
-            return Left;
-        }
-
-        Shared<Expr> ParseLogicalAndExpr()
-        {
-            auto Left = ParseEqualityExpr();
-
-            while (Current().Type == LexerTokenType::And)
-            {
-                auto Op = Advance();
-                auto Right = ParseEqualityExpr();
-                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
-            }
-
-            return Left;
-        }
-
-        Shared<Expr> ParseLogicalOrExpr()
-        {
-            auto Left = ParseLogicalAndExpr();
-
-            while (Current().Type == LexerTokenType::Or)
-            {
-                auto Op = Advance();
-                auto Right = ParseLogicalAndExpr();
-                Left = std::make_shared<LogicalExpr>(Left, Right, Op.Type);
-            }
-
-            return Left;
-        }
-
-        Shared<Expr> ParseAdditiveExpr()
-        {
-            auto Left = ParseMultiplicativeExpr();
-
-            while (Current().Value == "+" || Current().Value == "-")
-            {
-                auto Operator = Advance().Value;
-
-                auto Right = ParseMultiplicativeExpr();
-
-                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
-            }
-
-            return Left;
-        }
-
-        Shared<Expr> ParseCallMemberExpr()
-        {
-            const auto Member = ParseMemberExpr();
-
-            if (Current().Type == LexerTokenType::OpenParen)
-            {
-                return ParseCallExpr(Member);
-            }
-
-            return Member;
-        }
-
-        Shared<CallExpr> ParseCallExpr(Shared<Expr> caller)
-        {
-            auto Call = std::make_shared<CallExpr>(caller, ParseArgs());
-
-            if (Current().Type == LexerTokenType::OpenParen)
-            {
-                Call = ParseCallExpr(Call);
-            }
-
-            return Call;
-        }
-
-        Vector<Shared<Expr>> ParseArgs()
-        {
-            Expect(LexerTokenType::OpenParen, "Expected '('");
-
-            auto Args = Current().Type == LexerTokenType::CloseParen ? Vector<Shared<Expr>>() : ParseArgsList();
-
-            Expect(LexerTokenType::CloseParen, "Expected ')'");
-
-            return Args;
-        }
-
-        Vector<Shared<Expr>> ParseArgsList()
-        {
-            auto Args = Vector<Shared<Expr>> { std::move(ParseAssignmentExpr()) };
-
-            while (Current().Type == LexerTokenType::Comma)
-            {
-                Advance();
-
-                Args.push_back(std::move(ParseAssignmentExpr()));
-            }
-
-            return Args;
-        }
-
-        Shared<Expr> ParseMemberExpr()
-        {
-            auto Object = ParsePrimaryExpr();
-
-            while (Current().Type == LexerTokenType::Dot || Current().Type == LexerTokenType::OpenBracket)
-            {
-                const auto Operator = Advance();
-
-                if (Operator.Type == LexerTokenType::Dot)
-                {
-                    auto Property = ParsePrimaryExpr();
-
-                    if (Property->Type != ASTNodeType::Identifier)
-                    {
-                        Safety::Throw("Using a non-identifier as a property is not allowed with dot operator!");
-                    }
-
-                    Object = std::make_shared<MemberExpr>(Object, Property, false);
-                }
-                else
-                {
-                    Object = std::make_shared<MemberExpr>(Object, ParseExpr(), true);
-
-                    Expect(LexerTokenType::CloseBracket, "Expected ']'");
-                }
-            }
-
-            return Object;
-        }
-
-        Shared<Expr> ParseMultiplicativeExpr()
-        {
-            auto Left = ParseCallMemberExpr();
-
-            while (Current().Value == "/" || Current().Value == "*" || Current().Value == "%")
-            {
-                auto Operator = Advance().Value;
-
-                auto Right = ParseCallMemberExpr();
-
-                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
-            }
-
-            return Left;
-        }
-
         Shared<Expr> ParsePrimaryExpr()
         {
             switch (Current().Type)
@@ -246,18 +74,168 @@ export
             }
         }
 
+        Shared<CallExpr> ParseCallExpr(Shared<Expr> caller)
+        {
+            auto Call = std::make_shared<CallExpr>(caller, ParseArgs());
+
+            if (Current().Type == LexerTokenType::OpenParen)
+            {
+                Call = ParseCallExpr(Call);
+            }
+
+            return Call;
+        }
+
+        Shared<Expr> ParseMemberExpr()
+        {
+            auto Object = ParsePrimaryExpr();
+
+            while (Current().Type == LexerTokenType::Dot or Current().Type == LexerTokenType::OpenBracket)
+            {
+                const auto Operator = Advance();
+
+                if (Operator.Type == LexerTokenType::Dot)
+                {
+                    auto Property = ParsePrimaryExpr();
+
+                    if (Property->Type != ASTNodeType::Identifier)
+                    {
+                        Safety::Throw("Using a non-identifier as a property is not allowed with dot operator!");
+                    }
+
+                    Object = std::make_shared<MemberExpr>(Object, Property, false);
+                }
+                else
+                {
+                    Object = std::make_shared<MemberExpr>(Object, ParseExpr(), true);
+
+                    Expect(LexerTokenType::CloseBracket, "Expected ']'");
+                }
+            }
+
+            if (Current().Type == LexerTokenType::OpenParen)
+            {
+                Object = ParseCallExpr(Object);
+            }
+
+            return Object;
+        }
+
+        // ParseUnaryExpr
+
+        // ParseRangeExpr
+
+        // ParseSwitchExpr
+
+        Shared<Expr> ParseMultiplicativeExpr()
+        {
+            auto Left = ParseMemberExpr();
+
+            while (Current().Value == "/" or Current().Value == "*" or Current().Value == "%")
+            {
+                auto Operator = Advance().Value;
+
+                auto Right = ParseMemberExpr();
+
+                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseAdditiveExpr()
+        {
+            auto Left = ParseMultiplicativeExpr();
+
+            while (Current().Value == "+" or Current().Value == "-")
+            {
+                auto Operator = Advance().Value;
+
+                auto Right = ParseMultiplicativeExpr();
+
+                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseComparisonExpr()
+        {
+            auto Left = ParseAdditiveExpr();
+
+            while (Current().Type == LexerTokenType::Greater
+                or Current().Type == LexerTokenType::GreaterEqual
+                or Current().Type == LexerTokenType::Less
+                or Current().Type == LexerTokenType::LessEqual)
+            {
+                auto Op = Advance();
+                auto Right = ParseAdditiveExpr();
+
+                Left = std::make_shared<ConditionalExpr>(Left, Right, Op.Type);
+            }
+
+            // handle 'is' keyword
+
+            return Left;
+        }
+
+        Shared<Expr> ParseEqualityExpr()
+        {
+            auto Left = ParseComparisonExpr();
+
+            while (NotEoF() and (Current().Type == LexerTokenType::BangEqual or Current().Type == LexerTokenType::EqualEqual))
+            {
+                auto Op = Advance();
+                auto Right = ParseComparisonExpr();
+
+                Left = std::make_shared<ConditionalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseConditionalAndExpr()
+        {
+            auto Left = ParseEqualityExpr();
+
+            while (Current().Type == LexerTokenType::And)
+            {
+                auto Op = Advance();
+                auto Right = ParseEqualityExpr();
+                Left = std::make_shared<ConditionalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        Shared<Expr> ParseConditionalOrExpr()
+        {
+            auto Left = ParseConditionalAndExpr();
+
+            while (Current().Type == LexerTokenType::Or)
+            {
+                auto Op = Advance();
+                auto Right = ParseConditionalAndExpr();
+                Left = std::make_shared<ConditionalExpr>(Left, Right, Op.Type);
+            }
+
+            return Left;
+        }
+
+        // ParseNullCoalescingExpr
+
         Shared<Expr> ParseObjectExpr()
         {
             if (Current().Type != LexerTokenType::OpenBrace)
             {
-                return ParseLogicalOrExpr();
+                return ParseConditionalOrExpr();
             }
 
             Advance(); // Skip '{'
 
             Vector<Shared<Property>> properties;
 
-            while (NotEoF() && Current().Type != LexerTokenType::CloseBrace)
+            while (NotEoF() and Current().Type != LexerTokenType::CloseBrace)
             {
                 const auto key = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a property name").Value;
 
@@ -300,7 +278,7 @@ export
             {
                 Advance(); // Skip '='
 
-                const auto right = ParseAssignmentExpr();
+                const auto right = ParseObjectExpr();
 
                 Expect(LexerTokenType::Semicolon, std::format("Expected ';' after variable assignment, got '{}'", Current().Value));
 
@@ -315,11 +293,36 @@ export
             return ParseAssignmentExpr();
         }
 
+        Vector<Shared<Expr>> ParseArgs()
+        {
+            const auto ParseArgsList = [&]()
+            {
+                auto Args = Vector<Shared<Expr>> { std::move(ParseAssignmentExpr()) };
+
+                while (Current().Type == LexerTokenType::Comma)
+                {
+                    Advance();
+
+                    Args.push_back(std::move(ParseAssignmentExpr()));
+                }
+
+                return Args;
+            };
+
+            Expect(LexerTokenType::OpenParen, "Expected '('");
+
+            auto Args = Current().Type == LexerTokenType::CloseParen ? Vector<Shared<Expr>>() : ParseArgsList();
+
+            Expect(LexerTokenType::CloseParen, "Expected ')'");
+
+            return Args;
+        }
+
         Shared<BlockExpr> ParseBlock()
         {
             Vector<Shared<Statement>> exprs;
 
-            while (NotEoF() && Current().Type != LexerTokenType::CloseBrace)
+            while (NotEoF() and Current().Type != LexerTokenType::CloseBrace)
             {
                 exprs.push_back(std::move(ParseStatement()));
             }
@@ -387,9 +390,35 @@ export
 
             Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
 
-            auto Body = ParseBlock();
+            auto Block = ParseBlock();
 
-            return std::make_shared<LoopStatement>(Times, Body->Statements);
+            return std::make_shared<LoopStatement>(Times, Block->Body);
+        }
+
+        Shared<Statement> ParseFunctionDeclaration()
+        {
+            Advance(); // Skip 'func'
+
+            const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a function name").Value;
+
+            const auto Parameters = ParseArgs();
+
+            Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
+
+            auto Block = ParseBlock();
+
+            return std::make_shared<FunctionDeclaration>(Name, Parameters, Block->Body);
+        }
+
+        Shared<Statement> ParseReturnStatement()
+        {
+            Advance(); // Skip 'return'
+
+            const auto Value = ParseExpr();
+
+            Expect(LexerTokenType::Semicolon, "Unexpected token: " + Current().Value + ", expected a ';'");
+
+            return std::make_shared<ReturnStatement>(Value);
         }
 
         Shared<Statement> ParsePrintStatement()
@@ -422,6 +451,12 @@ export
 
             case LexerTokenType::Print:
                 return ParsePrintStatement();
+
+            case LexerTokenType::Function:
+                return ParseFunctionDeclaration();
+
+            case LexerTokenType::Return:
+                return ParseReturnStatement();
 
             case LexerTokenType::Let:
             case LexerTokenType::Const:

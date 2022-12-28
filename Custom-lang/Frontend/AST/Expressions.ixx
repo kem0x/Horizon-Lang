@@ -112,20 +112,20 @@ export
 
     struct BlockExpr : Expr
     {
-        Vector<Shared<Statement>> Statements;
+        Vector<Shared<Statement>> Body;
 
-        BlockExpr(Vector<Shared<Statement>> statements)
+        BlockExpr(Vector<Shared<Statement>> body)
             : Expr { ASTNodeType::BlockExpr }
-            , Statements(statements)
+            , Body(body)
         {
         }
 
         virtual String ToString(std::string indentation = "") override
         {
-            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tStatements: [",
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tBody: [",
                 indentation, ASTNodeTypeToString(Type));
 
-            for (auto&& Stmt : Statements)
+            for (auto&& Stmt : Body)
             {
                 output += "\n" + indentation + "\t\t" + Stmt->ToString(indentation + "\t\t") + ",";
             }
@@ -270,14 +270,14 @@ export
         }
     };
 
-    struct LogicalExpr : public Expr
+    struct ConditionalExpr : public Expr
     {
         Shared<Expr> Left;
         Shared<Expr> Right;
         LexerTokenType Operator;
 
-        LogicalExpr(Shared<Expr> left, Shared<Expr> right, LexerTokenType op)
-            : Expr { ASTNodeType::LogicalExpr }
+        ConditionalExpr(Shared<Expr> left, Shared<Expr> right, LexerTokenType op)
+            : Expr { ASTNodeType::ConditionalExpr }
             , Left(left)
             , Right(right)
             , Operator(op)

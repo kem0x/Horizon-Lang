@@ -1,3 +1,17 @@
+## Operator precedence
+
+| Operators      						| Category or name  |
+| -------------  						| ----------------- |
+| `x = y`, `x = {...}`      			| Assignment        |
+| `x || y`		 						| Conditional OR    |
+| `x && y`		 						| Conditional AND   |
+| `x == y`, `x != y`	 				| Equality          |
+| `x < y`, `x > y`, `x <= y`, `x >= y`  | Comparison        |
+| `x + y`, `x - y`						| Additive          |
+| `x * y`, `x / y`, `x % y`				| Multiplicative    |
+| `x.y`, `f(x)`, `a[i]`, `x++`, `x--`	| Primary     |
+
+
 ## Statements:
 
 - Variable declaration:
@@ -48,7 +62,6 @@ Todo:
 
 - [ ] Unary: `-x`, `!x`
 - [ ] Incremenet/Decrement operators `x++`, `x--`
-- [ ] Member access: `x.y`, `x[y]`
 - [ ] for loops
 
 - Literal:
@@ -82,7 +95,9 @@ f(1, 2, 3);
 - Object:
 
 ```js
-{ x: 1, y: 2 }
+let bar = { x: 1, y: 1 };
+
+print bar["x"] == bar.y;
 ```
 
 - Arithmetic:
@@ -109,11 +124,11 @@ print x; // Error: x is not defined
 - Logic:
 
 ```js
-// Logical AND (&& or "and")
+// Conditional AND (&& or "and")
 "ok" and "ko"  // "false"
 "ok" and "ok"  // "true"
 
-// Logical OR (|| or "or")
+// Conditional OR (|| or "or")
 "ok" or "ko"  // "ok"
 false or "ko" // "ko"
 

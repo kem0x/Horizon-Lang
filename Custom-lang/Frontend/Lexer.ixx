@@ -18,6 +18,8 @@ export
         String, // "abc"
 
         Print, // print
+        Function, // func
+        Return, // return
         Let, // let
         Const, // const
         If, // if
@@ -82,9 +84,11 @@ export
         };
 
     private:
-        static constexpr const FlatMap<StringView, LexerTokenType, 12> ReservedKeywords = {
+        static constexpr const FlatMap<StringView, LexerTokenType, 14> ReservedKeywords = {
             { {
                 { "print", LexerTokenType::Print },
+                { "func", LexerTokenType::Function },
+                { "return", LexerTokenType::Return },
                 { "let", LexerTokenType::Let },
                 { "const", LexerTokenType::Const },
                 { "if", LexerTokenType::If },
@@ -122,7 +126,7 @@ export
 
         __forceinline bool MatchNext(char c)
         {
-            const bool matched = !Source.empty() && Source[1] == c;
+            const bool matched = !Source.empty() and Source[1] == c;
 
             if (matched)
                 Advance();
@@ -132,7 +136,7 @@ export
 
         __forceinline char Advance()
         {
-            return StringExtensions::Shift(Source);
+            return Source | StringExtensions::Shift;
         }
 
         __forceinline void AddToken(LexerTokenType type)
@@ -149,7 +153,7 @@ export
         {
             if (MatchNext('/'))
             {
-                while (!IsAtEnd() && Current() != '\n')
+                while (!IsAtEnd() and Current() != '\n')
                 {
                     Advance();
                 }
@@ -165,7 +169,7 @@ export
             String StringValue;
 
             Advance();
-            while (!IsAtEnd() && Current() != '"')
+            while (!IsAtEnd() and Current() != '"')
             {
                 StringValue += Advance();
             }
@@ -181,16 +185,16 @@ export
         void HandleNumaricLiteral()
         {
             String Number;
-            while (!IsAtEnd() && std::isdigit(Current()))
+            while (!IsAtEnd() and std::isdigit(Current()))
             {
                 Number += Advance();
             }
 
-            if (Current() == '.' && std::isdigit(Next()))
+            if (Current() == '.' and std::isdigit(Next()))
             {
                 Advance();
 
-                while (!IsAtEnd() && std::isdigit(Current()))
+                while (!IsAtEnd() and std::isdigit(Current()))
                 {
                     Number += Advance();
                 }
@@ -203,7 +207,7 @@ export
         {
             String Identifier;
 
-            while (!IsAtEnd() && std::isalpha(Current()))
+            while (!IsAtEnd() and std::isalpha(Current()))
             {
                 Identifier += Advance();
             }
@@ -228,12 +232,12 @@ export
             {
                 HandleStringLitearls();
             }
-            else if (Current() == '&' && Next() == '&')
+            else if (Current() == '&' and Next() == '&')
             {
                 Advance();
                 AddToken(LexerTokenType::And);
             }
-            else if (Current() == '|' && Next() == '|')
+            else if (Current() == '|' and Next() == '|')
             {
                 Advance();
                 AddToken(LexerTokenType::Or);

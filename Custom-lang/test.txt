@@ -1,19 +1,10 @@
-let i = 0;
-
-loop
-{	
-	if (i == 2)
-	{    
-		i = i + 1;
-		continue;
-	}
-	
-	print i;
-
-	if (i == 5)
-	{
-		break;
-	}
-
-	i = i + 1;
+func foo()
+{
+	return 100;
 }
+
+let bar = {
+	foo
+};
+
+print bar["foo"]() == bar.foo(); // 100

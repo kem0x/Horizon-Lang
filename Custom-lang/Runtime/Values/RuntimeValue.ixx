@@ -3,6 +3,7 @@ export module Runtime.RuntimeValue;
 import <format>;
 import Safety;
 import Types.Core;
+import Extensions.String;
 
 export
 {
@@ -19,6 +20,7 @@ export
 
     constexpr const char* RuntimeValueTypeToString(RuntimeValueType Type)
     {
+
         switch (Type)
         {
         case RuntimeValueType::NullValue:
@@ -52,9 +54,11 @@ export
         }
 
         template <typename T>
-        bool Is()
+        constexpr bool Is()
         {
-            return String(typeid(T).name()).ends_with(RuntimeValueTypeToString(Type));
+            static_assert(std::is_base_of_v<RuntimeValue, T>, "T must be derived from RuntimeValue");
+
+            return StringExtensions::TypeName<T>() == RuntimeValueTypeToString(Type);
         }
 
         template <typename T>
@@ -62,7 +66,7 @@ export
         {
             if (!Is<T>())
             {
-                Safety::Throw(std::format("Cannot cast a runtime value of type {} to {}.", RuntimeValueTypeToString(Type), typeid(T).name()));
+                Safety::Throw(std::format("Cannot cast a runtime value of type {} to {}.", RuntimeValueTypeToString(Type), StringExtensions::TypeName<T>()));
             }
 
             // might be horrible but other solutions corrupt the heap so idk
@@ -72,6 +76,6 @@ export
         virtual String ToString()
         {
             return std::format("{{\nType: '{}'\n}}", RuntimeValueTypeToString(Type));
-        };
+        }
     };
 }

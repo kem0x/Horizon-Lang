@@ -8,7 +8,6 @@ import Types.FlatMap;
 import Runtime.RuntimeValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
-import Runtime.FunctionValue;
 
 export
 {
@@ -18,8 +17,12 @@ export
 
         FlatMap<String, Shared<RuntimeValue>> Variables;
 
-        bool IsLoopContext = false;
+        bool IsGlobalContext = false;
 
+        bool IsFunctionContext = false;
+        bool ShouldReturn = false;
+
+        bool IsLoopContext = false;
         bool ShouldBreak = false;
         bool ShouldContinue = false;
 
@@ -29,6 +32,7 @@ export
         {
             if (isGlobal)
             {
+                IsGlobalContext = true;
                 DeclareVar("true", BoolValue(true).As<BoolValue>(), true);
                 DeclareVar("false", BoolValue(false).As<BoolValue>(), true);
                 DeclareVar("null", NullValue().As<NullValue>(), true);
