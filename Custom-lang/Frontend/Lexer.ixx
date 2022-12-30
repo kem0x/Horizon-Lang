@@ -17,8 +17,7 @@ export
         Identifier, // abc
         String, // "abc"
 
-        Print, // print
-        Function, // func
+        Function, // function
         Return, // return
         Let, // let
         Const, // const
@@ -84,10 +83,9 @@ export
         };
 
     private:
-        static constexpr const FlatMap<StringView, LexerTokenType, 14> ReservedKeywords = {
+        static constexpr const FlatMap<StringView, LexerTokenType, 15> ReservedKeywords = {
             { {
-                { "print", LexerTokenType::Print },
-                { "func", LexerTokenType::Function },
+                { "function", LexerTokenType::Function },
                 { "return", LexerTokenType::Return },
                 { "let", LexerTokenType::Let },
                 { "const", LexerTokenType::Const },

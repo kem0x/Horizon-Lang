@@ -75,10 +75,16 @@
     <ClCompile Include="Frontend\AST\Expressions.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Values\FunctionValue.ixx">
+    <ClCompile Include="Runtime\Values\StringValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Values\StringValue.ixx">
+    <ClCompile Include="Types\ConstexprString.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Types\Reflection.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Callables.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

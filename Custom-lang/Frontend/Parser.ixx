@@ -421,17 +421,6 @@ export
             return std::make_shared<ReturnStatement>(Value);
         }
 
-        Shared<Statement> ParsePrintStatement()
-        {
-            Advance();
-
-            auto Value = ParseExpr();
-
-            Expect(LexerTokenType::Semicolon, "Expected ';'");
-
-            return std::make_shared<PrintStatement>(Value);
-        }
-
         Shared<Statement> ParseStatement()
         {
             switch (Current().Type)
@@ -448,9 +437,6 @@ export
                 Advance(); // Skip 'continue'
                 Expect(LexerTokenType::Semicolon, "Expected ';'");
                 return std::make_shared<ContinueStatement>();
-
-            case LexerTokenType::Print:
-                return ParsePrintStatement();
 
             case LexerTokenType::Function:
                 return ParseFunctionDeclaration();

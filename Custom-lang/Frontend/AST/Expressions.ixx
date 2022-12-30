@@ -4,6 +4,7 @@ import <format>;
 import Lexer;
 import Types.Core;
 import AST.Core;
+import Reflection;
 
 export
 {
@@ -22,7 +23,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tAssigne: '{2}',\n{0}\tValue: '{3}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Assigne->ToString(indentation + "\t"),
                 Value->ToString(indentation + "\t"));
 
@@ -45,7 +46,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tCallee: '{2}',\n",
-                indentation, ASTNodeTypeToString(Type), Callee->ToString(indentation + "\t"));
+                indentation, Reflection::EnumToString(Type), Callee->ToString(indentation + "\t"));
 
             output += indentation + "\tArguments: [";
             for (auto&& Arg : Arguments)
@@ -77,7 +78,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tObject: '{2}',\n{0}\tProperty: '{3}',\n{0}\tComputed: '{4}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Object->ToString(indentation + "\t"),
                 Property->ToString(indentation + "\t"),
                 Computed);
@@ -101,7 +102,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tLeft: '{2}',\n{0}\tRight: '{3}',\n{0}\tOperator: '{4}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Left->ToString(indentation + "\t"),
                 Right->ToString(indentation + "\t"),
                 Operator);
@@ -123,7 +124,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tBody: [",
-                indentation, ASTNodeTypeToString(Type));
+                indentation, Reflection::EnumToString(Type));
 
             for (auto&& Stmt : Body)
             {
@@ -155,7 +156,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tCondition: '{2}',\n{0}\tThenBranch: '{3}'",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Condition->ToString(indentation + "\t"),
                 Then->ToString(indentation + "\t"));
 
@@ -183,7 +184,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type), Name);
+                indentation, Reflection::EnumToString(Type), Name);
         }
     };
 
@@ -200,7 +201,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type), Value);
+                indentation, Reflection::EnumToString(Type), Value);
         }
     };
 
@@ -217,7 +218,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type), Value);
+                indentation, Reflection::EnumToString(Type), Value);
         }
     };
 
@@ -236,7 +237,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tKey: '{2}',\n{0}\tValue: '{3}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Key,
                 Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null");
         }
@@ -255,7 +256,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tProperties: [",
-                indentation, ASTNodeTypeToString(Type));
+                indentation, Reflection::EnumToString(Type));
 
             for (auto&& Prop : Properties)
             {
@@ -287,7 +288,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tLeft: '{2}',\n{0}\tRight: '{3}',\n{0}\tOperator: '{4}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Left->ToString(indentation + "\t"),
                 Right->ToString(indentation + "\t"),
                 static_cast<int>(Operator));

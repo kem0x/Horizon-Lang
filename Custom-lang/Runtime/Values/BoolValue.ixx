@@ -3,6 +3,7 @@ export module Runtime.BoolValue;
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
+import Reflection;
 
 export
 {
@@ -18,7 +19,7 @@ export
 
         String ToString() override
         {
-            return std::format("{{\nType: '{}',\nValue: '{}'\n}}", RuntimeValueTypeToString(Type), Value);
+            return std::format("{{\nType: '{}',\nValue: '{}'\n}}", Reflection::EnumToString(Type), Value);
         };
     };
 }

@@ -97,7 +97,7 @@ f(1, 2, 3);
 ```js
 let bar = { x: 1, y: 1 };
 
-print bar["x"] == bar.y;
+print(bar["x"] == bar.y);
 ```
 
 - Arithmetic:
@@ -115,10 +115,10 @@ print bar["x"] == bar.y;
 ```js
 {
     let x = 1;
-    print x;
+    print(x);
 }
 
-print x; // Error: x is not defined
+print(x); // Error: x is not defined
 ```
 
 - Logic:
@@ -147,7 +147,24 @@ false or "ko" // "ko"
 let x = if (true) { 1 } else { 2 };
 
 if (x == 1) {
-    print "Hello World";
-    print if (x != 1) { "hi" } else { "bye" };
+    print("Hello World");
+    print(if (x != 1) { "hi" } else { "bye" });
 }
+```
+
+- Functions:
+
+```js
+function foo()
+{
+	return 100;
+}
+
+let fmt = format("{}: {}", foo(), 300);
+
+print(fmt) // 100.000000: 300.000000
+
+print("{}", 100) // 100.000000
+
+print(foo(), 300) // 100.000000 300.000000
 ```

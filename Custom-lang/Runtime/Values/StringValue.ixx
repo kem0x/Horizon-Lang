@@ -3,14 +3,15 @@ export module Runtime.StringValue;
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
+import Reflection;
 
 export
 {
     struct StringValue : RuntimeValue
     {
-        std::string Value;
+        String Value;
 
-        StringValue(std::string value)
+        StringValue(String value)
             : RuntimeValue { RuntimeValueType::StringValue }
             , Value(value)
         {
@@ -18,7 +19,7 @@ export
 
         String ToString() override
         {
-            return std::format("{{\nType: '{}',\nValue: '{}'\n}}", RuntimeValueTypeToString(Type), Value);
+            return std::format("{{\nType: '{}',\nValue: '{}'\n}}", Reflection::EnumToString(Type), Value);
         }
     };
 }

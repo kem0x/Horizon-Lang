@@ -5,14 +5,13 @@ import <filesystem>;
 import Types.Core;
 
 #define DefineExtension(returnType, name, params, paramsName, body) \
-    template <typename T>                                           \
     struct name##T                                                  \
     {                                                               \
         returnType operator()(params) const                         \
             body                                                    \
     };                                                              \
-    constexpr name##T<void> name = {};                              \
-    returnType operator|(params, name##T<void> ext)                 \
+    constexpr name##T name = {};                                    \
+    returnType operator|(params, name##T ext)                       \
     {                                                               \
         return ext paramsName;                                      \
     }
@@ -44,6 +43,9 @@ export
 
         __forceinline constexpr auto Replace(const String& str, StringView from, StringView to)
         {
+            if (!str.contains(from))
+                return str;
+
             String result;
             result.reserve(str.length());
 
@@ -62,15 +64,6 @@ export
             result.append(str.data() + lastPos, str.length() - lastPos);
 
             return result;
-        }
-
-        template <typename T>
-        __forceinline constexpr String TypeName()
-        {
-            auto TName = Replace(typeid(T).name(), "class ", "");
-            TName = Replace(TName, "struct ", "");
-
-            return TName;
         }
     }
 }

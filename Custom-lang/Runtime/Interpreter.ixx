@@ -15,7 +15,7 @@ import Runtime.NumberValue;
 import Runtime.StringValue;
 import Runtime.ObjectValue;
 import Runtime.BoolValue;
-import Runtime.FunctionValue;
+import Runtime.Callables;
 import Runtime.NullValue;
 
 Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
@@ -39,38 +39,6 @@ Shared<RuntimeValue> EvalVariableDeclaration(Shared<VariableDeclaration> declara
         : std::make_shared<NullValue>();
 
     return ctx->DeclareVar(declaration->Identifier, Value, declaration->IsConst);
-}
-
-Shared<RuntimeValue> EvalPrint(Shared<PrintStatement> print, Shared<ExecutionContext> ctx)
-{
-    const auto Value = Evaluate(print->Value, ctx);
-
-    if (Value->Is<NumberValue>())
-    {
-        std::cout << Value->As<NumberValue>()->Value << std::endl;
-    }
-    else if (Value->Is<StringValue>())
-    {
-        std::cout << Value->As<StringValue>()->Value << std::endl;
-    }
-    else if (Value->Is<ObjectValue>())
-    {
-        std::cout << Value->As<ObjectValue>()->ToString() << std::endl;
-    }
-    else if (Value->Is<BoolValue>())
-    {
-        std::cout << (Value->As<BoolValue>()->Value ? "true" : "false") << std::endl;
-    }
-    else if (Value->Is<NullValue>())
-    {
-        std::cout << "null" << std::endl;
-    }
-    else
-    {
-        Safety::Throw("Tried to print an unknown value type!");
-    }
-
-    return std::make_shared<NullValue>();
 }
 
 Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator)
@@ -197,35 +165,26 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
     return LastEvaluatedValue;
 }
 
-Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx)
+Shared<RuntimeValue> RuntimeFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
 {
-    auto Callee = Evaluate(node->Callee, ctx);
-
-    if (!Callee->Is<FunctionValue>())
-    {
-        Safety::Throw(std::format("Tried to call a non-function value of type {}!", Callee->ToString().c_str()));
-    }
-
-    auto Function = Callee->As<FunctionValue>();
-
-    auto NewContext = std::make_shared<ExecutionContext>(ctx);
+    auto NewContext = std::make_shared<ExecutionContext>(context);
     NewContext->IsFunctionContext = true;
 
-    for (int i = 0; i < Function->Declaration->Parameters.size(); i++)
+    for (int i = 0; i < Declaration->Parameters.size(); i++)
     {
-        auto Param = Function->Declaration->Parameters[i];
+        auto Param = Declaration->Parameters[i];
 
-        for (auto&& Arg : node->Arguments)
+        for (auto&& Arg : arguments)
         {
             const auto ParamName = Param->As<Identifier>()->Name;
 
-            NewContext->DeclareVar(ParamName, Evaluate(Arg, ctx), true);
+            NewContext->DeclareVar(ParamName, Evaluate(Arg, context), true);
         }
     }
 
     Shared<RuntimeValue> Result = std::make_shared<NullValue>();
 
-    for (auto&& stmt : Function->Declaration->Body)
+    for (auto&& stmt : Declaration->Body)
     {
         Result = Evaluate(stmt, NewContext);
 
@@ -236,6 +195,37 @@ Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext
     }
 
     return Result;
+}
+
+Shared<RuntimeValue> NativeFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
+{
+    Vector<Shared<RuntimeValue>> Args;
+
+    for (auto&& Arg : arguments)
+    {
+        Args.push_back(Evaluate(Arg, context));
+    }
+
+    return Function(Args);
+}
+
+Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext> ctx)
+{
+    auto Callee = Evaluate(node->Callee, ctx);
+
+    if (!Callee->Is<Callable>())
+    {
+        Safety::Throw(std::format("Tried to call a non-function value of type {}!", Callee->ToString().c_str()));
+    }
+
+    auto Function = std::dynamic_pointer_cast<Callable>(Callee);
+
+    if (Function->CallType == CallabeType::Native)
+    {
+        return Function->AsUnchecked<NativeFunction>()->Call(ctx, node->Arguments);
+    }
+
+    return Function->AsUnchecked<RuntimeFunction>()->Call(ctx, node->Arguments);
 }
 
 Shared<RuntimeValue> EvalReturnStatement(Shared<ReturnStatement> node, Shared<ExecutionContext> ctx)
@@ -457,7 +447,7 @@ Shared<RuntimeValue> EvalLoop(Shared<LoopStatement> node, Shared<ExecutionContex
 
 Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, Shared<ExecutionContext> ctx)
 {
-    auto Function = std::make_shared<FunctionValue>(node);
+    auto Function = std::make_shared<RuntimeFunction>(node);
 
     if (node->Name.has_value())
     {
@@ -479,9 +469,6 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
 
     case ASTNodeType::Identifier:
         return EvalIdentifier(node->As<Identifier>(), ctx);
-
-    case ASTNodeType::PrintStatement:
-        return EvalPrint(node->As<PrintStatement>(), ctx);
 
     case ASTNodeType::LoopStatement:
         return EvalLoop(node->As<LoopStatement>(), ctx);

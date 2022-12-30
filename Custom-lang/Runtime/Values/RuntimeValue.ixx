@@ -3,6 +3,7 @@ export module Runtime.RuntimeValue;
 import <format>;
 import Safety;
 import Types.Core;
+import Reflection;
 import Extensions.String;
 
 export
@@ -15,31 +16,8 @@ export
         NumberValue,
         StringValue,
         ObjectValue,
-        FunctionValue
+        Callable
     };
-
-    constexpr const char* RuntimeValueTypeToString(RuntimeValueType Type)
-    {
-
-        switch (Type)
-        {
-        case RuntimeValueType::NullValue:
-            return "NullValue";
-        case RuntimeValueType::BoolValue:
-            return "BoolValue";
-        case RuntimeValueType::NumberValue:
-            return "NumberValue";
-        case RuntimeValueType::StringValue:
-            return "StringValue";
-        case RuntimeValueType::ObjectValue:
-            return "ObjectValue";
-        case RuntimeValueType::FunctionValue:
-            return "FunctionValue";
-
-        default:
-            return "Unknown (?)";
-        }
-    }
 
     struct RuntimeValue : public std::enable_shared_from_this<RuntimeValue>
     {
@@ -58,7 +36,15 @@ export
         {
             static_assert(std::is_base_of_v<RuntimeValue, T>, "T must be derived from RuntimeValue");
 
-            return StringExtensions::TypeName<T>() == RuntimeValueTypeToString(Type);
+            return Reflection::TypeNameToString<T>() == Reflection::EnumToString(Type);
+        }
+
+        template <typename T>
+        __forceinline Shared<T> AsUnchecked()
+        {
+            // NOTE: this slices the pointer, so the the sub class properties will be lost
+            // might be horrible but other solutions corrupt the heap so i don't know...
+            return std::make_shared<T>(static_cast<T&>(*this));
         }
 
         template <typename T>
@@ -66,16 +52,15 @@ export
         {
             if (!Is<T>())
             {
-                Safety::Throw(std::format("Cannot cast a runtime value of type {} to {}.", RuntimeValueTypeToString(Type), StringExtensions::TypeName<T>()));
+                Safety::Throw(std::format("Cannot cast a runtime value of type {} to {}.", Reflection::EnumToString(Type), Reflection::TypeNameToString<T>().c_str()));
             }
-
-            // might be horrible but other solutions corrupt the heap so idk
-            return std::make_shared<T>(static_cast<T&>(*this));
+            
+            return AsUnchecked<T>();
         }
 
         virtual String ToString()
         {
-            return std::format("{{\nType: '{}'\n}}", RuntimeValueTypeToString(Type));
+            return std::format("{{\nType: '{}'\n}}", Reflection::EnumToString(Type));
         }
     };
 }

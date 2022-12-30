@@ -4,6 +4,7 @@ import <format>;
 import Types.Core;
 import Safety;
 import AST.Core;
+import Reflection;
 
 export
 {
@@ -19,7 +20,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tBody: [",
-                indentation, ASTNodeTypeToString(Type));
+                indentation, Reflection::EnumToString(Type));
 
             for (auto&& Stmt : Body)
             {
@@ -31,23 +32,6 @@ export
             output += "\n" + indentation + "}";
 
             return output;
-        }
-    };
-
-    struct PrintStatement : public Statement
-    {
-        Shared<Expr> Value;
-
-        PrintStatement(Shared<Expr> value)
-            : Statement { ASTNodeType::PrintStatement }
-            , Value(std::move(value))
-        {
-        }
-
-        virtual String ToString(std::string indentation = "") override
-        {
-            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: {2}\n{0}}}",
-                indentation, ASTNodeTypeToString(Type), Value->ToString(indentation + "\t"));
         }
     };
 
@@ -66,7 +50,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tLoopCount: '{2}',\n{0}\tBody: [",
-                indentation, ASTNodeTypeToString(Type), LoopCount);
+                indentation, Reflection::EnumToString(Type), LoopCount);
 
             for (auto&& Stmt : Body)
             {
@@ -91,7 +75,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type));
+                indentation, Reflection::EnumToString(Type));
         }
     };
 
@@ -105,7 +89,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type));
+                indentation, Reflection::EnumToString(Type));
         }
     };
 
@@ -126,7 +110,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tIdentifier: '{2}',\n{0}\tValue: '{3}',\n{0}\tisConst: '{4}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type), Identifier,
+                indentation, Reflection::EnumToString(Type), Identifier,
                 Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null", IsConst);
         }
     };
@@ -148,7 +132,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}',\n{0}\tParameters: [",
-                indentation, ASTNodeTypeToString(Type), Name.has_value() ? Name.value() : "null");
+                indentation, Reflection::EnumToString(Type), Name.has_value() ? Name.value() : "null");
 
             for (auto&& Param : Parameters)
             {
@@ -183,7 +167,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
-                indentation, ASTNodeTypeToString(Type),
+                indentation, Reflection::EnumToString(Type),
                 Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null");
         }
     };

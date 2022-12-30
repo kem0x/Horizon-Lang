@@ -1,10 +1,12 @@
-func foo()
+function foo()
 {
 	return 100;
 }
 
-let bar = {
-	foo
-};
+let fmt = format("{}: {}", foo(), 300);
 
-print bar["foo"]() == bar.foo(); // 100
+print(fmt) // 100.000000: 300.000000
+
+print("{}", 100) // 100.000000
+
+print(foo(), 300) // 100.000000 300.000000
