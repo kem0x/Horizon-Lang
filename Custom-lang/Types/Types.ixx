@@ -5,6 +5,7 @@ import <string>;
 import <optional>;
 import <vector>;
 import <array>;
+import <list>;
 
 export
 {
@@ -25,6 +26,9 @@ export
 
     template <class T, std::size_t N>
     using Array = std::array<T, N>;
+
+    template <class T>
+    using List = std::list<T>;
 
     template <typename T, typename U>
     using Pair = std::pair<T, U>;

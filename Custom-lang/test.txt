@@ -1,12 +1,18 @@
 function foo()
 {
-	return 100;
+	loop (1000)
+	{
+		print("foo")
+	}
 }
 
-let fmt = format("{}: {}", foo(), 300);
+function bar()
+{
+	loop (1000)
+	{
+		print("bar")
+	}
+}
 
-print(fmt) // 100.000000: 300.000000
-
-print("{}", 100) // 100.000000
-
-print(foo(), 300) // 100.000000 300.000000
+sync foo();
+sync bar();

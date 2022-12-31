@@ -54,7 +54,7 @@ export
             return EXCEPTION_CONTINUE_SEARCH;
         }*/
 
-        __forceinline void Init()
+        void Init()
         {
             // Generate a memory dump on crash
             // SetUnhandledExceptionFilter(GenerateCrashDump);
@@ -68,7 +68,7 @@ export
         //@temp
         //@known issue: throwing with this triggers memory leaks detection!
         template <typename T = void>
-        __forceinline T Throw(const String& message)
+        T Throw(const String& message)
         {
             Log<Error>("ERROR: %s", message.c_str());
 

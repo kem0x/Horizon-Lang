@@ -15,8 +15,8 @@ export
 
         AssignmentExpr(Shared<Expr> assigne, Shared<Expr> value)
             : Expr { ASTNodeType::AssignmentExpr }
-            , Assigne(std::move(assigne))
-            , Value(std::move(value))
+            , Assigne(assigne)
+            , Value(value)
         {
         }
 
@@ -38,7 +38,7 @@ export
 
         CallExpr(Shared<Expr> callee, Vector<Shared<Expr>> arguments)
             : Expr { ASTNodeType::CallExpr }
-            , Callee(std::move(callee))
+            , Callee(callee)
             , Arguments(arguments)
         {
         }
@@ -69,8 +69,8 @@ export
 
         MemberExpr(Shared<Expr> object, Shared<Expr> property, bool computed)
             : Expr { ASTNodeType::MemberExpr }
-            , Object(std::move(object))
-            , Property(std::move(property))
+            , Object(object)
+            , Property(property)
             , Computed(computed)
         {
         }
@@ -147,7 +147,7 @@ export
 
         IfExpr(Shared<Expr> condition, Shared<Expr> then, Optional<Shared<Expr>> else_)
             : Expr { ASTNodeType::IfExpr }
-            , Condition(std::move(condition))
+            , Condition(condition)
             , Then(then)
             , Else(else_)
         {

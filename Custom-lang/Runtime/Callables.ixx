@@ -48,7 +48,7 @@ export
 
         RuntimeFunction(Shared<FunctionDeclaration> declaration)
             : Callable { CallabeType::Runtime }
-            , Declaration(std::move(declaration))
+            , Declaration(declaration)
         {
         }
 

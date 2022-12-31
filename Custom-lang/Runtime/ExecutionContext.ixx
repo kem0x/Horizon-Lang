@@ -114,22 +114,22 @@ Shared<RuntimeValue> internalFormat(Vector<Shared<RuntimeValue>> args)
         {
         case RuntimeValueType::BoolValue:
         {
-            ArgsStrings.push_back(Arg->As<BoolValue>()->Value ? "true" : "false");
+            ArgsStrings.emplace_back(Arg->As<BoolValue>()->Value ? "true" : "false");
             break;
         }
         case RuntimeValueType::NumberValue:
         {
-            ArgsStrings.push_back(std::to_string(Arg->As<NumberValue>()->Value));
+            ArgsStrings.emplace_back(std::to_string(Arg->As<NumberValue>()->Value));
             break;
         }
         case RuntimeValueType::StringValue:
         {
-            ArgsStrings.push_back(Arg->As<StringValue>()->Value);
+            ArgsStrings.emplace_back(Arg->As<StringValue>()->Value);
             break;
         }
         case RuntimeValueType::NullValue:
         {
-            ArgsStrings.push_back("null");
+            ArgsStrings.emplace_back("null");
             break;
         }
         default:
@@ -159,22 +159,22 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
         {
         case RuntimeValueType::BoolValue:
         {
-            ArgsStrings.push_back(Arg->As<BoolValue>()->Value ? "true" : "false");
+            ArgsStrings.emplace_back(Arg->As<BoolValue>()->Value ? "true" : "false");
             break;
         }
         case RuntimeValueType::NumberValue:
         {
-            ArgsStrings.push_back(std::to_string(Arg->As<NumberValue>()->Value));
+            ArgsStrings.emplace_back(std::to_string(Arg->As<NumberValue>()->Value));
             break;
         }
         case RuntimeValueType::StringValue:
         {
-            ArgsStrings.push_back(Arg->As<StringValue>()->Value);
+            ArgsStrings.emplace_back(Arg->As<StringValue>()->Value);
             break;
         }
         case RuntimeValueType::NullValue:
         {
-            ArgsStrings.push_back("null");
+            ArgsStrings.emplace_back("null");
             break;
         }
         default:

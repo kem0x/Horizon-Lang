@@ -3,12 +3,14 @@ export module Interpreter;
 import <iostream>;
 import <memory>;
 import <format>;
+import <thread>;
 import Types.Core;
 import Safety;
 import Lexer;
 import AST.Core;
 import AST.Statements;
 import AST.Expressions;
+import Runtime.Thread;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
 import Runtime.NumberValue;
@@ -26,7 +28,7 @@ Shared<RuntimeValue> EvalProgram(Shared<Program> program, Shared<ExecutionContex
 
     for (auto&& stmt : program->Body)
     {
-        LastEvaluatedValue = std::move(Evaluate(stmt, ctx));
+        LastEvaluatedValue = Evaluate(stmt, ctx);
     }
 
     return LastEvaluatedValue;
@@ -159,7 +161,7 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
 
     for (auto&& stmt : node->Body)
     {
-        LastEvaluatedValue = std::move(Evaluate(stmt, BlockCtx));
+        LastEvaluatedValue = Evaluate(stmt, BlockCtx);
     }
 
     return LastEvaluatedValue;
@@ -203,7 +205,7 @@ Shared<RuntimeValue> NativeFunction::Call(Shared<ExecutionContext> context, cons
 
     for (auto&& Arg : arguments)
     {
-        Args.push_back(Evaluate(Arg, context));
+        Args.emplace_back(Evaluate(Arg, context));
     }
 
     return Function(Args);
@@ -457,6 +459,11 @@ Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, S
     return Function;
 }
 
+Shared<RuntimeValue> EvalSyncStatement(Shared<SyncStatement> node, Shared<ExecutionContext> ctx)
+{
+    return std::make_shared<RuntimeThread>(Evaluate, node->Stmt, ctx);
+}
+
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
 {
     switch (node->Type)
@@ -514,6 +521,9 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
 
     case ASTNodeType::ConditionalExpr:
         return EvalLogicalExpr(node->As<ConditionalExpr>(), ctx);
+
+    case ASTNodeType::SyncStatement:
+        return EvalSyncStatement(node->As<SyncStatement>(), ctx);
 
     default:
         return Safety::Throw<Shared<RuntimeValue>>(std::format("Unsupported AST Node {}.", node->ToString()));

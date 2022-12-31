@@ -93,6 +93,23 @@ export
         }
     };
 
+    struct SyncStatement : public Statement
+    {
+        Shared<Statement> Stmt;
+
+        SyncStatement(Shared<Statement> statement)
+            : Statement { ASTNodeType::SyncStatement }
+            , Stmt(statement)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tStmt: {2}\n{0}}}",
+                indentation, Reflection::EnumToString(Type), Stmt->ToString(indentation + "\t"));
+        }
+    };
+
     struct VariableDeclaration : public Statement
     {
         String Identifier;

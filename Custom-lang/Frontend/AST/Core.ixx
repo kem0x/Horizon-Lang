@@ -14,6 +14,7 @@ export
         VariableDeclaration,
         FunctionDeclaration,
         ReturnStatement,
+        SyncStatement,
         LoopStatement,
         BreakStatement,
         ContinueStatement,

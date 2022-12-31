@@ -41,7 +41,7 @@ export
                 return Value;
             });
 
-        __forceinline constexpr auto Replace(const String& str, StringView from, StringView to)
+        constexpr auto Replace(const String& str, StringView from, StringView to)
         {
             if (!str.contains(from))
                 return str;

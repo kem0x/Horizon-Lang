@@ -87,5 +87,8 @@
     <ClCompile Include="Runtime\Callables.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\Thread.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

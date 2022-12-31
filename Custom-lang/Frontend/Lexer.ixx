@@ -28,6 +28,7 @@ export
         Loop, // loop
         Break, // break
         Continue, // continue
+        Sync, // sync
 
         OpenParen, // (
         CloseParen, // )
@@ -97,7 +98,8 @@ export
                 { "not", LexerTokenType::BangEqual },
                 { "loop", LexerTokenType::Loop },
                 { "break", LexerTokenType::Break },
-                { "continue", LexerTokenType::Continue }
+                { "continue", LexerTokenType::Continue },
+                { "sync", LexerTokenType::Sync },
             } }
         };
 
@@ -107,22 +109,22 @@ export
 
         Vector<Token> Tokens;
 
-        __forceinline bool IsAtEnd() const
+        bool IsAtEnd() const
         {
             return Source.empty();
         }
 
-        __forceinline char Current()
+        char Current()
         {
             return Source[0];
         }
 
-        __forceinline char Next()
+        char Next()
         {
             return Source[1];
         }
 
-        __forceinline bool MatchNext(char c)
+        bool MatchNext(char c)
         {
             const bool matched = !Source.empty() and Source[1] == c;
 
@@ -132,19 +134,19 @@ export
             return matched;
         }
 
-        __forceinline char Advance()
+        char Advance()
         {
             return Source | StringExtensions::Shift;
         }
 
-        __forceinline void AddToken(LexerTokenType type)
+        void AddToken(LexerTokenType type)
         {
-            Tokens.push_back(Token(type, Line, Advance()));
+            Tokens.emplace_back(type, Line, Advance());
         }
 
-        __forceinline void AddToken(LexerTokenType type, StringView value)
+        void AddToken(LexerTokenType type, StringView value)
         {
-            Tokens.push_back(Token(type, Line, value));
+            Tokens.emplace_back(type, Line, value);
         }
 
         void HandleCommentOrSubstraction()

@@ -2,6 +2,7 @@ export module Parser;
 
 import <format>;
 import <optional>;
+import <string>;
 import Types.Core;
 import Safety;
 import Logger;
@@ -244,12 +245,12 @@ export
                 {
                     Advance(); // Skip ','
 
-                    properties.push_back(std::make_shared<Property>(key, std::nullopt));
+                    properties.emplace_back(std::make_shared<Property>(key, std::nullopt));
                     continue;
                 }
                 if (Current().Type == LexerTokenType::CloseBrace)
                 {
-                    properties.push_back(std::make_shared<Property>(key, std::nullopt));
+                    properties.emplace_back(std::make_shared<Property>(key, std::nullopt));
                     continue;
                 }
 
@@ -257,7 +258,7 @@ export
 
                 const auto value = ParseExpr();
 
-                properties.push_back(std::make_shared<Property>(key, value));
+                properties.emplace_back(std::make_shared<Property>(key, value));
 
                 if (Current().Type != LexerTokenType::CloseBrace)
                 {
@@ -297,13 +298,13 @@ export
         {
             const auto ParseArgsList = [&]()
             {
-                auto Args = Vector<Shared<Expr>> { std::move(ParseAssignmentExpr()) };
+                auto Args = Vector<Shared<Expr>> { ParseAssignmentExpr() };
 
                 while (Current().Type == LexerTokenType::Comma)
                 {
                     Advance();
 
-                    Args.push_back(std::move(ParseAssignmentExpr()));
+                    Args.emplace_back(ParseAssignmentExpr());
                 }
 
                 return Args;
@@ -320,16 +321,16 @@ export
 
         Shared<BlockExpr> ParseBlock()
         {
-            Vector<Shared<Statement>> exprs;
+            Vector<Shared<Statement>> Exprs;
 
             while (NotEoF() and Current().Type != LexerTokenType::CloseBrace)
             {
-                exprs.push_back(std::move(ParseStatement()));
+                Exprs.emplace_back(ParseStatement());
             }
 
             Expect(LexerTokenType::CloseBrace, "Expected a closing bracket");
 
-            return std::make_shared<BlockExpr>(exprs);
+            return std::make_shared<BlockExpr>(Exprs);
         }
 
         Shared<Expr> ParseIfExpr()
@@ -448,6 +449,9 @@ export
             case LexerTokenType::Const:
                 return ParseVariableDeclartion();
 
+            case LexerTokenType::Sync:
+                return ParseSyncStatement();
+
             case LexerTokenType::OpenBrace:
                 Advance();
                 return ParseBlock();
@@ -455,6 +459,17 @@ export
             default:
                 return ParseExpr();
             }
+        }
+
+        Shared<Statement> ParseSyncStatement()
+        {
+            Advance(); // Skip 'sync'
+
+            auto Value = ParseExpr();
+
+            Expect(LexerTokenType::Semicolon, "Expected ';'");
+
+            return std::make_shared<SyncStatement>(Value);
         }
 
         Shared<Statement> ParseVariableDeclartion()
@@ -494,7 +509,7 @@ export
 
             while (NotEoF())
             {
-                program->Body.push_back(ParseStatement());
+                program->Body.emplace_back(ParseStatement());
             }
 
             return program;

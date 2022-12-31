@@ -16,7 +16,8 @@ export
         NumberValue,
         StringValue,
         ObjectValue,
-        Callable
+        Callable,
+        Thread
     };
 
     struct RuntimeValue : public std::enable_shared_from_this<RuntimeValue>
@@ -40,11 +41,11 @@ export
         }
 
         template <typename T>
-        __forceinline Shared<T> AsUnchecked()
+        Shared<T> AsUnchecked()
         {
-            // NOTE: this slices the pointer, so the the sub class properties will be lost
-            // might be horrible but other solutions corrupt the heap so i don't know...
-            return std::make_shared<T>(static_cast<T&>(*this));
+            // return std::make_shared<T>(static_cast<T&>(*this));
+
+            return std::dynamic_pointer_cast<T>(shared_from_this());
         }
 
         template <typename T>
@@ -54,7 +55,7 @@ export
             {
                 Safety::Throw(std::format("Cannot cast a runtime value of type {} to {}.", Reflection::EnumToString(Type), Reflection::TypeNameToString<T>().c_str()));
             }
-            
+
             return AsUnchecked<T>();
         }
 

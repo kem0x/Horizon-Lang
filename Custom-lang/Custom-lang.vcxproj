@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir>$(SolutionDir)bin\Debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
@@ -153,6 +153,7 @@
     <ClCompile Include="Frontend\AST\Expressions.ixx" />
     <ClCompile Include="Frontend\AST\Statements.ixx" />
     <ClCompile Include="Runtime\Callables.ixx" />
+    <ClCompile Include="Runtime\Thread.ixx" />
     <ClCompile Include="Runtime\Values\BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
     <ClCompile Include="Runtime\ExecutionContext.ixx" />
