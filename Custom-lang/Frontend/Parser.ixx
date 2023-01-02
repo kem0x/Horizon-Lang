@@ -83,6 +83,10 @@ export
             {
                 Call = ParseCallExpr(Call);
             }
+            else if (Current().Type == LexerTokenType::Semicolon)
+            {
+                Advance();
+            }
 
             return Call;
         }
@@ -398,7 +402,8 @@ export
 
         Shared<Statement> ParseFunctionDeclaration()
         {
-            Advance(); // Skip 'func'
+            if (Current().Type == LexerTokenType::Function)
+                Advance(); // Skip 'function'
 
             const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a function name").Value;
 
@@ -447,10 +452,16 @@ export
 
             case LexerTokenType::Let:
             case LexerTokenType::Const:
-                return ParseVariableDeclartion();
+                return ParseVariableDeclaration();
+
+            case LexerTokenType::Class:
+                return ParseClassDeclaration();
 
             case LexerTokenType::Sync:
                 return ParseSyncStatement();
+
+            case LexerTokenType::Debug:
+                return ParseDebugStatement();
 
             case LexerTokenType::OpenBrace:
                 Advance();
@@ -465,14 +476,21 @@ export
         {
             Advance(); // Skip 'sync'
 
-            auto Value = ParseExpr();
+            auto Value = ParseStatement();
 
             Expect(LexerTokenType::Semicolon, "Expected ';'");
 
             return std::make_shared<SyncStatement>(Value);
         }
 
-        Shared<Statement> ParseVariableDeclartion()
+        Shared<Statement> ParseDebugStatement()
+        {
+            Advance(); // Skip 'debug'
+
+            return std::make_shared<DebugStatement>();
+        }
+
+        Shared<Statement> ParseVariableDeclaration()
         {
             const auto isConstant = Advance().Type == LexerTokenType::Const;
 
@@ -494,9 +512,34 @@ export
 
             const auto declaration = std::make_shared<VariableDeclaration>(identifier, ParseExpr(), isConstant);
 
-            Expect(LexerTokenType::Semicolon, std::format("Expected ';' after variable declaration '{}'.", identifier.c_str()));
+            if (Current().Type == LexerTokenType::Semicolon)
+            {
+                Advance();
+            }
 
             return declaration;
+        }
+
+        Shared<Statement> ParseClassDeclaration()
+        {
+            Advance(); // Skip 'class'
+
+            const auto Name = Expect(LexerTokenType::Identifier, "Expected class name after 'class' keyword.").Value;
+
+            Expect(LexerTokenType::OpenBrace, "Expected '{' after class name.");
+
+            Vector<Shared<Statement>> Body;
+
+            while (Current().Type != LexerTokenType::CloseBrace)
+            {
+                Body.push_back(ParseFunctionDeclaration());
+            }
+
+            Advance(); // Skip '}'
+
+            Expect(LexerTokenType::Semicolon, "Expected ';' after class declaration");
+
+            return std::make_shared<ClassDeclaration>(Name, Body);
         }
 
     public:

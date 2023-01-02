@@ -13,10 +13,14 @@ export
     enum class LexerTokenType
     {
         Unknown,
+        Debug, // debug
+
         Number, // 123
         Identifier, // abc
         String, // "abc"
 
+        Class, // class
+        Super, // super
         Function, // function
         Return, // return
         Let, // let
@@ -84,8 +88,11 @@ export
         };
 
     private:
-        static constexpr const FlatMap<StringView, LexerTokenType, 15> ReservedKeywords = {
+        static constexpr const FlatMap<StringView, LexerTokenType, 17> ReservedKeywords = {
             { {
+                { "debug", LexerTokenType::Debug },
+                { "class", LexerTokenType::Class },
+                { "super", LexerTokenType::Super },
                 { "function", LexerTokenType::Function },
                 { "return", LexerTokenType::Return },
                 { "let", LexerTokenType::Let },

@@ -1,5 +1,6 @@
 export module Runtime.ExecutionContext;
 
+import <thread>;
 import <memory>;
 import <format>;
 import Safety;
@@ -13,6 +14,7 @@ import Runtime.NullValue;
 import Runtime.NumberValue;
 import Runtime.StringValue;
 import Runtime.Callables;
+import Runtime.ObjectValue;
 
 String Format(const String& fmt, const Vector<String>& args)
 {
@@ -106,6 +108,11 @@ String Join(const Container& container, const String& separator)
 
 Shared<RuntimeValue> internalFormat(Vector<Shared<RuntimeValue>> args)
 {
+    if (args.size() == 0)
+    {
+        Safety::Throw("format() requires at least one argument");
+    }
+
     Vector<String> ArgsStrings;
 
     for (auto& Arg : args)
@@ -177,6 +184,12 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
             ArgsStrings.emplace_back("null");
             break;
         }
+        case RuntimeValueType::ObjectValue:
+        {
+            ArgsStrings.emplace_back(Arg->As<ObjectValue>()->ToString());
+            break;
+        }
+
         default:
         {
             Safety::Throw("Invalid argument type for print()");
@@ -196,6 +209,18 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
     }
 
     printf("%s\n", str.c_str());
+
+    return std::make_shared<NullValue>();
+}
+
+Shared<RuntimeValue> internalSleep(Vector<Shared<RuntimeValue>> args)
+{
+    if (args.size() != 1)
+    {
+        Safety::Throw("sleep() requires one argument");
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds((int)args[0]->As<NumberValue>()->Value));
 
     return std::make_shared<NullValue>();
 }
@@ -230,6 +255,7 @@ export
 
                 DeclareVar("print", std::make_shared<NativeFunction>(internalPrint), true);
                 DeclareVar("format", std::make_shared<NativeFunction>(internalFormat), true);
+                DeclareVar("sleep", std::make_shared<NativeFunction>(internalSleep), true);
             }
 
             if (parent.has_value())

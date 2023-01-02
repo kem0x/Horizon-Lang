@@ -43,8 +43,6 @@ export
         template <typename T>
         Shared<T> AsUnchecked()
         {
-            // return std::make_shared<T>(static_cast<T&>(*this));
-
             return std::dynamic_pointer_cast<T>(shared_from_this());
         }
 

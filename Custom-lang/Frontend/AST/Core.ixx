@@ -10,9 +10,11 @@ export
 {
     enum class ASTNodeType
     {
+        DebugStatement,
         Program,
         VariableDeclaration,
         FunctionDeclaration,
+        ClassDeclaration,
         ReturnStatement,
         SyncStatement,
         LoopStatement,

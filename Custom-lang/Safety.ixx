@@ -1,4 +1,4 @@
-
+;
 export module Safety;
 
 import Types.Core;

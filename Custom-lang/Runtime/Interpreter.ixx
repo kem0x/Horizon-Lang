@@ -11,6 +11,7 @@ import AST.Core;
 import AST.Statements;
 import AST.Expressions;
 import Runtime.Thread;
+import Runtime.Class;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
 import Runtime.NumberValue;
@@ -96,14 +97,34 @@ Shared<RuntimeValue> EvalIdentifier(Shared<Identifier> ident, Shared<ExecutionCo
 
 Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<ExecutionContext> ctx)
 {
-    if (node->Assigne->Type != ASTNodeType::Identifier)
+    if (node->Assigne->Type != ASTNodeType::Identifier && node->Assigne->Type != ASTNodeType::MemberExpr)
     {
-        Safety::Throw(std::format("Invalid assignment target of {}!", node->ToString().c_str()));
+        Safety::Throw(std::format("Invalid assignment target of {}!", node->Assigne->ToString().c_str()));
     }
 
-    const auto Name = node->Assigne->As<Identifier>()->Name;
+    if (node->Assigne->Type == ASTNodeType::Identifier)
+    {
+        const auto Ident = node->Assigne->As<Identifier>();
+        const auto Value = Evaluate(node->Value, ctx);
 
-    return ctx->AssignVar(Name, Evaluate(node->Value, ctx));
+        return ctx->AssignVar(Ident->Name, Value);
+    }
+
+    const auto Member = node->Assigne->As<MemberExpr>();
+    const auto Value = Evaluate(node->Value, ctx);
+
+    auto Object = Evaluate(Member->Object, ctx);
+
+    if (!Object->Is<ObjectValue>())
+    {
+        Safety::Throw("Tried to assign to a non-object!");
+    }
+
+    const auto Ident = Member->Property->As<Identifier>();
+
+    Object->As<ObjectValue>()->Properties.set(Ident->Name, Value);
+
+    return std::make_shared<NullValue>();
 }
 
 Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<ExecutionContext> ctx)
@@ -122,28 +143,34 @@ Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<Execution
 
 Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionContext> ctx)
 {
-    String ObjectName;
     String PropertyName;
 
-    if (node->Object->Type == ASTNodeType::Identifier)
+    if (node->Computed)
     {
-        ObjectName = node->Object->As<Identifier>()->Name;
+        auto Expr = Evaluate(node->Property, ctx);
+
+        if (Expr->Is<StringValue>())
+        {
+            PropertyName = Expr->As<StringValue>()->Value;
+        }
+        else
+        {
+            Safety::Throw("Computed member access expression didn't return a string");
+        }
     }
-    else if (node->Object->Type == ASTNodeType::StringLiteral)
+    else
     {
-        ObjectName = node->Object->As<StringLiteral>()->Value;
+        if (node->Property->Type == ASTNodeType::Identifier)
+        {
+            PropertyName = node->Property->As<Identifier>()->Name;
+        }
+        else
+        {
+            Safety::Throw("Member access expression didn't return an identifier");
+        }
     }
 
-    if (node->Property->Type == ASTNodeType::Identifier)
-    {
-        PropertyName = node->Property->As<Identifier>()->Name;
-    }
-    else if (node->Property->Type == ASTNodeType::StringLiteral)
-    {
-        PropertyName = node->Property->As<StringLiteral>()->Value;
-    }
-
-    auto Object = ctx->LookupVar(ObjectName);
+    auto Object = ctx->LookupVar(node->Object->As<Identifier>()->Name);
 
     if (Object->Is<ObjectValue>() && Object->As<ObjectValue>()->Properties.has(PropertyName))
     {
@@ -165,6 +192,31 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
     }
 
     return LastEvaluatedValue;
+}
+
+Shared<RuntimeValue> RuntimeClass::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
+{
+    auto Instance = std::make_shared<ObjectValue>();
+
+    if (Constructor.has_value())
+    {
+        auto ConstructorCtx = std::make_shared<ExecutionContext>(context);
+
+        for (auto&& arg : arguments)
+        {
+            ConstructorCtx->DeclareVar("this", context->LookupVar("this"), true);
+            // ConstructorCtx->DeclareVar("arguments", std::make_shared<ArrayValue>(arguments), true);
+
+            Evaluate(arg, ConstructorCtx);
+        }
+
+        for (auto&& method : Methods)
+        {
+            Instance->Properties.set(method->Name, std::make_shared<RuntimeFunction>(method));
+        }
+    }
+
+    return std::make_shared<ObjectValue>();
 }
 
 Shared<RuntimeValue> RuntimeFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
@@ -220,11 +272,16 @@ Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext
         Safety::Throw(std::format("Tried to call a non-function value of type {}!", Callee->ToString().c_str()));
     }
 
-    auto Function = std::dynamic_pointer_cast<Callable>(Callee);
+    auto Function = Callee->As<Callable>();
 
-    if (Function->CallType == CallabeType::Native)
+    if (Function->CallType == CallableType::Native)
     {
         return Function->AsUnchecked<NativeFunction>()->Call(ctx, node->Arguments);
+    }
+
+    if (Function->CallType == CallableType::Class)
+    {
+        return Function->AsUnchecked<RuntimeClass>()->Call(ctx, node->Arguments);
     }
 
     return Function->AsUnchecked<RuntimeFunction>()->Call(ctx, node->Arguments);
@@ -451,10 +508,7 @@ Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, S
 {
     auto Function = std::make_shared<RuntimeFunction>(node);
 
-    if (node->Name.has_value())
-    {
-        ctx->DeclareVar(node->Name.value(), Function, false);
-    }
+    ctx->DeclareVar(node->Name, Function, false);
 
     return Function;
 }
@@ -462,6 +516,49 @@ Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, S
 Shared<RuntimeValue> EvalSyncStatement(Shared<SyncStatement> node, Shared<ExecutionContext> ctx)
 {
     return std::make_shared<RuntimeThread>(Evaluate, node->Stmt, ctx);
+}
+
+Shared<RuntimeValue> EvalClassDeclaration(Shared<ClassDeclaration> node, Shared<ExecutionContext> ctx)
+{
+    Optional<Shared<FunctionDeclaration>> Constructor = std::nullopt;
+    Vector<Shared<FunctionDeclaration>> Methods = {};
+
+    for (auto&& member : node->Body)
+    {
+        if (member->Is<FunctionDeclaration>())
+        {
+            auto Function = member->As<FunctionDeclaration>();
+
+            if (Function->Name == node->Name)
+            {
+                Constructor = Function;
+            }
+            else
+            {
+                Methods.push_back(Function);
+            }
+        }
+        else
+        {
+            Safety::Throw("Tried to declare a class with a non-function member!");
+        }
+    }
+
+    auto Class = std::make_shared<RuntimeClass>(node->Name, Constructor, Methods);
+
+    ctx->DeclareVar(node->Name, Class, false);
+
+    return Class;
+}
+
+Shared<RuntimeValue> EvalDebugStatement(Shared<DebugStatement> node, Shared<ExecutionContext> ctx)
+{
+    for (auto&& [Name, Value] : ctx->Variables.data)
+    {
+        printf("%s: %s\n", Name.c_str(), Value->ToString().c_str());
+    }
+
+    return std::make_shared<NullValue>();
 }
 
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
@@ -524,6 +621,12 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
 
     case ASTNodeType::SyncStatement:
         return EvalSyncStatement(node->As<SyncStatement>(), ctx);
+
+    case ASTNodeType::ClassDeclaration:
+        return EvalClassDeclaration(node->As<ClassDeclaration>(), ctx);
+
+    case ASTNodeType::DebugStatement:
+        return EvalDebugStatement(node->As<DebugStatement>(), ctx);
 
     default:
         return Safety::Throw<Shared<RuntimeValue>>(std::format("Unsupported AST Node {}.", node->ToString()));

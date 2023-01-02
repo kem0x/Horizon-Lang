@@ -90,5 +90,8 @@
     <ClCompile Include="Runtime\Thread.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\RuntimeClass.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -8,6 +8,14 @@ import Reflection;
 
 export
 {
+    struct DebugStatement : public Statement
+    {
+        DebugStatement()
+            : Statement { ASTNodeType::DebugStatement }
+        {
+        }
+    };
+
     struct Program : public Statement
     {
         Vector<Shared<Statement>> Body;
@@ -110,6 +118,36 @@ export
         }
     };
 
+    struct ClassDeclaration : public Statement
+    {
+        String Name;
+        Vector<Shared<Statement>> Body;
+
+        ClassDeclaration(String name, Vector<Shared<Statement>> body)
+            : Statement { ASTNodeType::ClassDeclaration }
+            , Name(name)
+            , Body(body)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}',\n{0}\tBody: [",
+                indentation, Reflection::EnumToString(Type), Name);
+
+            for (auto&& Stmt : Body)
+            {
+                output += "\n" + indentation + "\t\t" + Stmt->ToString(indentation + "\t\t") + ",";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
     struct VariableDeclaration : public Statement
     {
         String Identifier;
@@ -134,11 +172,11 @@ export
 
     struct FunctionDeclaration : public Statement
     {
-        Optional<String> Name;
+        String Name;
         Vector<Shared<Expr>> Parameters;
         Vector<Shared<Statement>> Body;
 
-        FunctionDeclaration(Optional<String> name, Vector<Shared<Expr>> parameters, Vector<Shared<Statement>> body)
+        FunctionDeclaration(String name, Vector<Shared<Expr>> parameters, Vector<Shared<Statement>> body)
             : Statement { ASTNodeType::FunctionDeclaration }
             , Name { name }
             , Parameters { parameters }
@@ -149,7 +187,7 @@ export
         virtual String ToString(std::string indentation = "") override
         {
             std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}',\n{0}\tParameters: [",
-                indentation, Reflection::EnumToString(Type), Name.has_value() ? Name.value() : "null");
+                indentation, Reflection::EnumToString(Type), Name);
 
             for (auto&& Param : Parameters)
             {

@@ -1,0 +1,15 @@
+class DevonshireCream 
+{
+	DevonshireCream()
+	{
+	}
+	
+	serveOn()
+	{
+		return "Scones";
+	}
+};
+
+let cream = DevonshireCream();
+
+print(cream.serveOn());

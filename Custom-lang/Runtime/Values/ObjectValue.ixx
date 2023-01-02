@@ -11,6 +11,11 @@ export
     {
         FlatMap<String, Shared<RuntimeValue>> Properties;
 
+        ObjectValue(RuntimeValueType type)
+            : RuntimeValue(type)
+        {
+        }
+
         ObjectValue()
             : RuntimeValue { RuntimeValueType::ObjectValue }
         {

@@ -7,26 +7,28 @@ import AST.Core;
 import AST.Statements;
 import AST.Expressions;
 import Runtime.RuntimeValue;
+import Runtime.ObjectValue;
 import Runtime.NullValue;
 
 import Reflection;
 
 export
 {
-    enum class CallabeType
+    enum class CallableType
     {
         Unknown,
+        Class,
         Runtime,
         Native,
         Lambda,
     };
 
-    struct Callable : public RuntimeValue
+    struct Callable : public ObjectValue
     {
-        CallabeType CallType;
+        CallableType CallType;
 
-        Callable(CallabeType callType)
-            : RuntimeValue { RuntimeValueType::Callable }
+        Callable(CallableType callType)
+            : ObjectValue { RuntimeValueType::Callable }
             , CallType(callType)
         {
         }
@@ -47,7 +49,7 @@ export
         Shared<FunctionDeclaration> Declaration;
 
         RuntimeFunction(Shared<FunctionDeclaration> declaration)
-            : Callable { CallabeType::Runtime }
+            : Callable { CallableType::Runtime }
             , Declaration(declaration)
         {
         }
@@ -60,7 +62,7 @@ export
         std::function<Shared<RuntimeValue>(const Vector<Shared<RuntimeValue>>)> Function;
 
         NativeFunction(std::function<Shared<RuntimeValue>(const Vector<Shared<RuntimeValue>>)> function)
-            : Callable { CallabeType::Native }
+            : Callable { CallableType::Native }
             , Function(function)
         {
         }

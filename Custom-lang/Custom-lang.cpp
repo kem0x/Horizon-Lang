@@ -52,7 +52,7 @@ int main()
     auto parser = std::make_shared<Parser>();
     auto ctx = std::make_shared<ExecutionContext>(std::nullopt, true);
 
-    const auto path = std::filesystem::current_path() / "test.txt";
+    const auto path = std::filesystem::current_path() / "test.hz";
 
     const auto input = path | StringExtensions::ReadFile;
 
