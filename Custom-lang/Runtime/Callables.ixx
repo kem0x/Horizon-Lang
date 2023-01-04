@@ -1,5 +1,6 @@
 export module Runtime.Callables;
 
+import <optional>;
 import <functional>;
 import <format>;
 import Types.Core;
@@ -17,6 +18,7 @@ export
     enum class CallableType
     {
         Unknown,
+        Ctor,
         Class,
         Runtime,
         Native,
@@ -47,14 +49,31 @@ export
     struct RuntimeFunction : Callable
     {
         Shared<FunctionDeclaration> Declaration;
+        Optional<Shared<RuntimeValue>> Parent;
 
-        RuntimeFunction(Shared<FunctionDeclaration> declaration)
+        RuntimeFunction(Shared<FunctionDeclaration> declaration, Optional<Shared<RuntimeValue>> parent = std::nullopt)
             : Callable { CallableType::Runtime }
             , Declaration(declaration)
+            , Parent(parent)
         {
         }
 
         virtual Shared<RuntimeValue> Call(Shared<struct ExecutionContext> context, const Vector<Shared<Expr>>& arguments) override;
+    };
+
+    struct CtorFunction : public Callable
+    {
+        Optional<Shared<FunctionDeclaration>> Declaration;
+        Vector<Shared<FunctionDeclaration>> Methods;
+
+        CtorFunction(String name, Optional<Shared<FunctionDeclaration>> declaration, Vector<Shared<FunctionDeclaration>> methods)
+            : Callable { CallableType::Ctor }
+            , Declaration(declaration)
+            , Methods(methods)
+        {
+        }
+
+        virtual Shared<RuntimeValue> Call(Shared<struct ExecutionContext> context, const Vector<Shared<Expr>>& arguments);
     };
 
     struct NativeFunction : Callable

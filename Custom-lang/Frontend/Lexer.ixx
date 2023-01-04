@@ -7,6 +7,7 @@ import Types.Core;
 import Types.FlatMap;
 import Extensions.Vector;
 import Extensions.String;
+import Reflection;
 
 export
 {
@@ -83,7 +84,7 @@ export
 
             String ToString()
             {
-                return std::format("{{\nType: '{}',\nValue: '{}'\n}}", std::to_string(static_cast<int>(Type)), Value);
+                return std::format("{{\nType: '{}',\nValue: '{}'\n}}", Reflection::EnumToString(Type), Value);
             }
         };
 

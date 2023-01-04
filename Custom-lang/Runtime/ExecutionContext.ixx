@@ -8,6 +8,8 @@ import Types.Core;
 import Types.FlatMap;
 import Extensions.Vector;
 
+import Reflection;
+
 import Runtime.RuntimeValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
@@ -159,6 +161,7 @@ Shared<RuntimeValue> internalFormat(Vector<Shared<RuntimeValue>> args)
 Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
 {
     Vector<String> ArgsStrings;
+    ArgsStrings.reserve(args.size());
 
     for (auto& Arg : args)
     {
@@ -192,7 +195,7 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
 
         default:
         {
-            Safety::Throw("Invalid argument type for print()");
+            Safety::Throw(std::format("Invalid argument of type {} for print()", Reflection::EnumToString(Arg->Type)));
             break;
         }
         }

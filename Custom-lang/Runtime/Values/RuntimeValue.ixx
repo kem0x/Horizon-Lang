@@ -27,8 +27,9 @@ export
 
         RuntimeValue() = default;
 
-        RuntimeValue(RuntimeValueType Type)
+        RuntimeValue(RuntimeValueType Type, bool isConstant = false)
             : Type(Type)
+            , IsConstant(isConstant)
         {
         }
 

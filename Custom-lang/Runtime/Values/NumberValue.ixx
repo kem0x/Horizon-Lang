@@ -3,16 +3,17 @@ export module Runtime.NumberValue;
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
+import Runtime.ObjectValue;
 import Reflection;
 
 export
 {
-    struct NumberValue : RuntimeValue
+    struct NumberValue : ObjectValue
     {
-        float Value;
+        int Value;
 
-        NumberValue(float value)
-            : RuntimeValue { RuntimeValueType::NumberValue }
+        NumberValue(int value)
+            : ObjectValue { "Number", RuntimeValueType::NumberValue, true }
             , Value(value)
         {
         }

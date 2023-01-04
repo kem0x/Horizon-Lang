@@ -302,16 +302,19 @@ export
         {
             const auto ParseArgsList = [&]()
             {
-                auto Args = Vector<Shared<Expr>> { ParseAssignmentExpr() };
+                Vector<Shared<Expr>> args;
 
-                while (Current().Type == LexerTokenType::Comma)
+                while (NotEoF() and Current().Type != LexerTokenType::CloseParen)
                 {
-                    Advance();
+                    args.emplace_back(ParseExpr());
 
-                    Args.emplace_back(ParseAssignmentExpr());
+                    if (Current().Type != LexerTokenType::CloseParen)
+                    {
+                        Expect(LexerTokenType::Comma, "Expected ','");
+                    }
                 }
 
-                return Args;
+                return args;
             };
 
             Expect(LexerTokenType::OpenParen, "Expected '('");

@@ -1,13 +1,15 @@
 export module Runtime.NullValue;
 
 import Runtime.RuntimeValue;
+import Runtime.ObjectValue;
 
 export
 {
-    struct NullValue : public RuntimeValue
+    //@todo: change this to a runtime enum
+    struct NullValue : public ObjectValue
     {
         NullValue()
-            : RuntimeValue { RuntimeValueType::NullValue }
+            : ObjectValue { "Null", RuntimeValueType::NullValue, true }
         {
         }
     };

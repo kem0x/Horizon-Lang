@@ -1,7 +1,13 @@
 class DevonshireCream 
 {
-	DevonshireCream()
+	DevonshireCream(flavor)
 	{
+		this.flavor = flavor;
+	}	
+
+	getFlavor()
+	{
+		return this.flavor;
 	}
 	
 	serveOn()
@@ -10,6 +16,6 @@ class DevonshireCream
 	}
 };
 
-let cream = DevonshireCream();
+let cream = DevonshireCream("coffee");
 
-print(cream.serveOn());
+print(cream.getFlavor());

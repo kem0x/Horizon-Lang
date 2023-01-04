@@ -190,9 +190,9 @@ export
 
     struct NumericLiteral : public Expr
     {
-        float Value;
+        int Value;
 
-        NumericLiteral(float value)
+        NumericLiteral(int value)
             : Expr { ASTNodeType::NumericLiteral }
             , Value(value)
         {
@@ -291,7 +291,7 @@ export
                 indentation, Reflection::EnumToString(Type),
                 Left->ToString(indentation + "\t"),
                 Right->ToString(indentation + "\t"),
-                static_cast<int>(Operator));
+                Reflection::EnumToString(Operator));
 
             return output;
         }

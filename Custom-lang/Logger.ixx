@@ -1,6 +1,7 @@
 export module Logger;
 
 import Types.Core;
+import <chrono>;
 import <stdio.h>;
 
 export
@@ -18,7 +19,7 @@ export
     namespace Logger
     {
         template <LogType type>
-        constexpr const char* TypeToString()
+        consteval const char* TypeToString()
         {
             switch (type)
             {
@@ -59,6 +60,27 @@ export
     {
         Log<type, logType, newLine>(format.c_str(), args...);
     }
+
+    //@todo: move this to proper file
+    struct Timer
+    {
+        String Name;
+        std::chrono::time_point<std::chrono::high_resolution_clock> Start;
+
+        Timer(String name)
+            : Name(name)
+            , Start(std::chrono::steady_clock::now())
+        {
+        }
+
+        ~Timer()
+        {
+            auto end = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - Start).count();
+
+            Log<Info>("%s took %f ms", Name.c_str(), duration / 1000.0f);
+        }
+    };
 }
 
 /* #define LogCurrentFile                                                                               \

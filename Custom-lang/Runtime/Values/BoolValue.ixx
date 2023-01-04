@@ -3,16 +3,18 @@ export module Runtime.BoolValue;
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
+import Runtime.ObjectValue;
 import Reflection;
 
 export
 {
-    struct BoolValue : RuntimeValue
+    //@todo: change this to a runtime enum
+    struct BoolValue : ObjectValue
     {
         bool Value;
 
         BoolValue(bool value)
-            : RuntimeValue { RuntimeValueType::BoolValue }
+            : ObjectValue { "Bool", RuntimeValueType::BoolValue, true }
             , Value(value)
         {
         }

@@ -9,6 +9,8 @@ export
 {
     struct ObjectValue : public RuntimeValue
     {
+        String TypeName;
+
         FlatMap<String, Shared<RuntimeValue>> Properties;
 
         ObjectValue(RuntimeValueType type)
@@ -18,6 +20,12 @@ export
 
         ObjectValue()
             : RuntimeValue { RuntimeValueType::ObjectValue }
+        {
+        }
+
+        ObjectValue(String typeName, RuntimeValueType type, bool isConst = false)
+            : RuntimeValue(type, isConst)
+            , TypeName(typeName)
         {
         }
 

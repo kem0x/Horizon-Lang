@@ -36,6 +36,7 @@
         "xhash": "cpp",
         "xmemory": "cpp",
         "xstddef": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "*.ixx": "cpp"
     }
 }

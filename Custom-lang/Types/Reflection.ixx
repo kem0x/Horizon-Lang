@@ -5,6 +5,9 @@ import Types.Core;
 import Types.ConstexprString;
 import Extensions.String;
 
+constexpr size_t ENUM_MAX_RANGE = 40;
+
+// @todo: replace this in future to produce better code
 template <auto Start, auto End, auto Inc, class F>
 constexpr void ConstexprFor(F&& f)
 {
@@ -38,7 +41,7 @@ constexpr size_t EnumSize() noexcept
 {
     size_t count = 0;
 
-    ConstexprFor<0, 100, 1>(
+    ConstexprFor<0, ENUM_MAX_RANGE, 1>(
         [&](auto i)
         {
             if (EnumIndexIsValid<E, static_cast<E>(i.value)>())

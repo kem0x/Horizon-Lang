@@ -4,6 +4,8 @@ import <iostream>;
 import <memory>;
 import <format>;
 import <thread>;
+import Logger;
+import Reflection;
 import Types.Core;
 import Safety;
 import Lexer;
@@ -11,7 +13,6 @@ import AST.Core;
 import AST.Statements;
 import AST.Expressions;
 import Runtime.Thread;
-import Runtime.Class;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
 import Runtime.NumberValue;
@@ -46,7 +47,7 @@ Shared<RuntimeValue> EvalVariableDeclaration(Shared<VariableDeclaration> declara
 
 Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator)
 {
-    float result = 0;
+    int result = 0;
 
     if (Operator == "+")
     {
@@ -67,7 +68,7 @@ Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<Numbe
     }
     else if (Operator == "%")
     {
-        result = static_cast<int>(left->Value) % static_cast<int>(right->Value);
+        result = left->Value % right->Value;
     }
     else
     {
@@ -120,9 +121,16 @@ Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<Executio
         Safety::Throw("Tried to assign to a non-object!");
     }
 
+    auto ObjectVal = Object->As<ObjectValue>();
+
+    /*if (ObjectVal->IsConstant)
+    {
+        Safety::Throw("Tried to assign to a const object!");
+    }*/
+
     const auto Ident = Member->Property->As<Identifier>();
 
-    Object->As<ObjectValue>()->Properties.set(Ident->Name, Value);
+    ObjectVal->Properties.set(Ident->Name, Value);
 
     return std::make_shared<NullValue>();
 }
@@ -194,29 +202,26 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
     return LastEvaluatedValue;
 }
 
-Shared<RuntimeValue> RuntimeClass::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
+Shared<RuntimeValue> CtorFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
 {
     auto Instance = std::make_shared<ObjectValue>();
 
-    if (Constructor.has_value())
+    auto NewContext = std::make_shared<ExecutionContext>(context);
+    NewContext->IsFunctionContext = true;
+
+    for (auto&& method : Methods)
     {
-        auto ConstructorCtx = std::make_shared<ExecutionContext>(context);
-
-        for (auto&& arg : arguments)
-        {
-            ConstructorCtx->DeclareVar("this", context->LookupVar("this"), true);
-            // ConstructorCtx->DeclareVar("arguments", std::make_shared<ArrayValue>(arguments), true);
-
-            Evaluate(arg, ConstructorCtx);
-        }
-
-        for (auto&& method : Methods)
-        {
-            Instance->Properties.set(method->Name, std::make_shared<RuntimeFunction>(method));
-        }
+        Instance->Properties.set(method->Name, std::make_shared<RuntimeFunction>(method, Instance));
     }
 
-    return std::make_shared<ObjectValue>();
+    if (Declaration.has_value())
+    {
+        NewContext->DeclareVar("this", Instance, true);
+
+        RuntimeFunction(Declaration.value()).Call(NewContext, arguments);
+    }
+
+    return Instance;
 }
 
 Shared<RuntimeValue> RuntimeFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
@@ -224,16 +229,24 @@ Shared<RuntimeValue> RuntimeFunction::Call(Shared<ExecutionContext> context, con
     auto NewContext = std::make_shared<ExecutionContext>(context);
     NewContext->IsFunctionContext = true;
 
+    if (Declaration->Parameters.size() != arguments.size())
+    {
+        Safety::Throw(std::format("Function {} expected {} arguments, but got {}!", Declaration->Name, Declaration->Parameters.size(), arguments.size()));
+    }
+
+    if (Parent.has_value())
+    {
+        NewContext->DeclareVar("this", Parent.value(), true);
+    }
+
     for (int i = 0; i < Declaration->Parameters.size(); i++)
     {
         auto Param = Declaration->Parameters[i];
+        auto Arg = arguments[i];
 
-        for (auto&& Arg : arguments)
-        {
-            const auto ParamName = Param->As<Identifier>()->Name;
+        const auto ParamName = Param->As<Identifier>()->Name;
 
-            NewContext->DeclareVar(ParamName, Evaluate(Arg, context), true);
-        }
+        NewContext->DeclareVar(ParamName, Evaluate(Arg, context), false);
     }
 
     Shared<RuntimeValue> Result = std::make_shared<NullValue>();
@@ -279,9 +292,9 @@ Shared<RuntimeValue> EvalCallExpr(Shared<CallExpr> node, Shared<ExecutionContext
         return Function->AsUnchecked<NativeFunction>()->Call(ctx, node->Arguments);
     }
 
-    if (Function->CallType == CallableType::Class)
+    if (Function->CallType == CallableType::Ctor)
     {
-        return Function->AsUnchecked<RuntimeClass>()->Call(ctx, node->Arguments);
+        return Function->AsUnchecked<CtorFunction>()->Call(ctx, node->Arguments);
     }
 
     return Function->AsUnchecked<RuntimeFunction>()->Call(ctx, node->Arguments);
@@ -442,7 +455,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
                 break;
             }
             default:
-                Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", static_cast<int>(node->Operator)));
+                Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", Reflection::EnumToString(node->Operator)));
             }
         }
     }
@@ -544,7 +557,7 @@ Shared<RuntimeValue> EvalClassDeclaration(Shared<ClassDeclaration> node, Shared<
         }
     }
 
-    auto Class = std::make_shared<RuntimeClass>(node->Name, Constructor, Methods);
+    auto Class = std::make_shared<CtorFunction>(node->Name, Constructor, Methods);
 
     ctx->DeclareVar(node->Name, Class, false);
 
@@ -593,7 +606,10 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
         return EvalBinaryExpr(node->As<BinaryExpr>(), ctx);
 
     case ASTNodeType::Program:
+    {
+        Timer t1("Program evaluation");
         return EvalProgram(node->As<Program>(), ctx);
+    }
 
     case ASTNodeType::VariableDeclaration:
         return EvalVariableDeclaration(node->As<VariableDeclaration>(), ctx);

@@ -27,7 +27,7 @@ export
             length = newSize - start;
 
             auto dst = data;
-            for (auto src = s + start; src != s + newSize + 1; src++, dst++)
+            for (auto src = s + start; src != s + newSize + 1; ++src, ++dst)
             {
                 *dst = *src;
             }
@@ -39,7 +39,7 @@ export
             }
         }
 
-        constexpr operator const CharType*() const noexcept
+        explicit constexpr operator const CharType*() const noexcept
         {
             return data;
         }
@@ -56,8 +56,8 @@ export
             auto str2 = data;
             while (*str && (*str == *str2))
             {
-                str++;
-                str2++;
+                ++str;
+                ++str2;
             }
             return ((*str - *str2) == 0);
         }

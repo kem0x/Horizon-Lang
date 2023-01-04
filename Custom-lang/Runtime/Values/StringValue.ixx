@@ -3,16 +3,17 @@ export module Runtime.StringValue;
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
+import Runtime.ObjectValue;
 import Reflection;
 
 export
 {
-    struct StringValue : RuntimeValue
+    struct StringValue : ObjectValue
     {
         String Value;
 
         StringValue(String value)
-            : RuntimeValue { RuntimeValueType::StringValue }
+            : ObjectValue { "String", RuntimeValueType::StringValue, true }
             , Value(value)
         {
         }
