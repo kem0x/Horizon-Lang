@@ -57,9 +57,6 @@
     <ClCompile Include="Runtime\Values\BoolValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Interpreter.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Runtime\Values\NumberValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +85,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Runtime\Thread.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Interpreter\Stmts.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Interpreter\Exprs.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Interpreter\Interpreter.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
