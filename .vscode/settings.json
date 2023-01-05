@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.hz": "javascript",
         "functional": "cpp",
         "type_traits": "cpp",
         "xtr1common": "cpp",
@@ -37,6 +38,23 @@
         "xmemory": "cpp",
         "xstddef": "cpp",
         "xstring": "cpp",
-        "*.ixx": "cpp"
-    }
+        "*.ixx": "cpp",
+        "array": "cpp",
+        "clocale": "cpp",
+        "hash_set": "cpp",
+        "ios": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "system_error": "cpp",
+        "unordered_set": "cpp",
+        "xfacet": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "xlocnum": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

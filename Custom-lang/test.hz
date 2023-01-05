@@ -1,6 +1,6 @@
-class DevonshireCream 
+class IceCream 
 {
-	DevonshireCream(flavor)
+	IceCream(flavor)
 	{
 		this.flavor = flavor;
 	}	
@@ -12,10 +12,28 @@ class DevonshireCream
 	
 	serveOn()
 	{
-		return "Scones";
+		return "Cones";
 	}
 };
 
-let cream = DevonshireCream("coffee");
+let food: IceCream = IceCream("coffee");
 
-print(cream.getFlavor());
+let flavor: String = food.getFlavor();
+
+print(flavor);
+
+let servedOn: String = food.serveOn();
+
+print(servedOn);
+
+let obj: Object = {a: 1, b: 2, c: 3};
+
+obj.a = 4;
+
+obj = {a: 1, b: 2, c: 3, servedOn};
+
+obj.d = 5;
+
+let a: Number = obj.a;
+
+print(a, obj);

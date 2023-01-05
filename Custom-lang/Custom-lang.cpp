@@ -45,14 +45,45 @@ void repl()
 }
 */
 
-int main()
+int main(int argc, char** argv)
 {
+
+#ifdef _DEBUG
+    Log<Info>("Debug build");
+#endif
+
     Safety::Init();
+
+    std::filesystem::path path;
+
+    for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path()))
+    {
+        if (argc == 1)
+        {
+            if (entry.path().extension() == ".hz")
+            {
+                path = entry.path();
+                break;
+            }
+        }
+        else if (argc == 2)
+        {
+            if (entry.path().filename() == argv[1])
+            {
+                path = entry.path();
+                break;
+            }
+        }
+    }
+
+    if (path.empty())
+    {
+        Log<Error>("No files found in current directory!");
+        return 1;
+    }
 
     auto parser = std::make_shared<Parser>();
     auto ctx = std::make_shared<ExecutionContext>(std::nullopt, true);
-
-    const auto path = std::filesystem::current_path() / "test.hz";
 
     const auto input = path | StringExtensions::ReadFile;
 

@@ -495,25 +495,34 @@ export
 
         Shared<Statement> ParseVariableDeclaration()
         {
-            const auto isConstant = Advance().Type == LexerTokenType::Const;
+            const auto IsConstant = Advance().Type == LexerTokenType::Const;
 
-            const auto identifier = Expect(LexerTokenType::Identifier, "Expected identifier name after (let | const) keyword.").Value;
+            const auto Identifier = Expect(LexerTokenType::Identifier, "Expected identifier name after (let | const) keyword.").Value;
+
+            String TypeName = "Any";
+
+            if (Current().Type == LexerTokenType::Colon)
+            {
+                Advance(); // Skip ':'
+
+                TypeName = Expect(LexerTokenType::Identifier, "Expected type name after ':'").Value;
+            }
 
             if (Current().Type == LexerTokenType::Semicolon)
             {
                 Advance(); // Skip ';'
 
-                if (isConstant)
+                if (IsConstant)
                 {
-                    Safety::Throw(std::format("A const variable '{}' must be initialized with a value!", identifier.c_str()));
+                    Safety::Throw(std::format("A const variable '{}' must be initialized with a value!", Identifier.c_str()));
                 }
 
-                return std::make_shared<VariableDeclaration>(identifier, std::nullopt, isConstant);
+                return std::make_shared<VariableDeclaration>(Identifier, TypeName, std::nullopt, IsConstant);
             }
 
-            Expect(LexerTokenType::Equal, std::format("Expected '=' after identifier name '{}'.", identifier.c_str()));
+            Expect(LexerTokenType::Equal, std::format("Expected '=' after identifier name '{}'.", Identifier.c_str()));
 
-            const auto declaration = std::make_shared<VariableDeclaration>(identifier, ParseExpr(), isConstant);
+            const auto declaration = std::make_shared<VariableDeclaration>(Identifier, TypeName, ParseExpr(), IsConstant);
 
             if (Current().Type == LexerTokenType::Semicolon)
             {

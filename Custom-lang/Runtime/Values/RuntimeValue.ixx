@@ -23,12 +23,15 @@ export
     struct RuntimeValue : public std::enable_shared_from_this<RuntimeValue>
     {
         RuntimeValueType Type = RuntimeValueType::Unknown;
+        String TypeName = "Any";
+
         bool IsConstant = false;
 
         RuntimeValue() = default;
 
-        RuntimeValue(RuntimeValueType Type, bool isConstant = false)
+        RuntimeValue(RuntimeValueType Type, String typeName, bool isConstant = false)
             : Type(Type)
+            , TypeName(typeName)
             , IsConstant(isConstant)
         {
         }

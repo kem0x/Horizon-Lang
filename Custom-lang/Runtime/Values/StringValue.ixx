@@ -12,8 +12,13 @@ export
     {
         String Value;
 
+        static Shared<StringValue> DefaultObject()
+        {
+            return std::make_shared<StringValue>("");
+        }
+
         StringValue(String value)
-            : ObjectValue { "String", RuntimeValueType::StringValue, true }
+            : ObjectValue { RuntimeValueType::StringValue, "String", true }
             , Value(value)
         {
         }

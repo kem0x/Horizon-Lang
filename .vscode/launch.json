@@ -7,10 +7,10 @@
             "name": "run (debug)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\bin\\Custom-lang.exe",
+            "program": "${workspaceFolder}\\bin\\Debug\\Custom-lang.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}\\Custom-lang",
             "environment": [],
             "console": "integratedTerminal",
             "preLaunchTask": "build (debug)"
@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}\\bin\\Custom-lang.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}\\Custom-lang",
             "environment": [],
             "console": "integratedTerminal",
             "preLaunchTask": "build (release)"

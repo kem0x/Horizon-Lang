@@ -14,7 +14,7 @@ export
 
         template <class Func, class... Args>
         [[nodiscard]] explicit RuntimeThread(Func&& Fn, Args&&... Arg)
-            : RuntimeValue(RuntimeValueType::Thread)
+            : RuntimeValue(RuntimeValueType::Thread, "Thread")
             , Thread(new std::thread(std::forward<Func>(Fn), std::forward<Args>(Arg)...))
         {
         }

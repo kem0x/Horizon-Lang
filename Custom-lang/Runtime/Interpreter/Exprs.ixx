@@ -8,6 +8,7 @@ import AST.Expressions;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
 import Runtime.NumberValue;
+import Runtime.ObjectValue;
 import Runtime.Callables;
 import Runtime.StringValue;
 import Runtime.BoolValue;
@@ -69,7 +70,7 @@ Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<Execution
     {
         auto Value = Prop->Value.has_value() ? Evaluate(Prop->Value.value(), ctx) : ctx->LookupVar(Prop->Key);
 
-        Object->Properties.set(Prop->Key, Value);
+        Object->Properties.insert_or_assign(Prop->Key, Value);
     }
 
     return Object;
@@ -106,7 +107,7 @@ Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionCon
 
     auto Object = ctx->LookupVar(node->Object->As<Identifier>()->Name);
 
-    if (Object->Is<ObjectValue>() && Object->As<ObjectValue>()->Properties.has(PropertyName))
+    if (Object->Is<ObjectValue>() && Object->As<ObjectValue>()->Properties.contains(PropertyName))
     {
         return Object->As<ObjectValue>()->Properties[PropertyName];
     }
@@ -130,14 +131,14 @@ Shared<RuntimeValue> EvalBlockExpr(Shared<BlockExpr> node, Shared<ExecutionConte
 
 Shared<RuntimeValue> CtorFunction::Call(Shared<ExecutionContext> context, const Vector<Shared<Expr>>& arguments)
 {
-    auto Instance = std::make_shared<ObjectValue>();
+    auto Instance = std::make_shared<ObjectValue>(this->Name);
 
     auto NewContext = std::make_shared<ExecutionContext>(context);
     NewContext->IsFunctionContext = true;
 
     for (auto&& method : Methods)
     {
-        Instance->Properties.set(method->Name, std::make_shared<RuntimeFunction>(method, Instance));
+        Instance->Properties.insert_or_assign(method->Name, std::make_shared<RuntimeFunction>(method, Instance));
     }
 
     if (Declaration.has_value())

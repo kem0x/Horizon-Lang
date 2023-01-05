@@ -13,8 +13,13 @@ export
     {
         bool Value;
 
+        static Shared<BoolValue> DefaultObject()
+        {
+            return std::make_shared<BoolValue>(false);
+        }
+
         BoolValue(bool value)
-            : ObjectValue { "Bool", RuntimeValueType::BoolValue, true }
+            : ObjectValue { RuntimeValueType::BoolValue, "Bool", true }
             , Value(value)
         {
         }

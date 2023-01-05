@@ -2,41 +2,44 @@ export module Runtime.ObjectValue;
 
 import <format>;
 import Types.Core;
-import Types.FlatMap;
 import Runtime.RuntimeValue;
 
 export
 {
     struct ObjectValue : public RuntimeValue
     {
-        String TypeName;
+        UnorderedMap<String, Shared<RuntimeValue>> Properties;
 
-        FlatMap<String, Shared<RuntimeValue>> Properties;
-
-        ObjectValue(RuntimeValueType type)
-            : RuntimeValue(type)
+        static Shared<ObjectValue> DefaultObject()
         {
+            return std::make_shared<ObjectValue>();
         }
 
         ObjectValue()
-            : RuntimeValue { RuntimeValueType::ObjectValue }
+            : RuntimeValue { RuntimeValueType::ObjectValue, "Object" }
         {
         }
 
-        ObjectValue(String typeName, RuntimeValueType type, bool isConst = false)
-            : RuntimeValue(type, isConst)
-            , TypeName(typeName)
+        ObjectValue(String typeName)
+            : RuntimeValue { RuntimeValueType::ObjectValue, typeName }
+        {
+        }
+
+        ObjectValue(RuntimeValueType type, String typeName, bool isConst = false)
+            : RuntimeValue(type, typeName, isConst)
         {
         }
 
         String ToString() override
         {
             String result = "{\n";
-            for (auto i = 0; i < Properties.size(); i++)
+            for (auto& [key, value] : Properties)
             {
-                result += std::format("\t{}: {},\n", Properties[i].first, Properties[i].second->ToString());
+                result += std::format("  {} : {},\n", key, value->ToString());
             }
+
             result += "}";
+
             return result;
         };
     };

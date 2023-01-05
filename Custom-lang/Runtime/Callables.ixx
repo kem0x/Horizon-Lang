@@ -29,8 +29,8 @@ export
     {
         CallableType CallType;
 
-        Callable(CallableType callType)
-            : ObjectValue { RuntimeValueType::Callable }
+        Callable(CallableType callType, String typeName)
+            : ObjectValue { RuntimeValueType::Callable, typeName, true }
             , CallType(callType)
         {
         }
@@ -52,7 +52,7 @@ export
         Optional<Shared<RuntimeValue>> Parent;
 
         RuntimeFunction(Shared<FunctionDeclaration> declaration, Optional<Shared<RuntimeValue>> parent = std::nullopt)
-            : Callable { CallableType::Runtime }
+            : Callable { CallableType::Runtime, "Function" }
             , Declaration(declaration)
             , Parent(parent)
         {
@@ -63,11 +63,13 @@ export
 
     struct CtorFunction : public Callable
     {
+        String Name;
         Optional<Shared<FunctionDeclaration>> Declaration;
         Vector<Shared<FunctionDeclaration>> Methods;
 
         CtorFunction(String name, Optional<Shared<FunctionDeclaration>> declaration, Vector<Shared<FunctionDeclaration>> methods)
-            : Callable { CallableType::Ctor }
+            : Callable { CallableType::Ctor, "CtorFunction" }
+            , Name(name)
             , Declaration(declaration)
             , Methods(methods)
         {
@@ -81,7 +83,7 @@ export
         std::function<Shared<RuntimeValue>(const Vector<Shared<RuntimeValue>>)> Function;
 
         NativeFunction(std::function<Shared<RuntimeValue>(const Vector<Shared<RuntimeValue>>)> function)
-            : Callable { CallableType::Native }
+            : Callable { CallableType::Native, "NativeFunction" }
             , Function(function)
         {
         }

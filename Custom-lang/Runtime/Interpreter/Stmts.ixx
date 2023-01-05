@@ -35,9 +35,19 @@ Shared<RuntimeValue> EvalProgram(Shared<Program> program, Shared<ExecutionContex
 
 Shared<RuntimeValue> EvalVariableDeclaration(Shared<VariableDeclaration> declaration, Shared<ExecutionContext> ctx)
 {
-    const auto Value = declaration->Value.has_value()
+    auto Value = declaration->Value.has_value()
         ? Evaluate(declaration->Value.value(), ctx)
         : std::make_shared<NullValue>();
+
+    if (Value->Is<NullValue>())
+    {
+        Value = ctx->LookupVar(declaration->TypeName); // Default value
+    }
+
+    if (declaration->TypeName != Value->TypeName and declaration->TypeName != "Any")
+    {
+        Safety::Throw(std::format("Type mismatch: '{}' is not '{}'", Value->TypeName, declaration->TypeName));
+    }
 
     return ctx->DeclareVar(declaration->Identifier, Value, declaration->IsConst);
 }
@@ -57,7 +67,19 @@ Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<Executio
     if (node->Assigne->Type == ASTNodeType::Identifier)
     {
         const auto Ident = node->Assigne->As<Identifier>();
-        const auto Value = Evaluate(node->Value, ctx);
+        const auto Var = ctx->LookupVar(Ident->Name);
+        auto Value = Evaluate(node->Value, ctx);
+
+        if (Value->Is<NullValue>())
+        {
+            Value = ctx->LookupVar(Var->TypeName); // Default value
+        }
+
+        if (Var->TypeName != Value->TypeName
+            and Var->TypeName != "Any")
+        {
+            Safety::Throw(std::format("Type mismatch in assignment of {} to {}!", Var->TypeName, Value->TypeName));
+        }
 
         return ctx->AssignVar(Ident->Name, Value);
     }
@@ -81,7 +103,7 @@ Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<Executio
 
     const auto Ident = Member->Property->As<Identifier>();
 
-    ObjectVal->Properties.set(Ident->Name, Value);
+    ObjectVal->Properties.insert_or_assign(Ident->Name, Value);
 
     return std::make_shared<NullValue>();
 }
@@ -211,7 +233,7 @@ Shared<RuntimeValue> EvalSyncStatement(Shared<SyncStatement> node, Shared<Execut
 
 Shared<RuntimeValue> EvalDebugStatement(Shared<DebugStatement> node, Shared<ExecutionContext> ctx)
 {
-    for (auto&& [Name, Value] : ctx->Variables.data)
+    for (auto&& [Name, Value] : ctx->Variables)
     {
         printf("%s: %s\n", Name.c_str(), Value->ToString().c_str());
     }

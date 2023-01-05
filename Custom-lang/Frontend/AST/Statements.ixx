@@ -151,12 +151,14 @@ export
     struct VariableDeclaration : public Statement
     {
         String Identifier;
+        String TypeName;
         Optional<Shared<Expr>> Value;
         bool IsConst;
 
-        VariableDeclaration(String identifier, Optional<Shared<Expr>> value, bool isConst)
+        VariableDeclaration(String identifier, String typeName, Optional<Shared<Expr>> value, bool isConst)
             : Statement { ASTNodeType::VariableDeclaration }
             , Identifier(identifier)
+            , TypeName(typeName)
             , Value(value)
             , IsConst(isConst)
         {
@@ -164,9 +166,8 @@ export
 
         virtual String ToString(std::string indentation = "") override
         {
-            return std::format("{{\n{0}\tType: '{1}',\n{0}\tIdentifier: '{2}',\n{0}\tValue: '{3}',\n{0}\tisConst: '{4}'\n{0}}}",
-                indentation, Reflection::EnumToString(Type), Identifier,
-                Value.has_value() ? Value.value()->ToString(indentation + "\t") : "null", IsConst);
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tIdentifier: '{2}',\n{0}\tTypeName: '{3}',\n{0}\tValue: {4},\n{0}\tIsConst: {5}\n{0}}}",
+                indentation, Reflection::EnumToString(Type), Identifier, TypeName, Value ? Value->get()->ToString(indentation + "\t") : "null", IsConst);
         }
     };
 

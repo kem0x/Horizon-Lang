@@ -12,8 +12,13 @@ export
     {
         int Value;
 
+        static Shared<NumberValue> DefaultObject()
+        {
+            return std::make_shared<NumberValue>(0);
+        }
+
         NumberValue(int value)
-            : ObjectValue { "Number", RuntimeValueType::NumberValue, true }
+            : ObjectValue { RuntimeValueType::NumberValue, "Number", true }
             , Value(value)
         {
         }

@@ -5,6 +5,7 @@ import <string>;
 import <optional>;
 import <vector>;
 import <array>;
+import <unordered_map>;
 import <list>;
 
 export
@@ -29,6 +30,9 @@ export
 
     template <class T>
     using List = std::list<T>;
+
+    template <typename K, typename V>
+    using UnorderedMap = std::unordered_map<K, V>;
 
     template <typename T, typename U>
     using Pair = std::pair<T, U>;

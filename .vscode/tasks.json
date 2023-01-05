@@ -6,7 +6,6 @@
             "type": "shell",
             "command": "msbuild",
             "args": [
-                "/property:GenerateFullPaths=true",
                 "/property:Configuration=Release",
                 "/t:build",
                 "/consoleloggerparameters:NoSummary"
@@ -22,7 +21,7 @@
             "type": "shell",
             "command": "msbuild",
             "args": [
-                "/property:GenerateFullPaths=true",
+                "/property:Configuration=Debug",
                 "/t:build",
                 "/consoleloggerparameters:NoSummary"
             ],

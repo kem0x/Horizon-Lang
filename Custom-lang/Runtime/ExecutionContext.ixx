@@ -5,7 +5,6 @@ import <memory>;
 import <format>;
 import Safety;
 import Types.Core;
-import Types.FlatMap;
 import Extensions.Vector;
 
 import Reflection;
@@ -234,7 +233,7 @@ export
     {
         Optional<Shared<ExecutionContext>> Parent;
 
-        FlatMap<String, Shared<RuntimeValue>> Variables;
+        UnorderedMap<String, Shared<RuntimeValue>> Variables;
 
         bool IsGlobalContext = false;
 
@@ -259,6 +258,13 @@ export
                 DeclareVar("print", std::make_shared<NativeFunction>(internalPrint), true);
                 DeclareVar("format", std::make_shared<NativeFunction>(internalFormat), true);
                 DeclareVar("sleep", std::make_shared<NativeFunction>(internalSleep), true);
+
+                DeclareVar("Object", ObjectValue::DefaultObject(), true);
+                //DeclareVar("Array", ArrayValue::DefaultArray(), true);
+                DeclareVar("String", StringValue::DefaultObject(), true);
+                DeclareVar("Number", NumberValue::DefaultObject(), true);
+                DeclareVar("Bool", BoolValue::DefaultObject(), true);
+                DeclareVar("Null", NullValue::DefaultObject(), true);
             }
 
             if (parent.has_value())
@@ -269,14 +275,14 @@ export
 
         Shared<RuntimeValue> DeclareVar(String name, Shared<RuntimeValue> value, bool constant)
         {
-            if (Variables.has(name))
+            if (Variables.contains(name))
             {
                 Safety::Throw(std::format("Variable '{}' was already declared in the current scope!", name.c_str()));
             }
 
             value->IsConstant = constant;
 
-            Variables.set(name, value);
+            Variables.insert_or_assign(name, value);
 
             return value;
         }
@@ -285,12 +291,12 @@ export
         {
             auto ctx = Resolve(name);
 
-            if (ctx->Variables.at(name)->IsConstant)
+            /*if (ctx->Variables.at(name)->IsConstant)
             {
                 Safety::Throw(std::format("Variable '{}' is constant and cannot be assigned to!", name.c_str()));
-            }
+            }*/
 
-            ctx->Variables.set(name, value);
+            ctx->Variables.insert_or_assign(name, value);
 
             return value;
         }
@@ -304,7 +310,7 @@ export
 
         Shared<ExecutionContext> Resolve(String name)
         {
-            if (Variables.has(name))
+            if (Variables.contains(name))
             {
                 return shared_from_this();
             }
