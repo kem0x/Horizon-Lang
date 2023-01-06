@@ -13,9 +13,11 @@ export
         Unknown,
         NullValue,
         BoolValue,
+        EnumValue,
         NumberValue,
         StringValue,
         ObjectValue,
+        ArrayValue,
         Callable,
         Thread
     };

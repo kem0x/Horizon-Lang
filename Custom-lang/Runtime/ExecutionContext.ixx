@@ -16,6 +16,7 @@ import Runtime.NumberValue;
 import Runtime.StringValue;
 import Runtime.Callables;
 import Runtime.ObjectValue;
+import Runtime.ArrayValue;
 
 String Format(const String& fmt, const Vector<String>& args)
 {
@@ -192,6 +193,12 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
             break;
         }
 
+        case RuntimeValueType::ArrayValue:
+        {
+            ArgsStrings.emplace_back(Arg->As<ArrayValue>()->ToString());
+            break;
+        }
+
         default:
         {
             Safety::Throw(std::format("Invalid argument of type {} for print()", Reflection::EnumToString(Arg->Type)));
@@ -251,6 +258,7 @@ export
             if (isGlobal)
             {
                 IsGlobalContext = true;
+
                 DeclareVar("true", std::make_shared<BoolValue>(true), true);
                 DeclareVar("false", std::make_shared<BoolValue>(false), true);
                 DeclareVar("null", std::make_shared<NullValue>(), true);
@@ -260,7 +268,7 @@ export
                 DeclareVar("sleep", std::make_shared<NativeFunction>(internalSleep), true);
 
                 DeclareVar("Object", ObjectValue::DefaultObject(), true);
-                //DeclareVar("Array", ArrayValue::DefaultArray(), true);
+                DeclareVar("Array", ArrayValue::DefaultObject(), true);
                 DeclareVar("String", StringValue::DefaultObject(), true);
                 DeclareVar("Number", NumberValue::DefaultObject(), true);
                 DeclareVar("Bool", BoolValue::DefaultObject(), true);

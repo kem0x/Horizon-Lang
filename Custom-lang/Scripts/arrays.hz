@@ -1,0 +1,7 @@
+let x = ["", "Ok", "Not Ok"];
+
+x = ["Ok", "Not Ok"];
+
+x[0] = "Okkk";
+
+print(x[0]);

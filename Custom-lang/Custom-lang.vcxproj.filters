@@ -96,5 +96,11 @@
     <ClCompile Include="Runtime\Interpreter\Interpreter.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\Values\ArrayValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Values\EnumValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

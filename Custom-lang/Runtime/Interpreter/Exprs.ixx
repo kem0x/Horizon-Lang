@@ -13,6 +13,7 @@ import Runtime.Callables;
 import Runtime.StringValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
+import Runtime.ArrayValue;
 
 Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
 
@@ -49,7 +50,7 @@ Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<Numbe
     return std::make_shared<NumberValue>(result);
 }
 
-export Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx)
+Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx)
 {
     auto left = Evaluate(biexpr->Left, ctx);
     auto right = Evaluate(biexpr->Right, ctx);
@@ -76,39 +77,75 @@ Shared<RuntimeValue> EvalObjectExpr(Shared<ObjectLiteral> node, Shared<Execution
     return Object;
 }
 
+Shared<RuntimeValue> EvalArrayExpr(Shared<ArrayLiteral> node, Shared<ExecutionContext> ctx)
+{
+    auto Array = std::make_shared<ArrayValue>("Any");
+
+    for (auto& Element : node->Elements)
+    {
+        Array->Elements.push_back(Evaluate(Element, ctx));
+    }
+
+    return Array;
+}
+
 Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionContext> ctx)
 {
-    String PropertyName;
+    auto Object = ctx->LookupVar(node->Object->As<Identifier>()->Name);
 
-    if (node->Computed)
+    auto Expr = Evaluate(node->Property, ctx);
+
+    if (Object->Is<ArrayValue>())
     {
-        auto Expr = Evaluate(node->Property, ctx);
-
-        if (Expr->Is<StringValue>())
+        if (!node->Computed)
         {
+            Safety::Throw("Array member access must be computed");
+        }
+
+        if (!Expr->Is<NumberValue>())
+        {
+            Safety::Throw("Array index must be a number");
+        }
+
+        auto Array = Object->As<ArrayValue>();
+
+        auto Index = Expr->As<NumberValue>()->Value;
+
+        if (Index < 0 or Index >= Array->Elements.size())
+        {
+            Safety::Throw("Array index out of bounds");
+        }
+
+        return Array->Elements[Index];
+    }
+    else
+    {
+        String PropertyName;
+
+        if (node->Computed)
+        {
+            if (!Expr->Is<StringValue>())
+            {
+                Safety::Throw("Tried to access a member with a non-string or non-numeric property name!");
+            }
+
             PropertyName = Expr->As<StringValue>()->Value;
         }
         else
         {
-            Safety::Throw("Computed member access expression didn't return a string");
-        }
-    }
-    else
-    {
-        if (node->Property->Type == ASTNodeType::Identifier)
-        {
+            if (node->Property->Type != ASTNodeType::Identifier)
+            {
+                Safety::Throw("Member access expression didn't return an identifier");
+            }
+
             PropertyName = node->Property->As<Identifier>()->Name;
         }
-        else
+
+        if (!Object->Is<ObjectValue>() || !Object->As<ObjectValue>()->Properties.contains(PropertyName))
         {
-            Safety::Throw("Member access expression didn't return an identifier");
+            Safety::Throw("Tried to access a member that doesn't exist!");
         }
-    }
 
-    auto Object = ctx->LookupVar(node->Object->As<Identifier>()->Name);
-
-    if (Object->Is<ObjectValue>() && Object->As<ObjectValue>()->Properties.contains(PropertyName))
-    {
         return Object->As<ObjectValue>()->Properties[PropertyName];
     }
 

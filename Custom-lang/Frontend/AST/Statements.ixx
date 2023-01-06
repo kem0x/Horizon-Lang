@@ -148,6 +148,36 @@ export
         }
     };
 
+    struct EnumDeclaration : public Statement
+    {
+        String Name;
+        Vector<String> Values;
+
+        EnumDeclaration(String name, Vector<String> values)
+            : Statement { ASTNodeType::EnumDeclaration }
+            , Name(name)
+            , Values(values)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tName: '{2}',\n{0}\tValues: [",
+                indentation, Reflection::EnumToString(Type), Name);
+
+            for (auto&& Value : Values)
+            {
+                output += "\n" + indentation + "\t\t'" + Value + "',";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
     struct VariableDeclaration : public Statement
     {
         String Identifier;

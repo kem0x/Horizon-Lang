@@ -222,6 +222,34 @@ export
         }
     };
 
+    struct ArrayLiteral : public Expr
+    {
+        Vector<Shared<Expr>> Elements;
+
+        ArrayLiteral(Vector<Shared<Expr>> elements)
+            : Expr { ASTNodeType::ArrayLiteral }
+            , Elements(elements)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tElements: [",
+                indentation, Reflection::EnumToString(Type));
+
+            for (auto&& Element : Elements)
+            {
+                output += "\n" + indentation + "\t\t" + Element->ToString(indentation + "\t\t") + ",";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
     struct Property : public Expr
     {
         String Key;

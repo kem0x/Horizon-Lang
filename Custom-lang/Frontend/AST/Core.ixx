@@ -15,6 +15,7 @@ export
         VariableDeclaration,
         FunctionDeclaration,
         ClassDeclaration,
+        EnumDeclaration,
         ReturnStatement,
         SyncStatement,
         LoopStatement,
@@ -31,6 +32,7 @@ export
         ObjectLiteral,
         NumericLiteral,
         StringLiteral,
+        ArrayLiteral,
         Identifier,
         BinaryExpr,
         ConditionalExpr

@@ -275,17 +275,46 @@ export
             return std::make_shared<ObjectLiteral>(properties);
         }
 
+        Shared<Expr> ParseArrayExpr()
+        {
+            if (Current().Type != LexerTokenType::OpenBracket)
+            {
+                return ParseObjectExpr();
+            }
+
+            Advance(); // Skip '['
+
+            Vector<Shared<Expr>> Elements;
+
+            while (NotEoF() and Current().Type != LexerTokenType::CloseBracket)
+            {
+                Elements.emplace_back(ParseExpr());
+
+                if (Current().Type != LexerTokenType::CloseBracket)
+                {
+                    Expect(LexerTokenType::Comma, "Unexpected token: " + Current().Value + ", expected a ','");
+                }
+            }
+
+            Expect(LexerTokenType::CloseBracket, "Unexpected token: " + Current().Value + ", expected a ']'");
+
+            return std::make_shared<ArrayLiteral>(Elements);
+        }
+
         Shared<Expr> ParseAssignmentExpr()
         {
-            const auto left = ParseObjectExpr();
+            const auto left = ParseArrayExpr();
 
             if (Current().Type == LexerTokenType::Equal)
             {
                 Advance(); // Skip '='
 
-                const auto right = ParseObjectExpr();
+                const auto right = ParseArrayExpr();
 
-                Expect(LexerTokenType::Semicolon, std::format("Expected ';' after variable assignment, got '{}'", Current().Value));
+                if (Current().Type == LexerTokenType::Semicolon)
+                {
+                    Advance(); // Skip ';'
+                }
 
                 return std::make_shared<AssignmentExpr>(left, right);
             }
@@ -430,6 +459,33 @@ export
             return std::make_shared<ReturnStatement>(Value);
         }
 
+        Shared<Statement> ParseEnumDeclaration()
+        {
+            Advance(); // Skip 'enum'
+
+            const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected an enum name").Value;
+
+            Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
+
+            Vector<String> Values;
+
+            while (NotEoF() and Current().Type != LexerTokenType::CloseBrace)
+            {
+                const auto ValueName = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected an enum value name").Value;
+
+                Values.emplace_back(ValueName);
+
+                if (Current().Type != LexerTokenType::CloseBrace)
+                {
+                    Expect(LexerTokenType::Comma, "Unexpected token: " + Current().Value + ", expected a ','");
+                }
+            }
+
+            Expect(LexerTokenType::CloseBrace, "Unexpected token: " + Current().Value + ", expected a '}'");
+
+            return std::make_shared<EnumDeclaration>(Name, Values);
+        }
+
         Shared<Statement> ParseStatement()
         {
             switch (Current().Type)
@@ -459,6 +515,9 @@ export
 
             case LexerTokenType::Class:
                 return ParseClassDeclaration();
+
+            case LexerTokenType::Enum:
+                return ParseEnumDeclaration();
 
             case LexerTokenType::Sync:
                 return ParseSyncStatement();
@@ -506,6 +565,17 @@ export
                 Advance(); // Skip ':'
 
                 TypeName = Expect(LexerTokenType::Identifier, "Expected type name after ':'").Value;
+            }
+
+            if (TypeName == "Array" and Current().Type == LexerTokenType::Less)
+            {
+                Advance(); // Skip '<'
+
+                const auto ArrayType = Expect(LexerTokenType::Identifier, "Expected type name after '['").Value;
+
+                Expect(LexerTokenType::Greater, "Expected '>'");
+
+                TypeName += "<" + ArrayType + ">";
             }
 
             if (Current().Type == LexerTokenType::Semicolon)

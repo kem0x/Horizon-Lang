@@ -19,7 +19,6 @@ export
     {
         Unknown,
         Ctor,
-        Class,
         Runtime,
         Native,
         Lambda,

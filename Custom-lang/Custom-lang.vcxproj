@@ -157,9 +157,11 @@
     <ClCompile Include="Runtime\Interpreter\Exprs.ixx" />
     <ClCompile Include="Runtime\Interpreter\Stmts.ixx" />
     <ClCompile Include="Runtime\Thread.ixx" />
+    <ClCompile Include="Runtime\Values\ArrayValue.ixx" />
     <ClCompile Include="Runtime\Values\BoolValue.ixx" />
     <ClCompile Include="Custom-lang.cpp" />
     <ClCompile Include="Runtime\ExecutionContext.ixx" />
+    <ClCompile Include="Runtime\Values\EnumValue.ixx" />
     <ClCompile Include="Runtime\Values\StringValue.ixx" />
     <ClCompile Include="Types\ConstexprString.ixx" />
     <ClCompile Include="Types\FlatMap.ixx" />

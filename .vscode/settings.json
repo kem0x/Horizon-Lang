@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "*.hz": "javascript",
+        "*.hz": "haxe",
         "functional": "cpp",
         "type_traits": "cpp",
         "xtr1common": "cpp",

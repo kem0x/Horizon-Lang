@@ -16,6 +16,7 @@ import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
 import Runtime.NumberValue;
 import Runtime.ObjectValue;
+import Runtime.ArrayValue;
 import Runtime.Callables;
 import Runtime.NullValue;
 
@@ -89,6 +90,33 @@ Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<Executio
 
     auto Object = Evaluate(Member->Object, ctx);
 
+    if (Object->Is<NullValue>())
+    {
+        Safety::Throw(std::format("Cannot access member of null value!"));
+    }
+
+    if (Object->Is<ArrayValue>())
+    {
+        const auto Array = Object->As<ArrayValue>();
+        const auto Index = Evaluate(Member->Property, ctx);
+
+        if (!Index->Is<NumberValue>())
+        {
+            Safety::Throw(std::format("Array index must be a number!"));
+        }
+
+        const auto IndexValue = Index->As<NumberValue>()->Value;
+
+        if (IndexValue < 0 || IndexValue >= Array->Elements.size())
+        {
+            Safety::Throw(std::format("Array index out of bounds!"));
+        }
+
+        Array->Elements[IndexValue] = Value;
+
+        return Value;
+    }
+
     if (!Object->Is<ObjectValue>())
     {
         Safety::Throw("Tried to assign to a non-object!");
@@ -139,6 +167,29 @@ Shared<RuntimeValue> EvalClassDeclaration(Shared<ClassDeclaration> node, Shared<
     ctx->DeclareVar(node->Name, Class, false);
 
     return Class;
+}
+
+Shared<RuntimeValue> EvalEnumDeclaration(Shared<EnumDeclaration> node, Shared<ExecutionContext> ctx)
+{
+    auto Enum = std::make_shared<EnumValue>(node->Name);
+
+    for (auto&& member : node->Body)
+    {
+        if (member->Is<EnumMember>())
+        {
+            auto Member = member->As<EnumMember>();
+
+            Enum->Members.insert_or_assign(Member->Name, Member->Value);
+        }
+        else
+        {
+            Safety::Throw("Tried to declare an enum with a non-member!");
+        }
+    }
+
+    ctx->DeclareVar(node->Name, Enum, false);
+
+    return Enum;
 }
 
 Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, Shared<ExecutionContext> ctx)

@@ -1,39 +1,15 @@
-class IceCream 
+enum Veggie
 {
-	IceCream(flavor)
-	{
-		this.flavor = flavor;
-	}	
+  Squash,
+  Cabbage,
+  Broccoli,
+}
 
-	getFlavor()
-	{
-		return this.flavor;
-	}
-	
-	serveOn()
-	{
-		return "Cones";
-	}
-};
+let cart = [Cabbage, Cabbage, Broccoli];
 
-let food: IceCream = IceCream("coffee");
+let veggie = Broccoli;
 
-let flavor: String = food.getFlavor();
-
-print(flavor);
-
-let servedOn: String = food.serveOn();
-
-print(servedOn);
-
-let obj: Object = {a: 1, b: 2, c: 3};
-
-obj.a = 4;
-
-obj = {a: 1, b: 2, c: 3, servedOn};
-
-obj.d = 5;
-
-let a: Number = obj.a;
-
-print(a, obj);
+if (veggie == Broccoli) 
+{
+	print("We've got the best vegetable!");
+}

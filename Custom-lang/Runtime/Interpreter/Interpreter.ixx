@@ -33,6 +33,9 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
     case ASTNodeType::ObjectLiteral:
         return EvalObjectExpr(node->As<ObjectLiteral>(), ctx);
 
+    case ASTNodeType::ArrayLiteral:
+        return EvalArrayExpr(node->As<ArrayLiteral>(), ctx);
+
     case ASTNodeType::MemberExpr:
         return EvalMemberExpr(node->As<MemberExpr>(), ctx);
 
@@ -74,6 +77,9 @@ export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionCon
 
     case ASTNodeType::ClassDeclaration:
         return EvalClassDeclaration(node->As<ClassDeclaration>(), ctx);
+
+    case ASTNodeType::EnumDeclaration:
+        return EvalEnumDeclaration(node->As<EnumDeclaration>(), ctx);
 
     case ASTNodeType::DebugStatement:
         return EvalDebugStatement(node->As<DebugStatement>(), ctx);
