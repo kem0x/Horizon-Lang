@@ -57,7 +57,12 @@ export
                 return std::make_shared<Identifier>(Advance().Value);
 
             case LexerTokenType::Number:
-                return std::make_shared<NumericLiteral>(std::stof(Advance().Value));
+            {
+                if (Current().Value.contains('.'))
+                    return std::make_shared<FloatLiteral>(std::stod(Advance().Value));
+
+                return std::make_shared<IntLiteral>(std::stoi(Advance().Value));
+            }
 
             case LexerTokenType::OpenParen:
             {
@@ -405,7 +410,7 @@ export
         {
             Advance(); // Skip 'loop'
 
-            int32_t Times = 0;
+            int64_t Times = 0;
 
             if (Current().Type == LexerTokenType::OpenParen)
             {
@@ -413,9 +418,9 @@ export
 
                 const auto LoopCountExpr = ParseExpr();
 
-                if (LoopCountExpr->Is<NumericLiteral>())
+                if (LoopCountExpr->Is<IntLiteral>())
                 {
-                    Times = LoopCountExpr->As<NumericLiteral>()->Value;
+                    Times = LoopCountExpr->As<IntLiteral>()->Value;
 
                     Expect(LexerTokenType::CloseParen, "Unexpected token: " + Current().Value + ", expected a ')'");
                 }
@@ -558,14 +563,9 @@ export
 
             const auto Identifier = Expect(LexerTokenType::Identifier, "Expected identifier name after (let | const) keyword.").Value;
 
-            String TypeName = "Any";
+            Expect(LexerTokenType::Colon, "Expected ':' after identifier name.");
 
-            if (Current().Type == LexerTokenType::Colon)
-            {
-                Advance(); // Skip ':'
-
-                TypeName = Expect(LexerTokenType::Identifier, "Expected type name after ':'").Value;
-            }
+            String TypeName = Expect(LexerTokenType::Identifier, "Expected type name after ':'").Value;
 
             if (TypeName == "Array" and Current().Type == LexerTokenType::Less)
             {

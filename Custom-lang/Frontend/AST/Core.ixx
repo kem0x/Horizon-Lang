@@ -30,7 +30,8 @@ export
 
         Property,
         ObjectLiteral,
-        NumericLiteral,
+        IntLiteral,
+        FloatLiteral,
         StringLiteral,
         ArrayLiteral,
         Identifier,

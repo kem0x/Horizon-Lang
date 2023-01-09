@@ -7,13 +7,18 @@ import Types.Core;
 import AST.Core;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
+import Runtime.IntValue;
+import Runtime.FloatValue;
 
 export Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx)
 {
     switch (node->Type)
     {
-    case ASTNodeType::NumericLiteral:
-        return std::make_shared<NumberValue>(node->As<NumericLiteral>()->Value);
+    case ASTNodeType::IntLiteral:
+        return std::make_shared<IntValue>(node->As<IntLiteral>()->Value);
+
+    case ASTNodeType::FloatLiteral:
+        return std::make_shared<FloatValue>(node->As<FloatLiteral>()->Value);
 
     case ASTNodeType::StringLiteral:
         return std::make_shared<StringValue>(node->As<StringLiteral>()->Value);

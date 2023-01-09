@@ -188,12 +188,29 @@ export
         }
     };
 
-    struct NumericLiteral : public Expr
+    struct IntLiteral : public Expr
     {
-        int Value;
+        int64_t Value;
 
-        NumericLiteral(int value)
-            : Expr { ASTNodeType::NumericLiteral }
+        IntLiteral(int64_t value)
+            : Expr { ASTNodeType::IntLiteral }
+            , Value(value)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            return std::format("{{\n{0}\tType: '{1}',\n{0}\tValue: '{2}'\n{0}}}",
+                indentation, Reflection::EnumToString(Type), Value);
+        }
+    };
+
+    struct FloatLiteral : public Expr
+    {
+        double Value;
+
+        FloatLiteral(double value)
+            : Expr { ASTNodeType::FloatLiteral }
             , Value(value)
         {
         }

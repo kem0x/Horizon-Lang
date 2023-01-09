@@ -12,11 +12,13 @@ import Reflection;
 import Runtime.RuntimeValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
-import Runtime.NumberValue;
+import Runtime.IntValue;
+import Runtime.FloatValue;
 import Runtime.StringValue;
 import Runtime.Callables;
 import Runtime.ObjectValue;
 import Runtime.ArrayValue;
+import Runtime.EnumValue;
 
 String Format(const String& fmt, const Vector<String>& args)
 {
@@ -126,14 +128,24 @@ Shared<RuntimeValue> internalFormat(Vector<Shared<RuntimeValue>> args)
             ArgsStrings.emplace_back(Arg->As<BoolValue>()->Value ? "true" : "false");
             break;
         }
-        case RuntimeValueType::NumberValue:
+        case RuntimeValueType::IntValue:
         {
-            ArgsStrings.emplace_back(std::to_string(Arg->As<NumberValue>()->Value));
+            ArgsStrings.emplace_back(std::to_string(Arg->As<IntValue>()->Value));
+            break;
+        }
+        case RuntimeValueType::FloatValue:
+        {
+            ArgsStrings.emplace_back(std::to_string(Arg->As<FloatValue>()->Value));
             break;
         }
         case RuntimeValueType::StringValue:
         {
             ArgsStrings.emplace_back(Arg->As<StringValue>()->Value);
+            break;
+        }
+        case RuntimeValueType::EnumValue:
+        {
+            ArgsStrings.emplace_back(Arg->As<EnumValue>()->Name);
             break;
         }
         case RuntimeValueType::NullValue:
@@ -163,7 +175,7 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
     Vector<String> ArgsStrings;
     ArgsStrings.reserve(args.size());
 
-    for (auto& Arg : args)
+    for (auto&& Arg : args)
     {
         switch (Arg->Type)
         {
@@ -172,9 +184,14 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
             ArgsStrings.emplace_back(Arg->As<BoolValue>()->Value ? "true" : "false");
             break;
         }
-        case RuntimeValueType::NumberValue:
+        case RuntimeValueType::IntValue:
         {
-            ArgsStrings.emplace_back(std::to_string(Arg->As<NumberValue>()->Value));
+            ArgsStrings.emplace_back(std::to_string(Arg->As<IntValue>()->Value));
+            break;
+        }
+        case RuntimeValueType::FloatValue:
+        {
+            ArgsStrings.emplace_back(std::to_string(Arg->As<FloatValue>()->Value));
             break;
         }
         case RuntimeValueType::StringValue:
@@ -192,7 +209,11 @@ Shared<RuntimeValue> internalPrint(Vector<Shared<RuntimeValue>> args)
             ArgsStrings.emplace_back(Arg->As<ObjectValue>()->ToString());
             break;
         }
-
+        case RuntimeValueType::EnumValue:
+        {
+            ArgsStrings.emplace_back(Arg->As<EnumValue>()->Name);
+            break;
+        }
         case RuntimeValueType::ArrayValue:
         {
             ArgsStrings.emplace_back(Arg->As<ArrayValue>()->ToString());
@@ -229,7 +250,12 @@ Shared<RuntimeValue> internalSleep(Vector<Shared<RuntimeValue>> args)
         Safety::Throw("sleep() requires one argument");
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds((int)args[0]->As<NumberValue>()->Value));
+    if (!args[0]->Is<IntValue>())
+    {
+        Safety::Throw("sleep() requires an integer argument");
+    }
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds((int)args[0]->As<IntValue>()->Value));
 
     return std::make_shared<NullValue>();
 }
@@ -270,7 +296,8 @@ export
                 DeclareVar("Object", ObjectValue::DefaultObject(), true);
                 DeclareVar("Array", ArrayValue::DefaultObject(), true);
                 DeclareVar("String", StringValue::DefaultObject(), true);
-                DeclareVar("Number", NumberValue::DefaultObject(), true);
+                DeclareVar("Int", IntValue::DefaultObject(), true);
+                DeclareVar("Float", FloatValue::DefaultObject(), true);
                 DeclareVar("Bool", BoolValue::DefaultObject(), true);
                 DeclareVar("Null", NullValue::DefaultObject(), true);
             }

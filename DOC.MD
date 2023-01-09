@@ -16,21 +16,21 @@
 
 - Variable declaration:
 
-```js
+```haxe
 let x = 1;
 const x = 1;
 ```
 
 - Print statement:
 
-```js
+```haxe
 print x;
 print "Hello World";
 ```
 
 - Loop statement:
 
-```js
+```haxe
 // loops 3 times
 loop(3) {
 	print "ok";
@@ -66,7 +66,7 @@ Todo:
 
 - Literal:
 
-```js
+```haxe
 1;
 ("Hello World");
 true;
@@ -76,25 +76,25 @@ null;
 
 - Variable:
 
-```js
+```haxe
 x;
 ```
 
 - Assignment:
 
-```js
+```haxe
 x = 1;
 ```
 
 - Function call:
 
-```js
+```haxe
 f(1, 2, 3);
 ```
 
 - Object:
 
-```js
+```haxe
 let bar = { x: 1, y: 1 };
 
 print(bar["x"] == bar.y);
@@ -102,7 +102,7 @@ print(bar["x"] == bar.y);
 
 - Arithmetic:
 
-```js
+```haxe
 1 + 2;
 1 - 2;
 1 * 2;
@@ -112,7 +112,7 @@ print(bar["x"] == bar.y);
 
 - Block/Scope:
 
-```js
+```haxe
 {
     let x = 1;
     print(x);
@@ -123,7 +123,7 @@ print(x); // Error: x is not defined
 
 - Logic:
 
-```js
+```haxe
 // Conditional AND (&& or "and")
 "ok" and "ko"  // "false"
 "ok" and "ok"  // "true"
@@ -143,7 +143,7 @@ false or "ko" // "ko"
 
 - If:
 
-```js
+```haxe
 let x = if (true) { 1 } else { 2 };
 
 if (x == 1) {
@@ -154,7 +154,7 @@ if (x == 1) {
 
 - Functions:
 
-```js
+```haxe
 function foo()
 {
 	return 100;

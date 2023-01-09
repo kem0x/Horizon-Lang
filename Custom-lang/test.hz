@@ -1,15 +1,18 @@
-enum Veggie
-{
-  Squash,
-  Cabbage,
-  Broccoli,
+function adder(x, y) {
+   x + y
 }
 
-let cart = [Cabbage, Cabbage, Broccoli];
-
-let veggie = Broccoli;
-
-if (veggie == Broccoli) 
-{
-	print("We've got the best vegetable!");
+function subber(x, y) {
+   x - y
 }
+
+let x: String = "Hello, ";
+let y: String = "World";
+
+let b: Bool = true;
+
+print(adder(x, y));
+
+print(b["ToString"]());
+
+// let str: String = "Hello, World!";

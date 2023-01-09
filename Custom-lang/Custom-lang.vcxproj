@@ -122,6 +122,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +141,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>true</EnableModules>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,6 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Runtime\Values\FloatValue.ixx" />
+    <ClCompile Include="WASM\Binaryen.ixx" />
     <ClCompile Include="Frontend\AST\Core.ixx" />
     <ClCompile Include="Frontend\AST\Expressions.ixx" />
     <ClCompile Include="Frontend\AST\Statements.ixx" />
@@ -168,7 +172,7 @@
     <ClCompile Include="Frontend\Lexer.ixx" />
     <ClCompile Include="Logger.ixx" />
     <ClCompile Include="Runtime\Values\NullValue.ixx" />
-    <ClCompile Include="Runtime\Values\NumberValue.ixx" />
+    <ClCompile Include="Runtime\Values\IntValue.ixx" />
     <ClCompile Include="Runtime\Values\ObjectValue.ixx" />
     <ClCompile Include="Frontend\Parser.ixx" />
     <ClCompile Include="Runtime\Values\RuntimeValue.ixx" />
@@ -177,6 +181,15 @@
     <ClCompile Include="Types\Reflection.ixx" />
     <ClCompile Include="Types\Types.ixx" />
     <ClCompile Include="Types\Extensions\Vector.ixx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="WASM\binaryen.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WASM\binaryen-c.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WASM\wasm-delegations.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

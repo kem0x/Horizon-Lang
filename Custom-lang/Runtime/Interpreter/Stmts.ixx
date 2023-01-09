@@ -14,10 +14,12 @@ import AST.Expressions;
 import Runtime.Thread;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
-import Runtime.NumberValue;
+import Runtime.IntValue;
+import Runtime.FloatValue;
 import Runtime.ObjectValue;
 import Runtime.ArrayValue;
 import Runtime.Callables;
+import Runtime.EnumValue;
 import Runtime.NullValue;
 
 Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
@@ -100,12 +102,12 @@ Shared<RuntimeValue> EvalAssignment(Shared<AssignmentExpr> node, Shared<Executio
         const auto Array = Object->As<ArrayValue>();
         const auto Index = Evaluate(Member->Property, ctx);
 
-        if (!Index->Is<NumberValue>())
+        if (!Index->Is<IntValue>())
         {
             Safety::Throw(std::format("Array index must be a number!"));
         }
 
-        const auto IndexValue = Index->As<NumberValue>()->Value;
+        const auto IndexValue = Index->As<IntValue>()->Value;
 
         if (IndexValue < 0 || IndexValue >= Array->Elements.size())
         {
@@ -171,25 +173,12 @@ Shared<RuntimeValue> EvalClassDeclaration(Shared<ClassDeclaration> node, Shared<
 
 Shared<RuntimeValue> EvalEnumDeclaration(Shared<EnumDeclaration> node, Shared<ExecutionContext> ctx)
 {
-    auto Enum = std::make_shared<EnumValue>(node->Name);
-
-    for (auto&& member : node->Body)
+    for (auto&& member : node->Values)
     {
-        if (member->Is<EnumMember>())
-        {
-            auto Member = member->As<EnumMember>();
-
-            Enum->Members.insert_or_assign(Member->Name, Member->Value);
-        }
-        else
-        {
-            Safety::Throw("Tried to declare an enum with a non-member!");
-        }
+        ctx->DeclareVar(member, std::make_shared<EnumValue>(member), false);
     }
 
-    ctx->DeclareVar(node->Name, Enum, false);
-
-    return Enum;
+    return std::make_shared<NullValue>();
 }
 
 Shared<RuntimeValue> EvalFunctionDeclaration(Shared<FunctionDeclaration> node, Shared<ExecutionContext> ctx)

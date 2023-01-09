@@ -1,0 +1,17 @@
+enum Veggie
+{
+  Squash,
+  Cabbage,
+  Broccoli,
+}
+
+let cart = [Cabbage, Cabbage, Broccoli];
+
+let veggie = Broccoli;
+
+print(veggie);
+
+if (veggie == Broccoli) 
+{
+	print("We've got the best vegetable!");
+}

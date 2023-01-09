@@ -20,6 +20,10 @@ export
 {
     namespace StringExtensions
     {
+        constexpr auto Hash(const char* s, int off = 0) -> unsigned int
+        {
+            return !s[off] ? 5381 : (Hash(s, off + 1) * 33) ^ s[off];
+        }
 
         DefineExtension(
             String, ReadFile, const std::filesystem::path path, (path), {

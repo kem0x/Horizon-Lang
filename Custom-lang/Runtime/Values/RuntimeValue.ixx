@@ -14,7 +14,8 @@ export
         NullValue,
         BoolValue,
         EnumValue,
-        NumberValue,
+        IntValue,
+        FloatValue,
         StringValue,
         ObjectValue,
         ArrayValue,
@@ -37,6 +38,38 @@ export
             , IsConstant(isConstant)
         {
         }
+
+        virtual bool Equals(Shared<RuntimeValue> other)
+        {
+            return Type == other->Type && TypeName == other->TypeName;
+        }
+
+        // virtual operators
+        virtual Shared<RuntimeValue> operator+(Shared<RuntimeValue> other)
+        {
+            return nullptr;
+        }
+
+        virtual Shared<RuntimeValue> operator-(Shared<RuntimeValue> other)
+        {
+            return nullptr;
+        }
+
+        virtual Shared<RuntimeValue> operator*(Shared<RuntimeValue> other)
+        {
+            return nullptr;
+        }
+
+        virtual Shared<RuntimeValue> operator/(Shared<RuntimeValue> other)
+        {
+            return nullptr;
+        }
+
+        // virtual Shared<RuntimeValue> operator%(Shared<RuntimeValue> other) = 0;
+        // virtual Shared<RuntimeValue> operator^(Shared<RuntimeValue> other) = 0;
+        // virtual Shared<RuntimeValue> operator!() = 0;
+        // virtual Shared<RuntimeValue> operator-() = 0;
+        // virtual Shared<RuntimeValue> operator+() = 0;
 
         template <typename T>
         constexpr bool Is()

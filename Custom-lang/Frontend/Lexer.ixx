@@ -200,10 +200,9 @@ export
                 Number += Advance();
             }
 
-            if (Current() == '.' and std::isdigit(Next()))
+            if (!IsAtEnd() and Current() == '.' and std::isdigit(Next()))
             {
-                Advance();
-
+                Number += Advance();
                 while (!IsAtEnd() and std::isdigit(Current()))
                 {
                     Number += Advance();
@@ -217,7 +216,7 @@ export
         {
             String Identifier;
 
-            while (!IsAtEnd() and std::isalpha(Current()))
+            while (!IsAtEnd() and (std::isalpha(Current()) or std::isdigit(Current())))
             {
                 Identifier += Advance();
             }

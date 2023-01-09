@@ -57,7 +57,7 @@
     <ClCompile Include="Runtime\Values\BoolValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Runtime\Values\NumberValue.ixx">
+    <ClCompile Include="Runtime\Values\IntValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Runtime\Values\ObjectValue.ixx">
@@ -102,5 +102,24 @@
     <ClCompile Include="Runtime\Values\EnumValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WASM\Binaryen.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime\Values\FloatValue.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="WASM\binaryen.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WASM\binaryen-c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WASM\wasm-delegations.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

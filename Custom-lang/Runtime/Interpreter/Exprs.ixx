@@ -7,57 +7,47 @@ import AST.Core;
 import AST.Expressions;
 import Runtime.ExecutionContext;
 import Runtime.RuntimeValue;
-import Runtime.NumberValue;
+import Runtime.IntValue;
+import Runtime.FloatValue;
 import Runtime.ObjectValue;
 import Runtime.Callables;
 import Runtime.StringValue;
 import Runtime.BoolValue;
 import Runtime.NullValue;
+import Runtime.EnumValue;
 import Runtime.ArrayValue;
 
 Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
-
-Shared<NumberValue> EvalNumericBinaryExpr(Shared<NumberValue> left, Shared<NumberValue> right, String Operator)
-{
-    int result = 0;
-
-    if (Operator == "+")
-    {
-        result = left->Value + right->Value;
-    }
-    else if (Operator == "-")
-    {
-        result = left->Value - right->Value;
-    }
-    else if (Operator == "*")
-    {
-        result = left->Value * right->Value;
-    }
-    else if (Operator == "/")
-    {
-        //@todo: division by zero fail-safe
-        result = left->Value / right->Value;
-    }
-    else if (Operator == "%")
-    {
-        result = left->Value % right->Value;
-    }
-    else
-    {
-        Safety::Throw("Tried to evalute an unknown numeric operator!!");
-    }
-
-    return std::make_shared<NumberValue>(result);
-}
 
 Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx)
 {
     auto left = Evaluate(biexpr->Left, ctx);
     auto right = Evaluate(biexpr->Right, ctx);
 
-    if (left->Is<NumberValue>() and right->Is<NumberValue>())
+    if (left->Type != right->Type)
     {
-        return EvalNumericBinaryExpr(left->As<NumberValue>(), right->As<NumberValue>(), biexpr->Operator);
+        Safety::Throw("Cannot perform binary operation on different types");
+    }
+
+    if (biexpr->Operator == "+")
+    {
+        return NullValue::ValueOrNull(left->operator+(right));
+    }
+    else if (biexpr->Operator == "-")
+    {
+        return NullValue::ValueOrNull(left->operator-(right));
+    }
+    else if (biexpr->Operator == "*")
+    {
+        return NullValue::ValueOrNull(left->operator*(right));
+    }
+    else if (biexpr->Operator == "/")
+    {
+        return NullValue::ValueOrNull(left->operator/(right));
+    }
+    else
+    {
+        Safety::Throw("Tried to evalute an unknown numeric operator!!");
     }
 
     return std::make_shared<NullValue>();
@@ -102,14 +92,14 @@ Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionCon
             Safety::Throw("Array member access must be computed");
         }
 
-        if (!Expr->Is<NumberValue>())
+        if (!Expr->Is<IntValue>())
         {
             Safety::Throw("Array index must be a number");
         }
 
         auto Array = Object->As<ArrayValue>();
 
-        auto Index = Expr->As<NumberValue>()->Value;
+        auto Index = Expr->As<IntValue>()->Value;
 
         if (Index < 0 or Index >= Array->Elements.size())
         {
@@ -288,31 +278,6 @@ Shared<RuntimeValue> EvalIfExpr(Shared<IfExpr> node, Shared<ExecutionContext> ct
     return std::make_shared<NullValue>();
 }
 
-bool Equals(Shared<RuntimeValue> left, Shared<RuntimeValue> right)
-{
-    if (left->Is<NullValue>() and right->Is<NullValue>())
-    {
-        return true;
-    }
-
-    if (left->Is<NumberValue>() and right->Is<NumberValue>())
-    {
-        return left->As<NumberValue>()->Value == right->As<NumberValue>()->Value;
-    }
-
-    if (left->Is<StringValue>() and right->Is<StringValue>())
-    {
-        return left->As<StringValue>()->Value == right->As<StringValue>()->Value;
-    }
-
-    if (left->Is<BoolValue>() and right->Is<BoolValue>())
-    {
-        return left->As<BoolValue>()->Value == right->As<BoolValue>()->Value;
-    }
-
-    return false;
-}
-
 Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<ExecutionContext> ctx)
 {
     auto Left = Evaluate(node->Left, ctx);
@@ -341,25 +306,25 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
     {
         auto Right = Evaluate(node->Right, ctx);
 
-        return std::make_shared<BoolValue>(Equals(Left, Right));
+        return std::make_shared<BoolValue>(Left->Equals(Right));
     }
     case LexerTokenType::BangEqual:
     {
         auto Right = Evaluate(node->Right, ctx);
 
-        return std::make_shared<BoolValue>(!Equals(Left, Right));
+        return std::make_shared<BoolValue>(!Left->Equals(Right));
     }
 
     default:
         auto Right = Evaluate(node->Right, ctx);
 
-        if (Left->Is<NumberValue>() and Right->Is<NumberValue>())
+        if (Left->Is<IntValue>() and Right->Is<IntValue>())
         {
             switch (node->Operator)
             {
             case LexerTokenType::Greater:
             {
-                if (Left->As<NumberValue>()->Value > Right->As<NumberValue>()->Value)
+                if (Left->As<IntValue>()->Value > Right->As<IntValue>()->Value)
                 {
                     return Left;
                 }
@@ -369,7 +334,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
 
             case LexerTokenType::GreaterEqual:
             {
-                if (Left->As<NumberValue>()->Value >= Right->As<NumberValue>()->Value)
+                if (Left->As<IntValue>()->Value >= Right->As<IntValue>()->Value)
                 {
                     return Left;
                 }
@@ -379,7 +344,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
 
             case LexerTokenType::Less:
             {
-                if (Left->As<NumberValue>()->Value < Right->As<NumberValue>()->Value)
+                if (Left->As<IntValue>()->Value < Right->As<IntValue>()->Value)
                 {
                     return Left;
                 }
@@ -389,7 +354,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
 
             case LexerTokenType::LessEqual:
             {
-                if (Left->As<NumberValue>()->Value <= Right->As<NumberValue>()->Value)
+                if (Left->As<IntValue>()->Value <= Right->As<IntValue>()->Value)
                 {
                     return Left;
                 }

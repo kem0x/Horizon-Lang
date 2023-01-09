@@ -25,17 +25,3 @@ print(food.getFlavor());
 let servedOn: String = food.serveOn();
 
 print(servedOn);
-
-let obj: Object = {a: 1, b: 2, c: 3};
-
-obj.a = 4;
-
-obj = {a: 1, b: 2, c: 3, servedOn};
-
-obj.d = 5;
-
-let a: Number = obj.a;
-
-let s: String = obj.servedOn;
-
-print(a, s);
