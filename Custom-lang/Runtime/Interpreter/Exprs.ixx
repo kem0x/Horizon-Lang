@@ -19,29 +19,29 @@ import Runtime.ArrayValue;
 
 Shared<RuntimeValue> Evaluate(Shared<Statement> node, Shared<ExecutionContext> ctx);
 
-Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> biexpr, Shared<ExecutionContext> ctx)
+Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> node, Shared<ExecutionContext> ctx)
 {
-    auto left = Evaluate(biexpr->Left, ctx);
-    auto right = Evaluate(biexpr->Right, ctx);
+    auto left = Evaluate(node->Left, ctx);
+    auto right = Evaluate(node->Right, ctx);
 
     if (left->Type != right->Type)
     {
         Safety::Throw("Cannot perform binary operation on different types");
     }
 
-    if (biexpr->Operator == "+")
+    if (node->Operator == "+")
     {
         return NullValue::ValueOrNull(left->operator+(right));
     }
-    else if (biexpr->Operator == "-")
+    else if (node->Operator == "-")
     {
         return NullValue::ValueOrNull(left->operator-(right));
     }
-    else if (biexpr->Operator == "*")
+    else if (node->Operator == "*")
     {
         return NullValue::ValueOrNull(left->operator*(right));
     }
-    else if (biexpr->Operator == "/")
+    else if (node->Operator == "/")
     {
         return NullValue::ValueOrNull(left->operator/(right));
     }

@@ -5,14 +5,3 @@ function adder(x, y) {
 function subber(x, y) {
    x - y
 }
-
-let x: String = "Hello, ";
-let y: String = "World";
-
-let b: Bool = true;
-
-print(adder(x, y));
-
-print(b["ToString"]());
-
-// let str: String = "Hello, World!";

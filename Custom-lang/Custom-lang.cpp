@@ -12,10 +12,7 @@ import AST.Core;
 import Runtime.ExecutionContext;
 import Interpreter;
 
-import "WASM/binaryen-c.h";
-import Binaryen;
-
-constexpr bool bCompileToWasm = false;
+import Compiler;
 
 /*
 void repl()
@@ -94,32 +91,10 @@ int main(int argc, char** argv)
 
     Shared<Statement> program = parser->ProduceAST(input);
 
-    if constexpr (bCompileToWasm)
-    {
-        auto module = BinaryenModuleCreate();
+    const auto result = Evaluate(program, ctx);
+    // Log<Info>("Result: %s", result->ToString().c_str());
 
-        Compile(program, module);
-
-        if (!BinaryenModuleValidate(module))
-        {
-            Safety::Throw("Module is not valid...!");
-        }
-
-        BinaryenModulePrint(module);
-
-        auto ret = BinaryenModuleAllocateAndWrite(module, nullptr);
-        std::ofstream fs("out.wasm", std::ios::out | std::ios::binary);
-        fs.write((char*)ret.binary, ret.binaryBytes);
-        fs.close();
-        free(ret.binary);
-
-        BinaryenModuleDispose(module);
-    }
-    else
-    {
-        const auto result = Evaluate(program, ctx);
-        // Log<Info>("Result: %s", result->ToString().c_str());
-    }
+    Compile(program);
 
     return 0;
 }
