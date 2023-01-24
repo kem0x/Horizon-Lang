@@ -89,9 +89,9 @@ export
     {
         Shared<Expr> Left;
         Shared<Expr> Right;
-        String Operator;
+        char Operator;
 
-        BinaryExpr(Shared<Expr> left, Shared<Expr> right, String op)
+        BinaryExpr(Shared<Expr> left, Shared<Expr> right, char op)
             : Expr { ASTNodeType::BinaryExpr }
             , Left(left)
             , Right(right)

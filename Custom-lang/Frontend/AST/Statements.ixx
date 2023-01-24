@@ -201,16 +201,51 @@ export
         }
     };
 
+    // external functions
+    struct ExternDeclaration : public Statement
+    {
+        String Identifier;
+        String TypeName;
+        Vector<Pair<String, String>> Parameters;
+
+        ExternDeclaration(String identifier, String typeName, Vector<Pair<String, String>> parameters)
+            : Statement { ASTNodeType::ExternDeclaration }
+            , Identifier(identifier)
+            , TypeName(typeName)
+            , Parameters(parameters)
+        {
+        }
+
+        virtual String ToString(std::string indentation = "") override
+        {
+            std::string output = std::format("{{\n{0}\tType: '{1}',\n{0}\tIdentifier: '{2}',\n{0}\tTypeName: '{3}',\n{0}\tParameters: [",
+                indentation, Reflection::EnumToString(Type), Identifier, TypeName);
+
+            for (auto&& Parameter : Parameters)
+            {
+                output += "\n" + indentation + "\t\t{ Identifier: '" + Parameter.first + "', TypeName: '" + Parameter.second + "' },";
+            }
+
+            output += "\n" + indentation + "\t]";
+
+            output += "\n" + indentation + "}";
+
+            return output;
+        }
+    };
+
     struct FunctionDeclaration : public Statement
     {
         String Name;
-        Vector<Shared<Expr>> Parameters;
+        Vector<Pair<String, String>> Parameters;
+        String ReturnType;
         Vector<Shared<Statement>> Body;
 
-        FunctionDeclaration(String name, Vector<Shared<Expr>> parameters, Vector<Shared<Statement>> body)
+        FunctionDeclaration(String name, Vector<Pair<String, String>> parameters, String returnType, Vector<Shared<Statement>> body)
             : Statement { ASTNodeType::FunctionDeclaration }
             , Name { name }
             , Parameters { parameters }
+            , ReturnType(returnType)
             , Body { body }
         {
         }
@@ -222,10 +257,11 @@ export
 
             for (auto&& Param : Parameters)
             {
-                output += "\n" + indentation + "\t\t" + Param->ToString(indentation + "\t\t") + ",";
+                output += "\n" + indentation + "\t\t{ Identifier: '" + Param.first + "', TypeName: '" + Param.second + "' },";
             }
 
-            output += "\n" + indentation + "\t],\n" + indentation + "\tBody: [";
+            output += "\n" + indentation + "\t],\n{0}\tReturnType: '{3}',\n{0}\tBody: [",
+                indentation, Reflection::EnumToString(Type), Name, ReturnType;
 
             for (auto&& Stmt : Body)
             {

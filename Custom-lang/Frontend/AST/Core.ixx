@@ -10,9 +10,13 @@ export
 {
     enum class ASTNodeType
     {
+        Unknown,
+        Statement,
+        Expression,
         DebugStatement,
         Program,
         VariableDeclaration,
+        ExternDeclaration,
         FunctionDeclaration,
         ClassDeclaration,
         EnumDeclaration,
@@ -41,7 +45,7 @@ export
 
     struct Statement : public std::enable_shared_from_this<Statement>
     {
-        ASTNodeType Type;
+        ASTNodeType Type = ASTNodeType::Statement;
 
         Statement(ASTNodeType Type)
             : Type(Type)
@@ -76,6 +80,13 @@ export
 
     struct Expr : public Statement
     {
+        bool bIsTopLevel = true;
+
+        Expr()
+            : Statement(ASTNodeType::Expression)
+        {
+        }
+
         Expr(ASTNodeType Type)
             : Statement(Type)
         {

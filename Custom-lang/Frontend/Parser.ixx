@@ -147,7 +147,7 @@ export
 
                 auto Right = ParseMemberExpr();
 
-                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
+                Left = std::make_shared<BinaryExpr>(Left, Right, Operator[0]);
             }
 
             return Left;
@@ -163,7 +163,7 @@ export
 
                 auto Right = ParseMultiplicativeExpr();
 
-                Left = std::make_shared<BinaryExpr>(Left, Right, Operator);
+                Left = std::make_shared<BinaryExpr>(Left, Right, Operator[0]);
             }
 
             return Left;
@@ -336,11 +336,11 @@ export
         {
             const auto ParseArgsList = [&]()
             {
-                Vector<Shared<Expr>> args;
+                Vector<Shared<Expr>> Args;
 
                 while (NotEoF() and Current().Type != LexerTokenType::CloseParen)
                 {
-                    args.emplace_back(ParseExpr());
+                    Args.emplace_back(ParseExpr());
 
                     if (Current().Type != LexerTokenType::CloseParen)
                     {
@@ -348,7 +348,7 @@ export
                     }
                 }
 
-                return args;
+                return Args;
             };
 
             Expect(LexerTokenType::OpenParen, "Expected '('");
@@ -356,7 +356,7 @@ export
             auto Args = Current().Type == LexerTokenType::CloseParen ? Vector<Shared<Expr>>() : ParseArgsList();
 
             Expect(LexerTokenType::CloseParen, "Expected ')'");
-
+            
             return Args;
         }
 
@@ -437,6 +437,33 @@ export
             return std::make_shared<LoopStatement>(Times, Block->Body);
         }
 
+        Vector<Pair<String, String>> ParseParams()
+        {
+            Vector<Pair<String, String>> Params;
+
+            Expect(LexerTokenType::OpenParen, "Expected '('");
+
+            while (Current().Type != LexerTokenType::CloseParen)
+            {
+                const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a identifier").Value;
+
+                Expect(LexerTokenType::Colon, "Unexpected token: " + Current().Value + ", expected a ':'");
+
+                const auto Type = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a identifier").Value;
+
+                Params.emplace_back(std::make_pair(Type, Name));
+
+                if (Current().Type != LexerTokenType::CloseParen)
+                {
+                    Expect(LexerTokenType::Comma, "Unexpected token: " + Current().Value + ", expected a ','");
+                }
+            }
+
+            Expect(LexerTokenType::CloseParen, "Expected ')'");
+
+            return Params;
+        }
+
         Shared<Statement> ParseFunctionDeclaration()
         {
             if (Current().Type == LexerTokenType::Function)
@@ -444,13 +471,17 @@ export
 
             const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a function name").Value;
 
-            const auto Parameters = ParseArgs();
+            const auto Parameters = ParseParams();
+
+            Expect(LexerTokenType::Colon, "Unexpected token: " + Current().Value + ", expected a ':'");
+
+            const auto ReturnType = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a return type").Value;
 
             Expect(LexerTokenType::OpenBrace, "Unexpected token: " + Current().Value + ", expected a '{'");
 
             auto Block = ParseBlock();
 
-            return std::make_shared<FunctionDeclaration>(Name, Parameters, Block->Body);
+            return std::make_shared<FunctionDeclaration>(Name, Parameters, ReturnType, Block->Body);
         }
 
         Shared<Statement> ParseReturnStatement()
@@ -462,6 +493,23 @@ export
             Expect(LexerTokenType::Semicolon, "Unexpected token: " + Current().Value + ", expected a ';'");
 
             return std::make_shared<ReturnStatement>(Value);
+        }
+
+        Shared<Statement> ParseExternDeclaration()
+        {
+            Advance(); // Skip 'extern'
+
+            const auto Name = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a function name").Value;
+
+            const auto Parameters = ParseParams();
+
+            Expect(LexerTokenType::Colon, "Unexpected token: " + Current().Value + ", expected a ':'");
+
+            const auto ReturnType = Expect(LexerTokenType::Identifier, "Unexpected token: " + Current().Value + ", expected a return type").Value;
+
+            Expect(LexerTokenType::Semicolon, "Unexpected token: " + Current().Value + ", expected a ';'");
+
+            return std::make_shared<ExternDeclaration>(Name, ReturnType, Parameters);
         }
 
         Shared<Statement> ParseEnumDeclaration()
@@ -514,6 +562,9 @@ export
             case LexerTokenType::Return:
                 return ParseReturnStatement();
 
+            case LexerTokenType::Extern:
+                return ParseExternDeclaration();
+
             case LexerTokenType::Let:
             case LexerTokenType::Const:
                 return ParseVariableDeclaration();
@@ -535,7 +586,9 @@ export
                 return ParseBlock();
 
             default:
-                return ParseExpr();
+                const auto expr = ParseExpr();
+                expr->bIsTopLevel = true;
+                return expr;
             }
         }
 
@@ -545,7 +598,8 @@ export
 
             auto Value = ParseStatement();
 
-            Expect(LexerTokenType::Semicolon, "Expected ';'");
+            if (Current().Type == LexerTokenType::Semicolon)
+                Advance(); // Skip ';'
 
             return std::make_shared<SyncStatement>(Value);
         }

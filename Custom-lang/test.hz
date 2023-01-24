@@ -1,7 +1,13 @@
-function adder(x, y) {
-   x + y
+//extern putchard(x: Float): Float;
+
+//putchard(120);
+
+function adder(x: Int, y: Int): Int
+{
+   x + y + (2 + 3)
 }
 
-function subber(x, y) {
+function subber(x: Int, y: Int): Int
+{
    x - y
 }

@@ -12,6 +12,8 @@ import AST.Core;
 import Runtime.ExecutionContext;
 import Interpreter;
 
+import LLVM;
+
 import Compiler;
 
 /*
@@ -94,7 +96,32 @@ int main(int argc, char** argv)
     const auto result = Evaluate(program, ctx);
     // Log<Info>("Result: %s", result->ToString().c_str());
 
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    static llvm::ExitOnError ExitOnErr;
+
+    TheJIT = ExitOnErr(llvm::orc::KaleidoscopeJIT::Create());
+
+    TheContext = std::make_unique<llvm::LLVMContext>();
+    TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+    TheModule->setDataLayout(TheJIT->getDataLayout());
+
+    Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+
+    TheFPM = std::make_unique<llvm::legacy::FunctionPassManager>(TheModule.get());
+
+    TheFPM->add(llvm::createInstructionCombiningPass());
+    TheFPM->add(llvm::createReassociatePass());
+    TheFPM->add(llvm::createGVNPass());
+    TheFPM->add(llvm::createCFGSimplificationPass());
+
+    TheFPM->doInitialization();
+
     Compile(program);
+
+    TheModule->print(llvm::errs(), nullptr);
 
     return 0;
 }

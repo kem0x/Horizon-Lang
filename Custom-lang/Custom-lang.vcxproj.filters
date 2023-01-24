@@ -102,24 +102,22 @@
     <ClCompile Include="Runtime\Values\EnumValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WASM\Binaryen.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Runtime\Values\FloatValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Compile\Compiler.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compile\LLVM.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compile\LLVM.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="WASM\binaryen.lib" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="WASM\binaryen-c.h">
+    <ClInclude Include="Compile\KaleidoscopeJIT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="WASM\wasm-delegations.def">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

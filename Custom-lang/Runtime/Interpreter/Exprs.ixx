@@ -1,5 +1,6 @@
 export module Interpreter:Exprs;
 
+import <format>;
 import Types.Core;
 import Safety;
 import Reflection;
@@ -29,24 +30,17 @@ Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> node, Shared<ExecutionCon
         Safety::Throw("Cannot perform binary operation on different types");
     }
 
-    if (node->Operator == "+")
+    switch (node->Operator)
     {
+    case '+':
         return NullValue::ValueOrNull(left->operator+(right));
-    }
-    else if (node->Operator == "-")
-    {
+    case '-':
         return NullValue::ValueOrNull(left->operator-(right));
-    }
-    else if (node->Operator == "*")
-    {
+    case '*':
         return NullValue::ValueOrNull(left->operator*(right));
-    }
-    else if (node->Operator == "/")
-    {
+    case '/':
         return NullValue::ValueOrNull(left->operator/(right));
-    }
-    else
-    {
+    default:
         Safety::Throw("Tried to evalute an unknown numeric operator!!");
     }
 
@@ -198,7 +192,7 @@ Shared<RuntimeValue> RuntimeFunction::Call(Shared<ExecutionContext> context, con
         auto Param = Declaration->Parameters[i];
         auto Arg = arguments[i];
 
-        const auto ParamName = Param->As<Identifier>()->Name;
+        const auto ParamName = Param.second;
 
         NewContext->DeclareVar(ParamName, Evaluate(Arg, context), false);
     }
