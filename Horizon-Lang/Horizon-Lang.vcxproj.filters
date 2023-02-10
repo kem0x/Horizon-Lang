@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Custom-lang.cpp">
+    <ClCompile Include="Horizon-Lang.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Safety.ixx">
@@ -105,19 +105,5 @@
     <ClCompile Include="Runtime\Values\FloatValue.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Compile\Compiler.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compile\LLVM.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compile\LLVM.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Compile\KaleidoscopeJIT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Custom-lang", "Custom-lang\Custom-lang.vcxproj", "{586C6EFE-043F-4691-80C9-F0FE80B6421B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Horizon-Lang", "Horizon-Lang\Horizon-Lang.vcxproj", "{586C6EFE-043F-4691-80C9-F0FE80B6421B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

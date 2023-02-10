@@ -1,26 +1,26 @@
-export module Runtime.IntValue;
+export module Runtime.FloatValue;
 
 import <format>;
 import Types.Core;
 import Runtime.RuntimeValue;
 import Runtime.ObjectValue;
-import Runtime.StringValue;
 import Runtime.Callables;
+import Runtime.StringValue;
 import Reflection;
 
 export
 {
-    struct IntValue : ObjectValue
+    struct FloatValue : ObjectValue
     {
-        int Value;
+        double Value;
 
-        static Shared<IntValue> DefaultObject()
+        static Shared<FloatValue> DefaultObject()
         {
-            return std::make_shared<IntValue>(0);
+            return std::make_shared<FloatValue>(0);
         }
 
-        IntValue(int value)
-            : ObjectValue { RuntimeValueType::IntValue, "Int", true }
+        FloatValue(double value)
+            : ObjectValue { RuntimeValueType::FloatValue, "Float", true }
             , Value(value)
         {
             Properties["ToString"] = std::make_shared<NativeFunction>(
@@ -32,9 +32,9 @@ export
 
         bool Equals(Shared<RuntimeValue> other) override
         {
-            if (other->Is<IntValue>())
+            if (other->Is<FloatValue>())
             {
-                return Value == other->AsUnchecked<IntValue>()->Value;
+                return Value == other->AsUnchecked<FloatValue>()->Value;
             }
 
             return false;
@@ -43,9 +43,9 @@ export
         // virtual operators
         Shared<RuntimeValue> operator+(Shared<RuntimeValue> other) override
         {
-            if (other->Is<IntValue>())
+            if (other->Is<FloatValue>())
             {
-                return std::make_shared<IntValue>(Value + other->AsUnchecked<IntValue>()->Value);
+                return std::make_shared<FloatValue>(Value + other->AsUnchecked<FloatValue>()->Value);
             }
 
             return nullptr;
@@ -53,9 +53,9 @@ export
 
         Shared<RuntimeValue> operator-(Shared<RuntimeValue> other) override
         {
-            if (other->Is<IntValue>())
+            if (other->Is<FloatValue>())
             {
-                return std::make_shared<IntValue>(Value - other->AsUnchecked<IntValue>()->Value);
+                return std::make_shared<FloatValue>(Value - other->AsUnchecked<FloatValue>()->Value);
             }
 
             return nullptr;
@@ -63,9 +63,9 @@ export
 
         Shared<RuntimeValue> operator*(Shared<RuntimeValue> other) override
         {
-            if (other->Is<IntValue>())
+            if (other->Is<FloatValue>())
             {
-                return std::make_shared<IntValue>(Value * other->AsUnchecked<IntValue>()->Value);
+                return std::make_shared<FloatValue>(Value * other->AsUnchecked<FloatValue>()->Value);
             }
 
             return nullptr;
@@ -73,9 +73,19 @@ export
 
         Shared<RuntimeValue> operator/(Shared<RuntimeValue> other) override
         {
-            if (other->Is<IntValue>())
+            if (other->Is<FloatValue>())
             {
-                return std::make_shared<IntValue>(Value / other->AsUnchecked<IntValue>()->Value);
+                return std::make_shared<FloatValue>(Value / other->AsUnchecked<FloatValue>()->Value);
+            }
+
+            return nullptr;
+        }
+
+        Shared<RuntimeValue> operator%(Shared<RuntimeValue> other) override
+        {
+            if (other->Is<FloatValue>())
+            {
+                return std::make_shared<FloatValue>(std::fmod(Value, other->AsUnchecked<FloatValue>()->Value));
             }
 
             return nullptr;
@@ -84,6 +94,6 @@ export
         String ToString() override
         {
             return std::format("{{\nType: '{}',\nValue: '{}'\n}}", Reflection::EnumToString(Type), Value);
-        }
+        };
     };
 }

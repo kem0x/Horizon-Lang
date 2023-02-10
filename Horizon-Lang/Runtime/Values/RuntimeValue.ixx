@@ -65,7 +65,11 @@ export
             return nullptr;
         }
 
-        // virtual Shared<RuntimeValue> operator%(Shared<RuntimeValue> other) = 0;
+        virtual Shared<RuntimeValue> operator%(Shared<RuntimeValue> other)
+        {
+            return nullptr;
+        }
+
         // virtual Shared<RuntimeValue> operator^(Shared<RuntimeValue> other) = 0;
         // virtual Shared<RuntimeValue> operator!() = 0;
         // virtual Shared<RuntimeValue> operator-() = 0;

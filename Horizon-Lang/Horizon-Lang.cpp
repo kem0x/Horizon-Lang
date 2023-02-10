@@ -12,9 +12,9 @@ import AST.Core;
 import Runtime.ExecutionContext;
 import Interpreter;
 
-import LLVM;
+//import LLVM;
 
-import Compiler;
+//import Compiler;
 
 /*
 void repl()
@@ -96,6 +96,7 @@ int main(int argc, char** argv)
     const auto result = Evaluate(program, ctx);
     // Log<Info>("Result: %s", result->ToString().c_str());
 
+    /*
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
@@ -122,6 +123,7 @@ int main(int argc, char** argv)
     Compile(program);
 
     TheModule->print(llvm::errs(), nullptr);
+    */
 
     return 0;
 }

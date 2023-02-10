@@ -356,7 +356,7 @@ export
             auto Args = Current().Type == LexerTokenType::CloseParen ? Vector<Shared<Expr>>() : ParseArgsList();
 
             Expect(LexerTokenType::CloseParen, "Expected ')'");
-            
+
             return Args;
         }
 
@@ -490,7 +490,10 @@ export
 
             const auto Value = ParseExpr();
 
-            Expect(LexerTokenType::Semicolon, "Unexpected token: " + Current().Value + ", expected a ';'");
+            if (Current().Type == LexerTokenType::Semicolon)
+            {
+                Advance(); // Skip ';'
+            }
 
             return std::make_shared<ReturnStatement>(Value);
         }

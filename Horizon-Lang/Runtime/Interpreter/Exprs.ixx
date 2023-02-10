@@ -40,6 +40,8 @@ Shared<RuntimeValue> EvalBinaryExpr(Shared<BinaryExpr> node, Shared<ExecutionCon
         return NullValue::ValueOrNull(left->operator*(right));
     case '/':
         return NullValue::ValueOrNull(left->operator/(right));
+    case '%':
+        return NullValue::ValueOrNull(left->operator%(right));
     default:
         Safety::Throw("Tried to evalute an unknown numeric operator!!");
     }
@@ -77,7 +79,12 @@ Shared<RuntimeValue> EvalMemberExpr(Shared<MemberExpr> node, Shared<ExecutionCon
 {
     auto Object = ctx->LookupVar(node->Object->As<Identifier>()->Name);
 
-    auto Expr = Evaluate(node->Property, ctx);
+    Shared<RuntimeValue> Expr = nullptr;
+
+    if (node->Property->Type != ASTNodeType::Identifier)
+    {
+        Expr = Evaluate(node->Property, ctx);
+    }
 
     if (Object->Is<ArrayValue>())
     {
@@ -285,7 +292,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
             return Left;
         }
 
-        break;
+        return Evaluate(node->Right, ctx);
     }
     case LexerTokenType::Or:
     {
@@ -294,7 +301,7 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
             return Left;
         }
 
-        break;
+        return Evaluate(node->Right, ctx);
     }
     case LexerTokenType::EqualEqual:
     {
@@ -320,40 +327,40 @@ Shared<RuntimeValue> EvalLogicalExpr(Shared<ConditionalExpr> node, Shared<Execut
             {
                 if (Left->As<IntValue>()->Value > Right->As<IntValue>()->Value)
                 {
-                    return Left;
+                    return std::make_shared<BoolValue>(true);
                 }
 
-                break;
+                return std::make_shared<BoolValue>(false);
             }
 
             case LexerTokenType::GreaterEqual:
             {
                 if (Left->As<IntValue>()->Value >= Right->As<IntValue>()->Value)
                 {
-                    return Left;
+                    return std::make_shared<BoolValue>(true);
                 }
 
-                break;
+                return std::make_shared<BoolValue>(false);
             }
 
             case LexerTokenType::Less:
             {
                 if (Left->As<IntValue>()->Value < Right->As<IntValue>()->Value)
                 {
-                    return Left;
+                    return std::make_shared<BoolValue>(true);
                 }
 
-                break;
+                return std::make_shared<BoolValue>(false);
             }
 
             case LexerTokenType::LessEqual:
             {
                 if (Left->As<IntValue>()->Value <= Right->As<IntValue>()->Value)
                 {
-                    return Left;
+                    return std::make_shared<BoolValue>(true);
                 }
 
-                break;
+                return std::make_shared<BoolValue>(false);
             }
             default:
                 Safety::Throw(std::format("Tried to evaluate an unknown logical operator {}!", Reflection::EnumToString(node->Operator)));
