@@ -1,9 +1,9 @@
 ## Operator precedence
 
 | Operators                            | Category or name |
-| ------------------------------------ | ---------------- | --- | -------------- |
+| ------------------------------------ | ---------------- |
 | `x = y`, `x = {...}`                 | Assignment       |
-| `x                                   |                  | y`  | Conditional OR |
+| `x \|\| y`                             | Conditional OR   |
 | `x && y`                             | Conditional AND  |
 | `x == y`, `x != y`                   | Equality         |
 | `x < y`, `x > y`, `x <= y`, `x >= y` | Comparison       |
